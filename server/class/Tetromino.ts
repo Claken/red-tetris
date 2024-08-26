@@ -1,9 +1,9 @@
-interface InterfacePiece {
+interface InterfaceTetromino {
   rotation: 0 | 90 | 180 | 270; // rotate the piece in degrees
   shape: number[][]; // shape of the piece
 }
 
-const allPieces: InterfacePiece[] = [
+const allTetrominos: InterfaceTetromino[] = [
   {
     rotation: 0,
     shape: [[1, 1, 1, 1]],
@@ -52,10 +52,10 @@ const allPieces: InterfacePiece[] = [
   },
 ];
 
-export class Piece {
+export class Tetromino {
   //create private variable
   // reflechir a comment l'objet piece doit etre construit
-  private piece: InterfacePiece;
+  private tetromino: InterfaceTetromino;
 
   constructor() {
     console.log('Piece created');
