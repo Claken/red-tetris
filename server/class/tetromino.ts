@@ -58,7 +58,26 @@ export class Tetromino {
   private tetromino: InterfaceTetromino;
 
   constructor() {
-    console.log('Piece created');
+    console.log('tetromino created');
+  }
+  generateRandomTetromino() {
+    const randomIndex = Math.floor(Math.random() * allTetrominos.length);
+    this.tetromino = allTetrominos[randomIndex];
+    this.tetromino.rotation = (Math.floor(Math.random() * 4) * 90) as
+      | 0
+      | 90
+      | 180
+      | 270;
+    const newShape = [];
+    console.log(this.tetromino);
+    for (let i = 0; i < this.tetromino.shape.length; i++) {
+      for (let j = 0; j < this.tetromino.shape[i].length; j++) {
+        if (i == 0) newShape.push([this.tetromino.shape[i][j]]);
+        else newShape[j].push(this.tetromino.shape[i][j]);
+      }
+    }
+    this.tetromino.shape = newShape;
+    console.log(this.tetromino);
   }
   //faire une methode pour creer une piece avec un shape aleatoire
   // qui sera modifier par la rotation
