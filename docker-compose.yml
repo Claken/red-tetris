@@ -1,0 +1,18 @@
+services:
+  frontend:
+    build:
+      dockerfile: dockerfile.frontend
+      context: .
+    container_name: redTetris-frontend
+    ports:
+      - 5173:5173
+    networks:
+      - redTetris
+    volumes:
+      - ./my-app:/my-app
+      # - /my-app/node_modules
+    restart: always
+
+networks:
+  redTetris:
+    driver: bridge
