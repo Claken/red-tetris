@@ -308,8 +308,10 @@ describe('Tetromino', () => {
       const t = new Tetromino(0, tetrominoData[i].initialShape);
       for (let j = 0; j < tetrominoData[i].rotations.length; j++) {
         t.rotateTetromino();
-        console.log(t.getTetromino().shape);
-        expect(t.getTetromino()).toEqual(tetrominoData[i].rotations[j]);
+        console.log(t.getShape());
+        const valTest = tetrominoData[i].rotations[j];
+        expect(t.getShape()).toEqual(valTest.shape);
+        expect(t.getRotation()).toEqual(valTest.rotation);
       }
     }
   });

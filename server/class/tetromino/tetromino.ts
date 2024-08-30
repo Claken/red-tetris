@@ -65,42 +65,42 @@ export const allTetrominos: InterfaceTetromino[] = [
 export class Tetromino {
   //create private variable
   // reflechir a comment l'objet piece doit etre construit
-  private tetromino: InterfaceTetromino;
+  // private tetromino: InterfaceTetromino;
+  private rotation: number;
+  private shape: number[][];
 
   constructor(rotation: number = 0, shape: number[][] = []) {
-    this.tetromino = {
-      rotation: rotation as 0 | 90 | 180 | 270,
-      shape: shape,
-    };
+    this.rotation = rotation as 0 | 90 | 180 | 270;
+    this.shape = shape;
     console.log('tetromino created');
   }
 
-  getTetromino() {
-    return this.tetromino;
+  getShape() {
+    return this.shape;
+  }
+
+  getRotation() {
+    return this.rotation;
   }
 
   rotateTetromino() {
     const newShape = [];
-    for (let i = 0; i < this.tetromino.shape.length; i++) {
-      for (let j = 0; j < this.tetromino.shape[i].length; j++) {
-        if (i == 0) newShape.push([this.tetromino.shape[i][j]]);
-        else newShape[j].unshift(this.tetromino.shape[i][j]);
+    for (let i = 0; i < this.shape.length; i++) {
+      for (let j = 0; j < this.shape[i].length; j++) {
+        if (i == 0) newShape.push([this.shape[i][j]]);
+        else newShape[j].unshift(this.shape[i][j]);
       }
     }
-    this.tetromino.shape = newShape;
-    this.tetromino.rotation = (this.tetromino.rotation + 90) as
-      | 0
-      | 90
-      | 180
-      | 270;
+    this.shape = newShape;
+    this.rotation = (this.rotation + 90) as 0 | 90 | 180 | 270;
 
-    if (this.tetromino.rotation == 360) this.tetromino.rotation = 0;
+    if (this.rotation == 360) this.rotation = 0;
   }
 
   generateRandomTetromino() {
     const randomIndex = Math.floor(Math.random() * allTetrominos.length);
     const randomTetromino = allTetrominos[randomIndex];
-    this.tetromino.shape = randomTetromino.shape;
+    this.shape = randomTetromino.shape;
     const rotation = (Math.floor(Math.random() * 4) * 90) as 0 | 90 | 180 | 270;
     if (rotation == 90) {
       this.rotateTetromino();
