@@ -3,9 +3,11 @@ import { Tetromino } from '../tetromino/tetromino';
 export class Player {
   private _player_name: string;
   private _grid: number[][];
+  private _tetrominos: Tetromino[];
   constructor(player_name: string) {
     this._player_name = player_name;
     this._grid = new Array(20).fill(null).map(() => new Array(10).fill(0));
+    this._tetrominos = [];
   }
   getPlayerName(): string {
     return this._player_name;
@@ -13,22 +15,45 @@ export class Player {
   getGrid(): number[][] {
     return this._grid;
   }
-  fallTetromino(tetromino: Tetromino): void {
+
+  getTetrominos(): Tetromino[] {
+    return this._tetrominos;
+  }
+
+  addTeromino(tetromino: Tetromino): void {
+    this._tetrominos.push(tetromino);
+  }
+
+  initTetrominoInsideGrid(): void {
+    const t = this._tetrominos[0];
+    const tShape = t.getShape();
+    const startX = Math.floor((10 - tShape.length) / 2);
+    const startY = 0;
+
+    for (let y = 0; y < tShape.length; y++) {
+      for (let x = 0; x < tShape[y].length; x++) {
+        if (tShape[y][x] != 0)
+          this._grid[startY + y][startX + x] = tShape[y][x];
+      }
+    }
+  }
+
+  fallTetromino(): void {
     // fall the Tetromino
   }
-  moveDownTetromino(tetromino: Tetromino): void {
+  moveDownTetromino(): void {
     // move down the Tetromino
   }
-  moveLeftTetromino(tetromino: Tetromino): void {
+  moveLeftTetromino(): void {
     // move left the Tetromino
   }
-  moveRightTetromino(tetromino: Tetromino): void {
+  moveRightTetromino(): void {
     // move right the Tetromino
   }
-  rotateTetromino(tetromino: Tetromino): void {
+  rotateTetromino(): void {
     // rotate the Tetromino
   }
-  checkCollision(tetromino: Tetromino): boolean {
+  checkCollision(): boolean {
     // check collision
     return false;
   }
@@ -39,7 +64,7 @@ export class Player {
   clearLine(): void {
     // clear line
   }
-  updateGrid(tetromino: Tetromino): void {
+  updateGrid(): void {
     // update grid
   }
 }
