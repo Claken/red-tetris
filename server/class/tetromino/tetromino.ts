@@ -1,10 +1,12 @@
 interface InterfaceTetromino {
   rotation: number; // rotate the piece in degrees
   shape: number[][]; // shape of the piece
+  type: string;
 }
 
 export const allTetrominos: InterfaceTetromino[] = [
   {
+    type: 'I',
     rotation: 0,
     shape: [
       [0, 0, 0, 0],
@@ -14,6 +16,7 @@ export const allTetrominos: InterfaceTetromino[] = [
     ],
   },
   {
+    type: 'J',
     rotation: 0,
     shape: [
       [1, 0, 0],
@@ -22,6 +25,7 @@ export const allTetrominos: InterfaceTetromino[] = [
     ],
   },
   {
+    type: 'L',
     rotation: 0,
     shape: [
       [0, 0, 1],
@@ -30,6 +34,7 @@ export const allTetrominos: InterfaceTetromino[] = [
     ],
   },
   {
+    type: 'O',
     rotation: 0,
     shape: [
       [1, 1],
@@ -37,6 +42,7 @@ export const allTetrominos: InterfaceTetromino[] = [
     ],
   },
   {
+    type: 'S',
     rotation: 0,
     shape: [
       [0, 1, 1],
@@ -45,6 +51,7 @@ export const allTetrominos: InterfaceTetromino[] = [
     ],
   },
   {
+    type: 'T',
     rotation: 0,
     shape: [
       [0, 1, 0],
@@ -53,6 +60,7 @@ export const allTetrominos: InterfaceTetromino[] = [
     ],
   },
   {
+    type: 'Z',
     rotation: 0,
     shape: [
       [1, 1, 0],
@@ -68,11 +76,12 @@ export class Tetromino {
   // private tetromino: InterfaceTetromino;
   private rotation: number;
   private shape: number[][];
+  private type: string;
 
-  constructor(rotation: number = 0, shape: number[][] = []) {
+  constructor(rotation: number = 0, shape: number[][] = [], type: string = '') {
     this.rotation = rotation as 0 | 90 | 180 | 270;
     this.shape = shape;
-    console.log('tetromino created');
+    this.type = type;
   }
 
   getShape() {
@@ -81,6 +90,10 @@ export class Tetromino {
 
   getRotation() {
     return this.rotation;
+  }
+
+  getType() {
+    return this.type;
   }
 
   rotateTetromino() {
@@ -101,6 +114,7 @@ export class Tetromino {
     const randomIndex = Math.floor(Math.random() * allTetrominos.length);
     const randomTetromino = allTetrominos[randomIndex];
     this.shape = randomTetromino.shape;
+    this.type = randomTetromino.type;
     const rotation = (Math.floor(Math.random() * 4) * 90) as 0 | 90 | 180 | 270;
     if (rotation == 90) {
       this.rotateTetromino();

@@ -24,7 +24,19 @@ export class Player {
     this._tetrominos.push(tetromino);
   }
 
-  initTetrominoInsideGrid(): void {}
+  initTetrominoInsideGrid(): void {
+    const t = this._tetrominos[0];
+    const tShape = t.getShape();
+    const startX = Math.floor((10 - tShape.length) / 2);
+    const startY = 0;
+
+    for (let y = 0; y < tShape.length; y++) {
+      for (let x = 0; x < tShape[y].length; x++) {
+        if (tShape[y][x] != 0)
+          this._grid[startY + y][startX + x] = tShape[y][x];
+      }
+    }
+  }
 
   fallTetromino(): void {
     // fall the Tetromino

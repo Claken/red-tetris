@@ -8,6 +8,7 @@ export class ManagePlayerTetromino {
     const tetrominoCopie = new Tetromino(
       tetromino.getRotation(),
       tetromino.getShape(),
+      tetromino.getType(),
     );
     player1.addTeromino(tetromino);
     player2.addTeromino(tetrominoCopie);

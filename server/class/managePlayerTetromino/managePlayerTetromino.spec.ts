@@ -17,5 +17,8 @@ describe('ManagePlayerTetromino', () => {
     expect(tab1[tab1.length - 1].getRotation()).toEqual(
       tab2[tab2.length - 1].getRotation(),
     );
+    expect(tab1[tab1.length - 1].getType()).toEqual(
+      tab2[tab2.length - 1].getType(),
+    );
   });
 });
