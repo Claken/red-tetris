@@ -42,7 +42,14 @@ export class Player {
     // fall the Tetromino
   }
   moveDownTetromino(): void {
-    // move down the Tetromino
+    for (let y = this._grid.length - 1; y > 0; y--) {
+      for (let x = 0; this._grid[y].length > x; x++) {
+        if (this._grid[y - 1][x] == 1) {
+          this._grid[y][x] = this._grid[y - 1][x];
+          this._grid[y - 1][x] = 0;
+        }
+      }
+    }
   }
   moveLeftTetromino(): void {
     // move left the Tetromino
