@@ -52,10 +52,24 @@ export class Player {
     }
   }
   moveLeftTetromino(): void {
-    // move left the Tetromino
+    for (let y = 0; y < this._grid.length; y++) {
+      for (let x = 0; this._grid[y].length > x; x++) {
+        if (this._grid[y][x] == 1) {
+          this._grid[y][x - 1] = 1;
+          this._grid[y][x] = 0;
+        }
+      }
+    }
   }
   moveRightTetromino(): void {
-    // move right the Tetromino
+    for (let y = 0; y < this._grid.length; y++) {
+      for (let x = this._grid[y].length - 1; x > 0; x--) {
+        if (this._grid[y][x - 1] == 1) {
+          this._grid[y][x] = 1;
+          this._grid[y][x - 1] = 0;
+        }
+      }
+    }
   }
   rotateTetromino(): void {
     // rotate the Tetromino
