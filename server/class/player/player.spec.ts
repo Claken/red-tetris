@@ -37,7 +37,7 @@ describe('Player', () => {
     expect(player1_grid).toEqual(player2_grid);
   });
 
-  it('should moveDown tetromino in a grid', () => {
+  it('should moveDown moveLeft MoveRight tetromino in a grid', () => {
     const manage = new ManagePlayerTetromino();
     const player_name = 'Player 1';
     const player_name2 = 'Player 2';
@@ -71,6 +71,29 @@ describe('Player', () => {
     }
 
     expect(player.getPlayerName()).toBe(player_name);
+    expect(player1_grid).toEqual(player2_grid);
+
+    player.moveLeftTetromino();
+
+    for (let y = 0; y < player2_grid.length; y++) {
+      for (let x = 0; player2_grid[y].length > x; x++) {
+        if (player2_grid[y][x] == 1) {
+          player2_grid[y][x - 1] = 1;
+          player2_grid[y][x] = 0;
+        }
+      }
+    }
+    expect(player1_grid).toEqual(player2_grid);
+
+    player.moveRightTetromino();
+    for (let y = 0; y < player2_grid.length; y++) {
+      for (let x = player2_grid[y].length - 1; x > 0; x--) {
+        if (player2_grid[y][x - 1] == 1) {
+          player2_grid[y][x] = 1;
+          player2_grid[y][x - 1] = 0;
+        }
+      }
+    }
     expect(player1_grid).toEqual(player2_grid);
   });
 });
