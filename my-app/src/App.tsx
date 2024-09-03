@@ -11,8 +11,8 @@ function App() {
 			<BrowserRouter>
 				<Routes>
 					<Route path="/" element={<HomePage />} />
-					<Route path="/room/player" element={<GamePage />} />
-					<Route path="/*" element={<NotFoundPage />} />
+					<Route path="/:room/:player_name" element={<GamePage />} />
+					<Route path="*" element={<NotFoundPage />} />
 				</Routes>
 			</BrowserRouter>
 		</div>
