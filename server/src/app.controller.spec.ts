@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 describe('AppController', () => {
   let appController: AppController;
 
+  // beforeEach : fonction appellée avant chaque test
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
