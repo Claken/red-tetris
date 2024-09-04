@@ -135,4 +135,25 @@ describe('Player', () => {
     }
     expect(player.getGrid()).toEqual(grid2);
   });
+
+  it('should transform tetromino 1 to 2 in a grid', () => {
+    const manage = new ManagePlayerTetromino();
+    const player_name = 'Player 1';
+    const player_name2 = 'Player 2';
+    const player = new Player(player_name);
+    const player2 = new Player(player_name2);
+    manage.injectTetromino(player, player2);
+    player.initTetrominoInsideGrid();
+    player2.initTetrominoInsideGrid();
+    player.fallTetromino();
+    player2.fallTetromino();
+    player.updateGrid();
+    const grid2 = player2.getGrid();
+    for (let y = 0; y < grid2.length; y++) {
+      for (let x = 0; x < grid2[y].length; x++) {
+        if (grid2[y][x] == 1) grid2[y][x] = 2;
+      }
+    }
+    expect(player.getGrid()).toEqual(grid2);
+  });
 });
