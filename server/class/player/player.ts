@@ -10,6 +10,16 @@ export class Player {
     this._tetrominos = [];
   }
 
+  testgrid(num1: number): void {
+    if (num1 == 1) {
+      for (let y = 0; y < this._grid.length; y++) {
+        for (let x = 0; x < this._grid[y].length; x++) {
+          if (y == 19) this._grid[y][x] = 2;
+        }
+      }
+    }
+  }
+
   getPlayerName(): string {
     return this._player_name;
   }
@@ -142,8 +152,21 @@ export class Player {
     // check game over
     return false;
   }
-  clearLine(): void {
+  clearLines(): void {
     // clear line
+    for (let y = this._grid.length - 1; y > 0; y--) {
+      let count = 0;
+      for (let x = 0; this._grid[y].length > x; x++) {
+        if (this._grid[y][x] == 2) {
+          count++;
+        }
+      }
+      if (count == 10) {
+        for (let x = 0; this._grid[y].length > x; x++) {
+          this._grid[y][x] = 0;
+        }
+      }
+    }
   }
   updateGrid(): void {
     // tranform number with colision 1 to 2.
@@ -168,5 +191,6 @@ export class Player {
       this._tetrominos.shift();
       transform = false;
     }
+    this.clearLines();
   }
 }
