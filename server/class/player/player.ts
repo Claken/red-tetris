@@ -165,6 +165,8 @@ export class Player {
           }
         }
       }
+      this._tetrominos.shift();
+      transform = false;
     }
   }
 }
