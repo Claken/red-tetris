@@ -156,4 +156,16 @@ describe('Player', () => {
     }
     expect(player.getGrid()).toEqual(grid2);
   });
+
+  it('should clear line full', () => {
+    const manage = new ManagePlayerTetromino();
+    const player_name = 'Player 1';
+    const player_name2 = 'Player 2';
+    const player = new Player(player_name);
+    const player2 = new Player(player_name2);
+    manage.injectTetromino(player, player2);
+    player.testgrid(1);
+    player.clearLines();
+    expect(player.getGrid()).toEqual(player2.getGrid());
+  });
 });
