@@ -9,6 +9,7 @@ export class Player {
     this._grid = new Array(20).fill(null).map(() => new Array(10).fill(0));
     this._tetrominos = [];
   }
+
   getPlayerName(): string {
     return this._player_name;
   }
@@ -72,7 +73,32 @@ export class Player {
     }
   }
   rotateTetromino(): void {
-    // rotate the Tetromino
+    const lengthTetro = this._tetrominos[0].getLentgth();
+    this._tetrominos[0].rotateTetromino();
+    const shape = this._tetrominos[0].getShape();
+    let startX = 0;
+    let startY = 0;
+    let endX = 0;
+    let endY = 0;
+    for (let y = 0; y < this._grid.length; y++) {
+      for (let x = 0; this._grid[y].length > x; x++) {
+        if (this._grid[y][x] == 1) {
+          startX = x - lengthTetro.lengthXBeforeNumber;
+          startY = y - lengthTetro.lengthYBeforeNumber;
+          endX = startX + lengthTetro.x;
+          endY = startY + lengthTetro.y;
+          y = this._grid.length - 1;
+          x = this._grid[y].length;
+        }
+      }
+    }
+    for (let y = startY, i = 0; y < endY; y++, i++) {
+      for (let x = startX, z = 0; x < endX; x++, z++) {
+        if (this._grid[y][x] != 2) {
+          this._grid[y][x] = shape[i][z];
+        }
+      }
+    }
   }
   checkCollision(): boolean {
     // check collision
