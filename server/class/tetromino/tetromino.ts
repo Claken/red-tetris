@@ -77,13 +77,48 @@ export class Tetromino {
   private rotation: number;
   private shape: number[][];
   private type: string;
+  private lengthX: number;
+  private lengthY: number;
+  private lengthYBeforeNumber: number;
+  private lengthXBeforeNumber: number;
 
   constructor(rotation: number = 0, shape: number[][] = [], type: string = '') {
     this.rotation = rotation as 0 | 90 | 180 | 270;
     this.shape = shape;
     this.type = type;
+    if (this.shape.length == 0) {
+      this.lengthXBeforeNumber = 0;
+      this.lengthYBeforeNumber = 0;
+      this.lengthX = 0;
+      this.lengthY = 0;
+    } else {
+      this.setLengthTetromino();
+    }
   }
 
+  private setLengthTetromino() {
+    this.lengthX = this.shape[0].length;
+    this.lengthY = this.shape.length;
+    for (let y = 0; y < this.lengthY; y++) {
+      for (let x = 0; x < this.lengthX; x++) {
+        if (this.shape[y][x] == 1) {
+          this.lengthYBeforeNumber = y;
+          this.lengthXBeforeNumber = x;
+          x = this.lengthX;
+          y = this.lengthY;
+        }
+      }
+    }
+  }
+
+  getLentgth() {
+    return {
+      x: this.lengthX,
+      y: this.lengthY,
+      lengthYBeforeNumber: this.lengthYBeforeNumber,
+      lengthXBeforeNumber: this.lengthXBeforeNumber,
+    };
+  }
   getShape() {
     return this.shape;
   }
@@ -108,6 +143,7 @@ export class Tetromino {
     this.rotation = (this.rotation + 90) as 0 | 90 | 180 | 270;
 
     if (this.rotation == 360) this.rotation = 0;
+    this.setLengthTetromino();
   }
 
   generateRandomTetromino() {
@@ -115,7 +151,11 @@ export class Tetromino {
     const randomTetromino = allTetrominos[randomIndex];
     this.shape = randomTetromino.shape;
     this.type = randomTetromino.type;
+
     const rotation = (Math.floor(Math.random() * 4) * 90) as 0 | 90 | 180 | 270;
+    if (rotation == 0) {
+      this.setLengthTetromino();
+    }
     if (rotation == 90) {
       this.rotateTetromino();
     } else if (rotation == 180) {

@@ -96,4 +96,20 @@ describe('Player', () => {
     }
     expect(player1_grid).toEqual(player2_grid);
   });
+
+  it('should rotate tetromino in a grid', () => {
+    const manage = new ManagePlayerTetromino();
+    const player_name = 'Player 1';
+    const player_name2 = 'Player 2';
+    const player = new Player(player_name);
+    const player2 = new Player(player_name2);
+    manage.injectTetromino(player, player2);
+    player.initTetrominoInsideGrid();
+    player.rotateTetromino();
+    player2.getTetrominos()[0].rotateTetromino();
+    player2.initTetrominoInsideGrid();
+    const player1_grid = player.getGrid();
+    const player2_grid = player2.getGrid();
+    expect(player1_grid).toEqual(player2_grid);
+  });
 });
