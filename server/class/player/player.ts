@@ -146,6 +146,25 @@ export class Player {
     // clear line
   }
   updateGrid(): void {
-    // update grid
+    // tranform number with colision 1 to 2.
+    // and destroy line completed with 2.
+    // and move down all line above.
+    let transform: boolean = false;
+    for (let y = this._grid.length - 1; y > 0; y--) {
+      for (let x = 0; this._grid[y].length > x; x++) {
+        if (this._grid[y][x] == 1 && (y == 19 || this._grid[y + 1][x] == 2)) {
+          transform = true;
+        }
+      }
+    }
+    if (transform == true) {
+      for (let y = this._grid.length - 1; y > 0; y--) {
+        for (let x = 0; this._grid[y].length > x; x++) {
+          if (this._grid[y][x] == 1) {
+            this._grid[y][x] = 2;
+          }
+        }
+      }
+    }
   }
 }
