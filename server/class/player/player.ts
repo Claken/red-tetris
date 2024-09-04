@@ -39,8 +39,42 @@ export class Player {
     }
   }
 
+  private fallPositionYTetromino(): number {
+    let endY = 20;
+    const tetromino = this._tetrominos[0];
+    let startX = 10;
+    for (let y = 0; y < this._grid.length; y++) {
+      for (let x = 0; this._grid[y].length > x; x++) {
+        if (this._grid[y][x] == 1 && x < startX) {
+          startX = x;
+        }
+      }
+    }
+    const endX = startX + tetromino.getLentgth().x;
+    for (let y = 0; y < this._grid.length; y++) {
+      for (let x = startX; endX > x; x++) {
+        if (this._grid[y][x] == 2) {
+          endY = y;
+        }
+      }
+    }
+    return endY - 1;
+  }
   fallTetromino(): void {
-    // fall the Tetromino
+    let endY = this.fallPositionYTetromino();
+    let enter = false;
+    for (let y = this._grid.length - 1; y > -1; y--) {
+      for (let x = 0; this._grid[y].length > x; x++) {
+        if (this._grid[y][x] == 1) {
+          enter = true;
+          this._grid[endY][x] = 1;
+          this._grid[y][x] = 0;
+        }
+      }
+      if (enter) {
+        endY--;
+      }
+    }
   }
   moveDownTetromino(): void {
     for (let y = this._grid.length - 1; y > 0; y--) {
