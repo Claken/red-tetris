@@ -17,12 +17,12 @@ export class AppService {
     };
 
     manage.injectTetromino(player1, player2);
-    player1.testgrid(1);
-    print2DArray(player1.getGrid());
-    player1.clearLines();
-    print2DArray(player1.getGrid());
     // player1.initTetrominoInsideGrid();
     // print2DArray(player1.getGrid());
+    player1.testgrid(2);
+    print2DArray(player1.getGrid());
+    player1.updateGrid();
+    print2DArray(player1.getGrid());
     // player1.moveRightTetromino();
     // print2DArray(player1.getGrid());
     // player1.fallTetromino();
