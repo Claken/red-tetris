@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import "../index.css"
 
 function HomePage() {
 
@@ -20,7 +21,7 @@ function HomePage() {
 
 	return (
 		<div>
-			<h1 className="text-3xl font-bold underline">Please write your player name to access the site</h1>
+			<h1 className="text-red-500">Please write your player name to access the site</h1>
 			<textarea
         		value={name}
         		onChange={handleChange}
