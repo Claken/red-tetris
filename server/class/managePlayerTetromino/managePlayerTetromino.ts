@@ -13,4 +13,10 @@ export class ManagePlayerTetromino {
     player1.addTeromino(tetromino);
     player2.addTeromino(tetrominoCopie);
   }
+
+  injectmultipleTetromino(player1: Player, player2: Player, num: number): void {
+    for (let i = 0; i < num; i++) {
+      this.injectTetromino(player1, player2);
+    }
+  }
 }

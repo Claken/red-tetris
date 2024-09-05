@@ -157,6 +157,7 @@ describe('Player', () => {
     expect(player.getGrid()).toEqual(grid2);
   });
   it('should update tetromino in a grid', () => {
+
     const manage = new ManagePlayerTetromino();
     const player_name = 'Player 1';
     const player_name2 = 'Player 2';
