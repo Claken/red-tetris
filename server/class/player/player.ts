@@ -216,6 +216,5 @@ export class Player {
     for (let i = 0; i < nbrLineToAdd; i++) {
       this._grid.unshift(new Array(10).fill(0));
     }
-   
   }
 }
