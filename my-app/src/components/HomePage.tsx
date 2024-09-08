@@ -27,7 +27,9 @@ function HomePage() {
         		onChange={handleChange}
        			placeholder="Type here..."
       		/>
-			<div></div>
+			<div className="text-red-500 font-bold">
+				TEFJEZOFKEO
+			</div>
 			 <button onClick={handleSubmit}>Confirm</button>
 		</div>
 	);
