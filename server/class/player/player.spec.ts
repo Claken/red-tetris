@@ -96,4 +96,82 @@ describe('Player', () => {
     }
     expect(player1_grid).toEqual(player2_grid);
   });
+
+  it('should rotate tetromino in a grid', () => {
+    const manage = new ManagePlayerTetromino();
+    const player_name = 'Player 1';
+    const player_name2 = 'Player 2';
+    const player = new Player(player_name);
+    const player2 = new Player(player_name2);
+    manage.injectTetromino(player, player2);
+    player.initTetrominoInsideGrid();
+    player.rotateTetromino();
+    player2.getTetrominos()[0].rotateTetromino();
+    player2.initTetrominoInsideGrid();
+    const player1_grid = player.getGrid();
+    const player2_grid = player2.getGrid();
+    expect(player1_grid).toEqual(player2_grid);
+  });
+
+  it('should fall tetromino in a grid', () => {
+    const manage = new ManagePlayerTetromino();
+    const player_name = 'Player 1';
+    const player_name2 = 'Player 2';
+    const player = new Player(player_name);
+    const player2 = new Player(player_name2);
+    manage.injectTetromino(player, player2);
+    player.initTetrominoInsideGrid();
+    player.fallTetromino();
+    const t = player2.getTetrominos()[0];
+    const tShape = t.getShape();
+    const startX = Math.floor((10 - tShape.length) / 2);
+    const startY = 20 - tShape.length;
+    const grid2 = player2.getGrid();
+
+    for (let y = 0; y < tShape.length; y++) {
+      for (let x = 0; x < tShape[y].length; x++) {
+        if (tShape[y][x] != 0) grid2[startY + y][startX + x] = tShape[y][x];
+      }
+    }
+    expect(player.getGrid()).toEqual(grid2);
+  });
+
+  it('should transform tetromino 1 to 2 in a grid', () => {
+    const manage = new ManagePlayerTetromino();
+    const player_name = 'Player 1';
+    const player_name2 = 'Player 2';
+    const player = new Player(player_name);
+    const player2 = new Player(player_name2);
+    manage.injectTetromino(player, player2);
+    player.initTetrominoInsideGrid();
+    player2.initTetrominoInsideGrid();
+    player.fallTetromino();
+    player2.fallTetromino();
+    player.updateGrid();
+    const grid2 = player2.getGrid();
+    for (let y = 0; y < grid2.length; y++) {
+      for (let x = 0; x < grid2[y].length; x++) {
+        if (grid2[y][x] == 1) grid2[y][x] = 2;
+      }
+    }
+    expect(player.getGrid()).toEqual(grid2);
+  });
+  it('should update tetromino in a grid', () => {
+
+    const manage = new ManagePlayerTetromino();
+    const player_name = 'Player 1';
+    const player_name2 = 'Player 2';
+    const player = new Player(player_name);
+    const player2 = new Player(player_name2);
+    manage.injectTetromino(player, player2);
+    player.testgrid(2);
+    player.updateGrid();
+    const grid2 = player2.getGrid();
+    for (let y = 0; y < grid2.length; y++) {
+      for (let x = 0; x < grid2[y].length; x++) {
+        if (y == 19 && x % 2 == 0) grid2[y][x] = 2;
+      }
+    }
+    expect(player.getGrid()).toEqual(grid2);
+  });
 });

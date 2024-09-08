@@ -17,14 +17,24 @@ export class AppService {
     };
 
     manage.injectTetromino(player1, player2);
-    player1.initTetrominoInsideGrid();
+    // player1.initTetrominoInsideGrid();
+    // print2DArray(player1.getGrid());
+    player1.testgrid(2);
     print2DArray(player1.getGrid());
-    player1.moveDownTetromino();
+    player1.updateGrid();
     print2DArray(player1.getGrid());
+    // player1.moveRightTetromino();
+    // print2DArray(player1.getGrid());
+    // player1.fallTetromino();
+    // print2DArray(player1.getGrid());
+    // player1.updateGrid();
+    // print2DArray(player1.getGrid());
+    // player1.moveDownTetromino();
+    // print2DArray(player1.getGrid());
     // player1.moveLeftTetromino();
     // print2DArray(player1.getGrid());
-    player1.moveRightTetromino();
-    print2DArray(player1.getGrid());
+    // player1.moveRightTetromino();
+    // print2DArray(player1.getGrid());
     return 'Hello World!';
   }
 }

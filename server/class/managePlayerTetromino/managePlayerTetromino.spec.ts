@@ -21,4 +21,14 @@ describe('ManagePlayerTetromino', () => {
       tab2[tab2.length - 1].getType(),
     );
   });
+
+  it('should inject multiple tetrominos', () => {
+    const managePT = new ManagePlayerTetromino();
+    const player1 = new Player('raph');
+    const player2 = new Player('samy');
+    managePT.injectmultipleTetromino(player1, player2, 10);
+    const tab1 = player1.getTetrominos();
+    const tab2 = player2.getTetrominos();
+    expect(tab1.length).toEqual(tab2.length);
+  });
 });
