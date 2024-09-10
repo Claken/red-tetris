@@ -25,7 +25,7 @@ function HomePage() {
 			<div className="m-5"></div>
 			<div>
 				<input type="text"
-					className="bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+					className="bg-transparent placeholder:text-white text-white text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
 					placeholder="Type here..."
 					onChange={handleChange}
 				/>
