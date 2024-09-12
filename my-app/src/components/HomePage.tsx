@@ -8,7 +8,7 @@ function HomePage() {
 
 	if (!playerContext) {
 		throw new Error('HomePage must be used within a PlayerProvider');
-	  }
+	}
 	const {name, setName} = playerContext;
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
