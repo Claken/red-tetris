@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import "../index.css"
+import { usePlayer } from '../contexts/playerContext';
 
 function HomePage() {
 
-	const [name, setName] = useState('');
+	const playerContext = usePlayer();
+
+	if (!playerContext) {
+		throw new Error('HomePage must be used within a PlayerProvider');
+	  }
+	const {name, setName} = playerContext;
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		event.preventDefault();
