@@ -21,6 +21,7 @@ function HomePage() {
 
 	return (
 		<div>
+			<h1 className="text-red-500 font-bold">WELCOME TO RED TETRIS</h1>
 			<h1 className="text-red-500 font-bold">Please write your player name to access the site</h1>
 			<div className="m-5"></div>
 			<div>
