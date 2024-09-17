@@ -12,8 +12,8 @@ function HomePage() {
 
 	return (
 		playerContext.name ?
-		<div className="text-white">
-			HOME PAGE
+		<div>
+			
 		</div>
 		: <ConnectPage/>
 	);
