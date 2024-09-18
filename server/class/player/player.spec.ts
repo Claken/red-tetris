@@ -157,7 +157,6 @@ describe('Player', () => {
     expect(player.getGrid()).toEqual(grid2);
   });
   it('should update tetromino in a grid', () => {
-
     const manage = new ManagePlayerTetromino();
     const player_name = 'Player 1';
     const player_name2 = 'Player 2';
@@ -174,4 +173,40 @@ describe('Player', () => {
     }
     expect(player.getGrid()).toEqual(grid2);
   });
+});
+
+it('should check colision tetromino in a grid moove', () => {
+  const manage = new ManagePlayerTetromino();
+  const player_name = 'Player 1';
+  const player_name2 = 'Player 2';
+  const player = new Player(player_name);
+  const player2 = new Player(player_name2);
+  manage.injectmultipleTetromino(player, player2, 10);
+  player.initTetrominoInsideGrid();
+  player2.initTetrominoInsideGrid();
+  player.fallTetromino();
+  player2.fallTetromino();
+  player.updateGrid();
+  player2.updateGrid();
+  player.moveDownTetromino();
+  player.fallTetromino();
+  expect(player.getGrid()).toEqual(player2.getGrid());
+});
+
+it('should check colision tetromino in a grid rotate', () => {
+  const manage = new ManagePlayerTetromino();
+  const player_name = 'Player 1';
+  const player_name2 = 'Player 2';
+  const player = new Player(player_name);
+  const player2 = new Player(player_name2);
+  manage.injectmultipleTetromino(player, player2, 10);
+  player.initTetrominoInsideGrid();
+  player2.initTetrominoInsideGrid();
+  player.fallTetromino();
+  player2.fallTetromino();
+  player.updateGrid();
+  player2.updateGrid();
+  player.moveDownTetromino();
+  player.fallTetromino();
+  expect(player.getGrid()).toEqual(player2.getGrid());
 });
