@@ -133,6 +133,16 @@ describe('Player', () => {
         if (tShape[y][x] != 0) grid2[startY + y][startX + x] = tShape[y][x];
       }
     }
+    while (grid2[19].some((value) => value == 1) == false) {
+      for (let y = grid2.length - 1; y > 0; y--) {
+        for (let x = 0; x < grid2[y].length; x++) {
+          if (grid2[y - 1][x] == 1) {
+            grid2[y][x] = 1;
+            grid2[y - 1][x] = 0;
+          }
+        }
+      }
+    }
     expect(player.getGrid()).toEqual(grid2);
   });
 
@@ -157,7 +167,6 @@ describe('Player', () => {
     expect(player.getGrid()).toEqual(grid2);
   });
   it('should update tetromino in a grid', () => {
-
     const manage = new ManagePlayerTetromino();
     const player_name = 'Player 1';
     const player_name2 = 'Player 2';
@@ -174,4 +183,61 @@ describe('Player', () => {
     }
     expect(player.getGrid()).toEqual(grid2);
   });
+});
+
+it('should check colision tetromino in a grid moove', () => {
+  const manage = new ManagePlayerTetromino();
+  const player_name = 'Player 1';
+  const player_name2 = 'Player 2';
+  const player = new Player(player_name);
+  const player2 = new Player(player_name2);
+  manage.injectmultipleTetromino(player, player2, 10);
+  player.initTetrominoInsideGrid();
+  player2.initTetrominoInsideGrid();
+  player.fallTetromino();
+  player2.fallTetromino();
+  player.updateGrid();
+  player2.updateGrid();
+  player.moveDownTetromino();
+  player.fallTetromino();
+  expect(player.getGrid()).toEqual(player2.getGrid());
+});
+
+it('should check colision tetromino in a grid rotate', () => {
+  const manage = new ManagePlayerTetromino();
+  const player_name = 'Player 1';
+  const player_name2 = 'Player 2';
+  const player = new Player(player_name);
+  const player2 = new Player(player_name2);
+  manage.injectmultipleTetromino(player, player2, 10);
+  player.initTetrominoInsideGrid();
+  player2.initTetrominoInsideGrid();
+  player.fallTetromino();
+  player2.fallTetromino();
+  for (let i = 0; i < 12; i++) {
+    player.moveRightTetromino();
+    player2.moveRightTetromino();
+  }
+  if (player.getTetrominos()[0].getType() == 'I') {
+    const lengthTetro = player.getTetrominos()[0].getLentgth();
+    const grid = player.getGrid();
+    let startX = 0;
+    let startY = 0;
+    let endX = 0;
+    let endY = 0;
+    for (let y = 0; y < grid.length; y++) {
+      for (let x = 0; grid[y].length > x; x++) {
+        if (grid[y][x] == 1) {
+          startX = x - lengthTetro.lengthXBeforeNumber;
+          startY = y - lengthTetro.lengthYBeforeNumber;
+          endX = startX + lengthTetro.x;
+          endY = startY + lengthTetro.y;
+          y = grid.length - 1;
+          x = grid[y].length;
+        }
+      }
+    }
+    expect(player.isColisionRotate({ startY, startX, endY, endX })).toBe(true);
+  }
+  expect(player.getGrid()).toEqual(player2.getGrid());
 });

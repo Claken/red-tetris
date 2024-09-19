@@ -17,12 +17,30 @@ export class AppService {
     };
 
     manage.injectTetromino(player1, player2);
-    // player1.initTetrominoInsideGrid();
+    player1.initTetrominoInsideGrid();
     // print2DArray(player1.getGrid());
-    player1.testgrid(2);
+    // player1.testgrid(2);
     print2DArray(player1.getGrid());
-    player1.updateGrid();
+    player1.fallTetromino();
     print2DArray(player1.getGrid());
+    for (let i = 0; i < 20; i++) {
+      player1.moveRightTetromino();
+    }
+    print2DArray(player1.getGrid());
+    player1.rotateTetromino();
+    print2DArray(player1.getGrid());
+    console.log(player1.getTetrominos()[0].getType());
+    // player1.updateGrid();
+    // print2DArray(player1.getGrid());
+    // player1.moveDownTetromino();
+    // print2DArray(player1.getGrid());
+    // player1.fallTetromino();
+    // const tetromino1 = player1.getTetrominos()[0];
+    // print2DArray(player1.getGrid());
+    // player1.rotateTetromino();
+    // print2DArray(player1.getGrid());
+    // console.log('--------------------');
+    // console.log(tetromino1.getType());
     // player1.moveRightTetromino();
     // print2DArray(player1.getGrid());
     // player1.fallTetromino();
