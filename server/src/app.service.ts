@@ -16,20 +16,29 @@ export class AppService {
       console.log(']');
     };
 
-    manage.injectTetromino(player1, player2);
-    player1.initTetrominoInsideGrid();
-    // print2DArray(player1.getGrid());
-    // player1.testgrid(2);
-    print2DArray(player1.getGrid());
-    player1.fallTetromino();
-    print2DArray(player1.getGrid());
-    for (let i = 0; i < 20; i++) {
-      player1.moveRightTetromino();
+    manage.injectmultipleTetromino(player1, player2, 100);
+    while (player1.getGrid()[3].some((elem) => elem == 2) == false) {
+      player1.initTetrominoInsideGrid();
+      player1.fallTetromino();
+      player1.updateGrid();
     }
+    console.log(player1.isPlayerLost());
     print2DArray(player1.getGrid());
-    player1.rotateTetromino();
-    print2DArray(player1.getGrid());
-    console.log(player1.getTetrominos()[0].getType());
+
+    // manage.injectTetromino(player1, player2);
+    // player1.initTetrominoInsideGrid();
+    // // print2DArray(player1.getGrid());
+    // // player1.testgrid(2);
+    // print2DArray(player1.getGrid());
+    // player1.fallTetromino();
+    // print2DArray(player1.getGrid());
+    // for (let i = 0; i < 20; i++) {
+    //   player1.moveRightTetromino();
+    // }
+    // print2DArray(player1.getGrid());
+    // player1.rotateTetromino();
+    // print2DArray(player1.getGrid());
+    // console.log(player1.getTetrominos()[0].getType());
     // player1.updateGrid();
     // print2DArray(player1.getGrid());
     // player1.moveDownTetromino();
