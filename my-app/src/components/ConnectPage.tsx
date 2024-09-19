@@ -28,7 +28,7 @@ function ConnectPage() {
 	}
 
 	return (
-		<div className="flex items-center justify-center h-screen">
+		<div className="flex items-center justify-center h-screen bg-black">
 			<div className="mx-auto">
 				<h1 className="text-red-500 font-bold">WELCOME TO RED TETRIS</h1>
 				<h1 className="text-red-500 font-bold">Please write your player name to access the site</h1>

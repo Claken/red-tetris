@@ -12,7 +12,7 @@ function HomePage() {
 
 	return (
 		playerContext.name ?
-		<div>
+		<div className="bg-black h-screen">
 			
 		</div>
 		: <ConnectPage/>
