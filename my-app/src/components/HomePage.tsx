@@ -34,10 +34,12 @@ function HomePage() {
 					</div>
 					:
 					<div className="flex items-center justify-center h-screen">
-						<div className="text-red-600">
-							WAITING FOR A GAME
+						<div className="text-center">
+							<div className="text-red-600">
+								WAITING FOR A GAME
+							</div>
+							<div className="w-16 h-16 border-4 border-t-4 border-red-200 rounded-full animate-spin border-t-red-500"></div>
 						</div>
-						<div className="w-16 h-16 border-4 border-t-4 border-red-200 rounded-full animate-spin border-t-red-500"></div>
 					</div>
 				}
 			</div>
