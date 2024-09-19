@@ -6,7 +6,7 @@ export class Player {
   private _tetrominos: Tetromino[];
   constructor(player_name: string) {
     this._player_name = player_name;
-    this._grid = new Array(20).fill(null).map(() => new Array(10).fill(0));
+    this._grid = new Array(24).fill(null).map(() => new Array(10).fill(0));
     this._tetrominos = [];
   }
 
@@ -14,14 +14,14 @@ export class Player {
     if (num1 == 1) {
       for (let y = 0; y < this._grid.length; y++) {
         for (let x = 0; x < this._grid[y].length; x++) {
-          if (y == 19) this._grid[y][x] = 2;
+          if (y == 23) this._grid[y][x] = 2;
         }
       }
     } else if (num1 == 2) {
       for (let y = 0; y < this._grid.length; y++) {
         for (let x = 0; x < this._grid[y].length; x++) {
-          if (y == 19) this._grid[y][x] = 2;
-          if (y == 18 && x % 2 == 0) this._grid[y][x] = 2;
+          if (y == 23) this._grid[y][x] = 2;
+          if (y == 22 && x % 2 == 0) this._grid[y][x] = 2;
         }
       }
     }
@@ -57,7 +57,7 @@ export class Player {
   }
 
   private fallPositionYTetromino(): number {
-    let endY = 20;
+    let endY = 24;
     const tetromino = this._tetrominos[0];
     let startX = 10;
     for (let y = 0; y < this._grid.length; y++) {
@@ -72,6 +72,7 @@ export class Player {
       for (let x = startX; endX > x; x++) {
         if (this._grid[y][x] == 2) {
           endY = y;
+          return endY - 1;
         }
       }
     }
@@ -92,6 +93,9 @@ export class Player {
       if (enter) {
         endY--;
       }
+    }
+    while (this.isCollisionMove(1, 0) == false) {
+      this.moveDownTetromino();
     }
   }
   moveDownTetromino(): void {
@@ -165,7 +169,7 @@ export class Player {
     // const copie = this._grid.map((arr) => arr.slice());
     for (let y = p.startY, i = 0; y < p.endY; y++, i++) {
       for (let x = p.startX, z = 0; x < p.endX; x++, z++) {
-        if (y < 0 || x < 0 || y > 19 || x > 9 || this._grid[y][x] == 2) {
+        if (y < 0 || x < 0 || y > 23 || x > 9 || this._grid[y][x] == 2) {
           return true;
         }
       }
@@ -178,7 +182,7 @@ export class Player {
       for (let x = 0; this._grid[y].length > x; x++) {
         if (
           this._grid[y][x] == 1 &&
-          (y + cy > 19 ||
+          (y + cy > 23 ||
             x + cx > 9 ||
             x + cx < 0 ||
             this._grid[y + cy][x + cx] == 2)
@@ -189,8 +193,11 @@ export class Player {
     }
     return false;
   }
-  checkGameOver(): boolean {
-    // check game over
+  isPlayerLost(): boolean {
+    // checker ceci apres un update soit finnis
+    if (this._grid[3].some((elem: number) => elem == 2)) {
+      return true;
+    }
     return false;
   }
   clearLines(): void {
@@ -216,7 +223,7 @@ export class Player {
     let transform: boolean = false;
     for (let y = this._grid.length - 1; y > 0; y--) {
       for (let x = 0; this._grid[y].length > x; x++) {
-        if (this._grid[y][x] == 1 && (y == 19 || this._grid[y + 1][x] == 2)) {
+        if (this._grid[y][x] == 1 && (y == 23 || this._grid[y + 1][x] == 2)) {
           transform = true;
         }
       }
