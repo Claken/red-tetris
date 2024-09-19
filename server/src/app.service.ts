@@ -23,6 +23,13 @@ export class AppService {
     print2DArray(player1.getGrid());
     player1.fallTetromino();
     print2DArray(player1.getGrid());
+    for (let i = 0; i < 20; i++) {
+      player1.moveRightTetromino();
+    }
+    print2DArray(player1.getGrid());
+    player1.rotateTetromino();
+    print2DArray(player1.getGrid());
+    console.log(player1.getTetrominos()[0].getType());
     // player1.updateGrid();
     // print2DArray(player1.getGrid());
     // player1.moveDownTetromino();

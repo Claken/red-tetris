@@ -165,7 +165,7 @@ export class Player {
     // const copie = this._grid.map((arr) => arr.slice());
     for (let y = p.startY, i = 0; y < p.endY; y++, i++) {
       for (let x = p.startX, z = 0; x < p.endX; x++, z++) {
-        if (y < 0 || x < 0 || y > 19 || x > 19 || this._grid[y][x] == 2) {
+        if (y < 0 || x < 0 || y > 19 || x > 9 || this._grid[y][x] == 2) {
           return true;
         }
       }
