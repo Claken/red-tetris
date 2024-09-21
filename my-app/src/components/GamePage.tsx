@@ -5,12 +5,26 @@ function GamePage() {
 	const numRows = 20;
 	const numCols = 10;
 
-	const [grid, setGrid] = useState(Array.from({ length: numRows }, () =>
+	const [grid, setGrid] = useState<number[][]>(Array.from({ length: numRows }, () =>
 		Array(numCols).fill(0)
 	));
 
+	const placeTetromino = (grid: number[][], tetromino: number[][], x: number, y: number): number[][] => {
+
+		const newGrid = grid.map(row => [...row]);
+
+		tetromino.forEach((row, rowIndex) => {
+			row.forEach((cell, colIndex) => {
+				if (cell) {
+					newGrid[y + rowIndex][x + colIndex] = cell;
+				}
+			});
+		});
+		return newGrid;
+	};
+
 	return (
-		<div className="bg-black h-screen">			
+		<div className="bg-black h-screen">
 			<div className="flex items-center justify-center h-screen">\
 				<div className="border-8 border-red-500">
 					<div className="border-2 border-black">
