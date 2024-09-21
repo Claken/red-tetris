@@ -2,18 +2,24 @@ import "../index.css"
 import { usePlayer } from '../contexts/playerContext';
 import ConnectPage from './ConnectPage';
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function HomePage() {
 
 	const [isWaiting, setWaiting] = useState<boolean>(false);
 	const playerContext = usePlayer();
+	const navigate = useNavigate();
 
 	if (!playerContext) {
 		throw new Error('ConnectPage must be used within a PlayerProvider');
 	}
 
 	const handleJoinSolo = () => {
-		// A COMPLETER
+		// TEST
+		// COMMENT SAVOIR COMBIEN IL Y A DE ROOMS ?
+		const name = playerContext.name;
+		const route = "/room00/" + name;
+		navigate(route);
 	}
 
 	const handleJoinGame = () => {
