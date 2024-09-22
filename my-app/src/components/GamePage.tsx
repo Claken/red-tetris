@@ -33,7 +33,7 @@ function GamePage() {
 								row.map((cell, colIndex) => (
 									<div
 										key={`${rowIndex}-${colIndex}`}
-										className={`sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-6 lg:h-6 lx:w-8 lx:h-8 border border-red-700 ${cell ? 'bg-red-500' : 'bg-red-900'}`}
+										className={`w-4 h-4 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-6 lg:h-6 lx:w-8 lx:h-8 border border-red-700 ${cell ? 'bg-red-500' : 'bg-red-900'}`}
 									></div>
 								))
 							)}
