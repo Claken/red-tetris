@@ -2,12 +2,16 @@ import { Tetromino } from '../tetromino/tetromino';
 
 export class Player {
   private _player_name: string;
+  private _uuid: string;
   private _grid: number[][];
   private _tetrominos: Tetromino[];
-  constructor(player_name: string) {
+  private _isMaster: boolean;
+  constructor(player_name: string, uuid: string) {
+    this._uuid = uuid;
     this._player_name = player_name;
     this._grid = new Array(24).fill(null).map(() => new Array(10).fill(0));
     this._tetrominos = [];
+    this._isMaster = false;
   }
 
   testgrid(num1: number): void {
@@ -30,12 +34,24 @@ export class Player {
   getPlayerName(): string {
     return this._player_name;
   }
+
+  getUuid(): string {
+    return this._uuid;
+  }
   getGrid(): number[][] {
     return this._grid;
   }
 
   getTetrominos(): Tetromino[] {
     return this._tetrominos;
+  }
+
+  getIsMaster(): boolean {
+    return this._isMaster;
+  }
+
+  setIsMaster(right: boolean): void {
+    this._isMaster = right;
   }
 
   addTeromino(tetromino: Tetromino): void {
@@ -56,6 +72,19 @@ export class Player {
     }
   }
 
+  action(action: string) {
+    if (action == 'left') {
+      this.moveLeftTetromino();
+    } else if (action == 'right') {
+      this.moveRightTetromino();
+    } else if (action == 'down') {
+      this.moveDownTetromino();
+    } else if (action == 'up') {
+      this.rotateTetromino();
+    } else if (action == 'space') {
+      this.fallTetromino();
+    }
+  }
   private fallPositionYTetromino(): number {
     let endY = 24;
     const tetromino = this._tetrominos[0];

@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { Player } from '../class/player/player';
+import { v4 as uuidv4 } from 'uuid';
 import { ManagePlayerTetromino } from '../class/managePlayerTetromino/managePlayerTetromino';
 @Injectable()
 export class AppService {
   getHello(): string {
     const manage = new ManagePlayerTetromino();
-    const player1 = new Player('raphael');
-    const player2 = new Player('samy');
+    const player1 = new Player('raphael', uuidv4());
+    const player2 = new Player('samy', uuidv4());
 
     const print2DArray = (arr: any) => {
       console.log('[');
