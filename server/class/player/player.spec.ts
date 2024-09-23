@@ -1,10 +1,11 @@
 import { Player } from './player';
 import { ManagePlayerTetromino } from '../managePlayerTetromino/managePlayerTetromino';
+import { v4 as uuidv4 } from 'uuid';
 
 describe('Player', () => {
   it('should create a new player', () => {
     const player_name = 'Player 1';
-    const player = new Player(player_name);
+    const player = new Player(player_name, uuidv4());
     expect(player.getPlayerName()).toBe(player_name);
     expect(player.getGrid()).toEqual(
       new Array(24).fill(null).map(() => new Array(10).fill(0)),
@@ -14,8 +15,8 @@ describe('Player', () => {
     const manage = new ManagePlayerTetromino();
     const player_name = 'Player 1';
     const player_name2 = 'Player 2';
-    const player = new Player(player_name);
-    const player2 = new Player(player_name2);
+    const player = new Player(player_name, uuidv4());
+    const player2 = new Player(player_name2, uuidv4());
     manage.injectTetromino(player, player2);
     player.initTetrominoInsideGrid();
     const player1_grid = player.getGrid();
@@ -41,8 +42,8 @@ describe('Player', () => {
     const manage = new ManagePlayerTetromino();
     const player_name = 'Player 1';
     const player_name2 = 'Player 2';
-    const player = new Player(player_name);
-    const player2 = new Player(player_name2);
+    const player = new Player(player_name, uuidv4());
+    const player2 = new Player(player_name2, uuidv4());
     manage.injectTetromino(player, player2);
     player.initTetrominoInsideGrid();
     player.moveDownTetromino();
@@ -101,8 +102,8 @@ describe('Player', () => {
     const manage = new ManagePlayerTetromino();
     const player_name = 'Player 1';
     const player_name2 = 'Player 2';
-    const player = new Player(player_name);
-    const player2 = new Player(player_name2);
+    const player = new Player(player_name, uuidv4());
+    const player2 = new Player(player_name2, uuidv4());
     manage.injectTetromino(player, player2);
     player.initTetrominoInsideGrid();
     player.rotateTetromino();
@@ -117,8 +118,8 @@ describe('Player', () => {
     const manage = new ManagePlayerTetromino();
     const player_name = 'Player 1';
     const player_name2 = 'Player 2';
-    const player = new Player(player_name);
-    const player2 = new Player(player_name2);
+    const player = new Player(player_name, uuidv4());
+    const player2 = new Player(player_name2, uuidv4());
     manage.injectTetromino(player, player2);
     player.initTetrominoInsideGrid();
     player.fallTetromino();
@@ -150,8 +151,8 @@ describe('Player', () => {
     const manage = new ManagePlayerTetromino();
     const player_name = 'Player 1';
     const player_name2 = 'Player 2';
-    const player = new Player(player_name);
-    const player2 = new Player(player_name2);
+    const player = new Player(player_name, uuidv4());
+    const player2 = new Player(player_name2, uuidv4());
     manage.injectTetromino(player, player2);
     player.initTetrominoInsideGrid();
     player2.initTetrominoInsideGrid();
@@ -170,8 +171,8 @@ describe('Player', () => {
     const manage = new ManagePlayerTetromino();
     const player_name = 'Player 1';
     const player_name2 = 'Player 2';
-    const player = new Player(player_name);
-    const player2 = new Player(player_name2);
+    const player = new Player(player_name, uuidv4());
+    const player2 = new Player(player_name2, uuidv4());
     manage.injectTetromino(player, player2);
     player.testgrid(2);
     player.updateGrid();
@@ -188,8 +189,8 @@ describe('Player', () => {
     const manage = new ManagePlayerTetromino();
     const player_name = 'Player 1';
     const player_name2 = 'Player 2';
-    const player = new Player(player_name);
-    const player2 = new Player(player_name2);
+    const player = new Player(player_name, uuidv4());
+    const player2 = new Player(player_name2, uuidv4());
     manage.injectmultipleTetromino(player, player2, 10);
     player.initTetrominoInsideGrid();
     player2.initTetrominoInsideGrid();
@@ -206,8 +207,8 @@ describe('Player', () => {
     const manage = new ManagePlayerTetromino();
     const player_name = 'Player 1';
     const player_name2 = 'Player 2';
-    const player = new Player(player_name);
-    const player2 = new Player(player_name2);
+    const player = new Player(player_name, uuidv4());
+    const player2 = new Player(player_name2, uuidv4());
     manage.injectmultipleTetromino(player, player2, 10);
     player.initTetrominoInsideGrid();
     player2.initTetrominoInsideGrid();
@@ -248,9 +249,9 @@ it('it should check if player lost', () => {
   const manage = new ManagePlayerTetromino();
   const player_name = 'Player 1';
   const player_name2 = 'Player 2';
-  const player = new Player(player_name);
-  const player2 = new Player(player_name2);
-  manage.injectmultipleTetromino(player, player2, 10);
+  const player = new Player(player_name, uuidv4());
+  const player2 = new Player(player_name2, uuidv4());
+  manage.injectmultipleTetromino(player, player2, 100);
   while (player.getGrid()[3].some((elem) => elem == 2) == false) {
     player.initTetrominoInsideGrid();
     player.fallTetromino();
