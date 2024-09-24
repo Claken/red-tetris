@@ -6,6 +6,7 @@ import {
 import { Socket, Server } from 'socket.io';
 import { WaitGame } from '../../class/waitGame/waitGame';
 import { SocketService } from './socket.service';
+
 // import { Logger } from '@nestjs/common';
 
 // (uuid + name) associer a une socketId
@@ -25,8 +26,10 @@ export class SocketGateway implements OnGatewayConnection {
     this.waitGame = WaitGame.getInstance(this.server);
   }
 
-  handleConnection(socket: Socket): void {
+  handleConnection(socket: Socket, payload: { name: string }): void {
     this.socketService.handleConnection(socket);
+    console.log('New client connected');
+    console.log({ payload: payload });
   }
 
   // Implement other Socket.IO event handlers and message handlers
