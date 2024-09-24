@@ -1,4 +1,4 @@
 export interface IdentifierToSocket {
   name: string;
-  uuid: string;
+  sockets: string[];
 }
