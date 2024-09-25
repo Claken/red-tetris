@@ -6,6 +6,7 @@ import {
 import { Socket, Server } from 'socket.io';
 import { WaitGame } from '../../class/waitGame/waitGame';
 import { SocketService } from './socket.service';
+import { ManageSocket } from '../../class/manageSocket/manageSocket';
 
 // import { Logger } from '@nestjs/common';
 
@@ -17,20 +18,25 @@ export class SocketGateway implements OnGatewayConnection {
   @WebSocketServer()
   private server: Server;
   private waitGame: WaitGame;
+  private manageSocket: ManageSocket = ManageSocket.getInstance();
 
-  // private waiterGame: WaitGame = WaitGame.getInstance();
-  // private games: Map<string, Game> = new Map(); // Map pour stocker les games, avec comme clé le room_id
-  // private identifierToSockets: Map<IdentifierToSocket, string[]> = new Map(); // Map pour stocker les sockets, avec comme clé le name et l'uuid
-  // private socketsToIdRoom: Map<string, string> = new Map(); // Map pour stocker les sockets, avec comme clé le socketId et le room_id
   constructor(private readonly socketService: SocketService) {
     this.waitGame = WaitGame.getInstance(this.server);
   }
 
-  handleConnection(socket: Socket, payload: { name: string }): void {
+  handleConnection(socket: Socket): void {
     this.socketService.handleConnection(socket);
-    console.log('New client connected');
-    console.log({ payload: payload });
+    const name = socket.handshake.query.name as string | undefined;
+    const uuid = socket.handshake.query.uuid as string | undefined;
+    if (name == undefined || typeof name != 'string') {
+      return;
+    }
+    this.manageSocket.add(socket, name, uuid);
   }
 
+  handleDisconnect(socket: Socket): void {
+    console.log('Client disconnected');
+    this.manageSocket.deleteSocket(socket);
+  }
   // Implement other Socket.IO event handlers and message handlers
 }

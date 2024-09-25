@@ -8,8 +8,6 @@ export class SocketService {
   handleConnection(socket: Socket): void {
     const clientId = socket.id;
     this.connectedClients.set(clientId, socket);
-    console.log(`Client connected: ${clientId}`);
-    console.log(`Total connected clients: ${this.connectedClients.size}`);
 
     socket.on('disconnect', () => {
       this.connectedClients.delete(clientId);
