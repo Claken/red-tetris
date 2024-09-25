@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import React, { Dispatch } from 'react';
 import "../index.css"
-import { usePlayer } from '../contexts/playerContext';
+import { io, Socket } from 'socket.io-client'
 
-function ConnectPage() {
-
-	const playerContext = usePlayer();
-
-	if (!playerContext) {
-		throw new Error('ConnectPage must be used within a PlayerProvider');
-	}
-
-	const [name, setName] = useState<string>("");
+function ConnectPage({name, setName, uuid, setUuid, socket, setSocket} : {
+	name: string,
+	setName: Dispatch<React.SetStateAction<string>>,
+	uuid: string | undefined,
+	setUuid: Dispatch<React.SetStateAction<string | undefined>>,
+	socket: Socket | undefined,
+	setSocket: React.Dispatch<React.SetStateAction<Socket | undefined>>;
+}
+) {
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		event.preventDefault();
@@ -18,14 +18,19 @@ function ConnectPage() {
 	};
 
 	const handleSubmit = () => {
-		if (name.length == 0) {
-			console.log("the name is empty");
-		}
-		else {
-			console.log(name + " is good");
-			playerContext.setName(name);
-		}
+		setSocket(
+			io("http://localhost:3000", {
+				query: { name: name, uuid: uuid },
+			})
+		);
 	}
+
+	socket?.on("new-person", (data) => {
+		console.log(data);
+		sessionStorage.setItem("uuid", data.uuid);
+		sessionStorage.setItem("name", data.name);
+		setUuid(data.uuid);
+	});
 
 	return (
 		<div className="flex items-center justify-center h-screen bg-black">
