@@ -6,7 +6,6 @@ import NotFoundPage from "./components/NotFoundPage";
 
 function App() {
   return (
-    <div className="w-screen h-screen bg-black">
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -14,7 +13,6 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
-    </div>
   );
 }
 

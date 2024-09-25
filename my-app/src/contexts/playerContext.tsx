@@ -6,8 +6,9 @@ const PlayerContext = createContext<IPlayerContext | undefined>(undefined);
 export const PlayerProvider = ({ children }: { children: ReactNode }) => {
 
 	const [name, setName] = useState<string>("");
+	const [id, setId] = useState<string | undefined>(undefined);
 
-	return <PlayerContext.Provider value={{ name, setName }}>
+	return <PlayerContext.Provider value={{ name, setName, id, setId }}>
 		{children}
 	</PlayerContext.Provider>
 };
