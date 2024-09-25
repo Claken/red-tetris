@@ -1,14 +1,22 @@
 import { IdentifierToSocket } from '../../interfaces/identifierToSocket';
 import { v4 as uuidv4 } from 'uuid';
+import { Socket } from 'socket.io';
 
 export class ManageSocket {
   private static _instance: ManageSocket;
-  private userSockets: Map<string, IdentifierToSocket>;
+  private userSockets: Map<string, IdentifierToSocket> = new Map();
   private constructor() {}
 
-  private addNewUser(name: string, socketId: string): void {
+  private addNewUser(name: string, socket: Socket): void {
     const uuid = uuidv4();
-    this.userSockets.set(uuid, { name: name, sockets: [socketId] });
+    console.log(uuid);
+    const idTosocket: IdentifierToSocket = { name: name, sockets: [socket] };
+    try {
+      this.userSockets.set(uuid, idTosocket);
+    } catch (e: any) {
+      console.log(e);
+    }
+    socket.emit('new-person', { uuid: uuid, name: name });
   }
 
   public static getInstance(): ManageSocket {
@@ -17,20 +25,25 @@ export class ManageSocket {
     }
     return ManageSocket._instance;
   }
-  public add(socketId: string, name: string, uuid: string | undefined): void {
+  public add(socket: Socket, name: string, uuid: string | undefined): void {
     if (uuid == undefined || !this.userSockets.has(uuid)) {
-      this.addNewUser(name, socketId);
+      console.log(uuid);
+      this.addNewUser(name, socket);
     } else {
-      this.userSockets.get(uuid)?.sockets.push(socketId);
+      console.log('user already exist');
+      console.log('je passe ici');
+      this.userSockets.get(uuid)?.sockets.push(socket);
+
+      console.log(this.userSockets);
     }
   }
   public IdentifierToSocket(uuid: string): IdentifierToSocket | undefined {
     return this.userSockets.get(uuid);
   }
-  public deleteSocket(socketId: string): void {
+  public deleteSocket(socket: Socket): void {
     this.userSockets.forEach((value) => {
-      if (value.sockets.find((socket) => socket === socketId)) {
-        value.sockets = value.sockets.filter((socket) => socket !== socketId);
+      if (value.sockets.find((elem) => elem.id === socket.id)) {
+        value.sockets = value.sockets.filter((elem) => elem.id !== socket.id);
       }
     });
   }

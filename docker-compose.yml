@@ -27,6 +27,19 @@ services:
       - ./server:/server
       # - /app/node_modules
 
+  test:
+    build:
+      dockerfile: ./dockerfile.test
+      context: .
+    container_name: redTetris-test
+    ports:
+      - 3001:5173
+    restart: "always"
+    networks:
+      - redTetris
+    volumes:
+      - ./test:/test
+
 networks:
   redTetris:
     driver: bridge
