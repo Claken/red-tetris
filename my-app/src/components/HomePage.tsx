@@ -22,7 +22,6 @@ function HomePage() {
 	const handleJoinSolo = () => {
 		// TEST
 		// COMMENT SAVOIR COMBIEN IL Y A DE ROOMS ?
-		// const name = playerContext.name;
 		const route = "/room00/" + name;
 		navigate(route);
 	}
