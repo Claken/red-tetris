@@ -1,6 +1,7 @@
 import { placeTetromino } from "../components/GamePage";
+import { expect, test } from 'vitest'
 
-describe('placeTetromino', () => {
+test('placeTetromino', () => {
 	const grid = Array.from({ length: 5 }, () => Array(5).fill(0));
     const tetromino = [
       [1, 1, 0],
