@@ -26,6 +26,7 @@ function ConnectPage({name, setName, uuid, setUuid, socket, setSocket} : {
 	}
 
 	socket?.on("new-person", (data) => {
+		console.log("new-person");
 		console.log(data);
 		sessionStorage.setItem("uuid", data.uuid);
 		sessionStorage.setItem("name", data.name);
