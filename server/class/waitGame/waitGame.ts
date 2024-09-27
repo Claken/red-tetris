@@ -38,6 +38,11 @@ export class WaitGame {
     this.games.set(this.room_name, game);
     game.startGame();
   }
+
+  public getGames(): Map<string, Game> {
+    return this.games;
+  }
+
   public addPlayer(uuid: string, name: string, socketId: string): void {
     // check if the player is already in the waiting list
     // uuid recupere le socket.id et le nom du joueur qui se trouve dans le socketManager

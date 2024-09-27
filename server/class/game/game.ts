@@ -18,22 +18,61 @@ export class Game {
     this._server = server;
   }
 
+  public moveRight(playerUuid: string): void {
+    if (playerUuid == this._player1.getUuid()) {
+      this._player1.moveRightTetromino();
+    } else if (playerUuid == this._player2.getUuid()) {
+      this._player2.moveRightTetromino();
+    }
+    this.sendGameToClient();
+  }
+
+  public moveLeft(playerUuid: string): void {
+    if (playerUuid == this._player1.getUuid()) {
+      this._player1.moveLeftTetromino();
+    } else if (playerUuid == this._player2.getUuid()) {
+      this._player2.moveLeftTetromino();
+    }
+    this.sendGameToClient();
+  }
+
+  public rotate(playerUuid: string): void {
+    if (playerUuid == this._player1.getUuid()) {
+      this._player1.rotateTetromino();
+    } else if (playerUuid == this._player2.getUuid()) {
+      this._player2.rotateTetromino();
+    }
+    this.sendGameToClient();
+  }
+
+  public moveDown(playerUuid: string): void {
+    if (playerUuid == this._player1.getUuid()) {
+      this._player1.moveDownTetromino();
+    } else if (playerUuid == this._player2.getUuid()) {
+      this._player2.moveDownTetromino();
+    }
+    this.sendGameToClient();
+  }
+
+  public fallDown(playerUuid: string): void {
+    if (playerUuid == this._player1.getUuid()) {
+      this._player1.fallTetromino();
+    } else if (playerUuid == this._player2.getUuid()) {
+      this._player2.fallTetromino();
+    }
+    this.sendGameToClient();
+  }
+
   getControlGame(): Player {
     return this._player1.getIsMaster() ? this._player1 : this._player2;
   }
-
   async sendCounterToClient(): Promise<void> {
     const countdownTime = 4;
-    // console.log({ room_id: this._room_id });
-    // console.log({ this_server: this._server });
     let currentTime = countdownTime;
-    // send the countdown to the client
     return new Promise((resolve) => {
       const intervalId = setInterval(() => {
         if (currentTime == 4) {
-          // Envoyer le temps restant aux clients
-
-          this._server.to(this._room_id).emit('startGame', {
+          this._server.to(this._room_id).emit('beforeGame', {
             player1: {
               grid: this._player1.getGrid(),
               name: this._player1.getPlayerName(),
@@ -67,15 +106,20 @@ export class Game {
 
   async startGame(): Promise<void> {
     await this.sendCounterToClient();
-    // const intervalId = setInterval(() => {
-    //   this._player1.updateGrid();
-    //   this._player2.updateGrid();
-    //   this.sendGameToClient();
-    // }, 1000); // update every second
-
-    // if (this.endGame()) {
-    //   clearInterval(intervalId);
-    // }
+    this._player1.initTetrominoInsideGrid();
+    this._player2.initTetrominoInsideGrid();
+    this.sendGameToClient();
+    const intervalId = setInterval(() => {
+      this._player1.moveDownTetromino();
+      this._player2.moveDownTetromino();
+      this._player1.updateGrid();
+      this._player2.updateGrid();
+      this.sendGameToClient();
+      if (this.endGame()) {
+        clearInterval(intervalId);
+        console.log('end game');
+      }
+    }, 1000); // update every second
   }
 
   actionGame(playerUuid: string, action: string): void {

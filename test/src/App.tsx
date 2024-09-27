@@ -4,6 +4,8 @@ import "./App.css";
 
 function App() {
   const [name, setName] = useState("");
+  const [grid, setGrid] = useState([]);
+  const [roomId, setRoomId] = useState("");
   const [uuid, setUuid] = useState<string | undefined>(undefined);
   const [socket, setSocket] = useState<Socket | undefined>(undefined);
   const [formData, setFormData] = useState({
@@ -24,6 +26,21 @@ function App() {
         query: { name: formData.name, uuid: uuid },
       })
     );
+  };
+
+  const handleKeydown = (e: React.KeyboardEvent) => {
+    console.log(e.key);
+    if (e.key === "ArrowRight") {
+      socket?.emit("moveRight", { uuid: uuid, roomId: roomId });
+    } else if (e.key === "ArrowLeft") {
+      socket?.emit("moveLeft", { uuid: uuid, roomId: roomId });
+    } else if (e.key === "ArrowUp") {
+      socket?.emit("rotate", { uuid: uuid, roomId: roomId });
+    } else if (e.key === "ArrowDown") {
+      socket?.emit("moveDown", { uuid: uuid, roomId: roomId });
+    } else if (e.key === " ") {
+      socket?.emit("fallDown", { uuid: uuid, roomId: roomId });
+    }
   };
 
   const formuMulti = () => {
@@ -53,19 +70,61 @@ function App() {
     );
   };
 
+  const lala = () => {
+    console.log("lala");
+  };
+
+  const gridTetris = () => {
+    return (
+      <div
+        tabIndex={0}
+        className="grid"
+        onClick={lala}
+        onKeyDown={handleKeydown}
+      >
+        {grid?.map((row: number[], index) => {
+          return (
+            <div className="line" key={index}>
+              {row?.map((cell: number, index) => {
+                return (
+                  <div
+                    className="cell"
+                    key={index}
+                    style={{ backgroundColor: cell === 0 ? "black" : "white" }}
+                  ></div>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   socket?.on("countdown", (data) => {
     console.log(data);
   });
 
-  socket?.on("startGame", (data) => {
+  socket?.on("beforeGame", (data) => {
     console.log(data);
+    if (data.player1.uuid === uuid) {
+      setGrid(data.player1.grid);
+    } else {
+      setGrid(data.player2.grid);
+    }
   });
 
   socket?.on("game", (data) => {
     console.log(data);
+    if (data.player1.uuid === uuid) {
+      setGrid(data.player1.grid);
+    } else {
+      setGrid(data.player2.grid);
+    }
   });
 
   socket?.on("waitToPlay", (data) => {
+    setRoomId(data.roomId);
     console.log(data);
   });
 
@@ -74,6 +133,11 @@ function App() {
     sessionStorage.setItem("uuid", data.uuid);
     sessionStorage.setItem("name", data.name);
     setUuid(data.uuid);
+  });
+
+  socket?.on("endGame", (data) => {
+    console.log(data);
+    setGrid([]);
   });
 
   useEffect(() => {
@@ -99,6 +163,7 @@ function App() {
       <h1>Bonjour</h1>
       {formu()}
       {formuMulti()}
+      {gridTetris()}
       <p>{name}</p>
       <p>{uuid}</p>
       <p>{socket?.id}</p>

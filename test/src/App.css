@@ -1,1 +1,25 @@
+.cell {
+  background-color: black;
+  width: 20px;
+  height: 20px;
+  color: white; /* Si tu veux changer la couleur du texte pour qu'il soit visible */
+}
 
+.grid {
+  color: darkblue;
+  background-color: lightblue;
+  padding: 5px;
+}
+
+.line {
+  display: flex;
+  justify-content: center;
+}
+
+.cell-fill-white {
+  background-color: white;
+}
+
+.cell-fill-black {
+  background-color: black;
+}
