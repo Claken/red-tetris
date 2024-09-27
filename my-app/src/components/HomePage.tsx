@@ -1,23 +1,27 @@
+import { useSocket } from "../contexts/socketContext";
 import "../index.css"
-import { usePlayer } from '../contexts/playerContext';
 import ConnectPage from './ConnectPage';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { io } from 'socket.io-client'
 
 function HomePage() {
 
 	const [isWaiting, setWaiting] = useState<boolean>(false);
-	const playerContext = usePlayer();
 	const navigate = useNavigate();
+	const socketContext = useSocket();
+	const [name, setName] = useState<string>("");
+	const [uuid, setUuid] = useState<string | undefined>(undefined);
 
-	if (!playerContext) {
-		throw new Error('ConnectPage must be used within a PlayerProvider');
+	if (!socketContext) {
+		throw new Error('ConnectPage must be used within a SocketProvider');
 	}
+
+	const { socket, setSocket } = socketContext;
 
 	const handleJoinSolo = () => {
 		// TEST
 		// COMMENT SAVOIR COMBIEN IL Y A DE ROOMS ?
-		const name = playerContext.name;
 		const route = "/room00/" + name;
 		navigate(route);
 	}
@@ -25,7 +29,6 @@ function HomePage() {
 	const handleJoinGame = () => {
 		// A COMPLETER
 		setWaiting(true);
-
 	}
 
 	const WaitingLogo = (): JSX.Element => {
@@ -39,8 +42,26 @@ function HomePage() {
 		</div>
 	}
 
+	useEffect(() => {
+		const uuid = sessionStorage.getItem("uuid");
+		const name = sessionStorage.getItem("name");
+		if (uuid && name) {
+			setUuid(uuid);
+			setName(name);
+			if (uuid && name) {
+				setSocket(
+					io("http://localhost:3000", {
+						query: { name: name, uuid: uuid },
+					})
+				);
+			} else {
+				console.log(`uuid or name is undefined ${uuid} ${name}`);
+			}
+		}
+	}, []);
+
 	return (
-		playerContext.name ?
+		sessionStorage.getItem("name") ?
 			<div className="bg-black h-screen">
 				{isWaiting == false ?
 					<div className="flex items-center justify-center h-screen">
@@ -55,7 +76,7 @@ function HomePage() {
 					<WaitingLogo />
 				}
 			</div>
-			: <ConnectPage />
+			: ConnectPage({ name: name, setName: setName, uuid: uuid, setUuid: setUuid, socket: socket, setSocket: setSocket })
 	);
 }
 
