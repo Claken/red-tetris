@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSocket } from "../contexts/socketContext";
 
 export const placeTetromino = (grid: number[][], tetromino: number[][], x: number, y: number): number[][] => {
 
@@ -14,15 +15,44 @@ export const placeTetromino = (grid: number[][], tetromino: number[][], x: numbe
 	return newGrid;
 };
 
-
 function GamePage() {
 
+	const socketContext = useSocket();
+
+	if (!socketContext) {
+		throw new Error('ConnectPage must be used within a SocketProvider');
+	}
+
+	const { socket } = socketContext;
+	const uuid = sessionStorage.getItem("uuid");
 	const numRows = 20;
 	const numCols = 10;
 
 	const [grid, setGrid] = useState<number[][]>(Array.from({ length: numRows }, () =>
 		Array(numCols).fill(0)
 	));
+
+	socket?.on("countdown", (data) => {
+		console.log(data);
+		// A FAIRE
+	  });
+
+	socket?.on("beforeGame", (data) => {
+		if (data.player1.uuid === uuid) {
+			setGrid(data.player1.grid);
+		} else {
+			setGrid(data.player2.grid);
+		}
+	});
+
+	socket?.on("game", (data) => {
+		console.log(data);
+		if (data.player1.uuid === uuid) {
+			setGrid(data.player1.grid);
+		} else {
+			setGrid(data.player2.grid);
+		}
+	});
 
 	return (
 		<div className="bg-black h-screen">

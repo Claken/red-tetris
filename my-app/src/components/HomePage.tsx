@@ -12,6 +12,8 @@ function HomePage() {
 	const socketContext = useSocket();
 	const [name, setName] = useState<string>("");
 	const [uuid, setUuid] = useState<string | undefined>(undefined);
+	const [roomId, setRoomId] = useState<string>("");
+	const [route, setRoute] = useState<string>("");
 
 	if (!socketContext) {
 		throw new Error('ConnectPage must be used within a SocketProvider');
@@ -19,16 +21,21 @@ function HomePage() {
 
 	const { socket, setSocket } = socketContext;
 
-	const handleJoinSolo = () => {
+	const handleJoinSolo = (e: React.MouseEvent<HTMLButtonElement>) => {
+		e.preventDefault();
 		// TEST
-		// COMMENT SAVOIR COMBIEN IL Y A DE ROOMS ?
-		const route = "/room00/" + name;
-		navigate(route);
+		// const route = "/room00/" + name;
+		// navigate(route);
 	}
 
-	const handleJoinGame = () => {
-		// A COMPLETER
-		setWaiting(true);
+	const goToGameRoom = () => {
+		setRoute("/" + roomId + "/" + name);
+		navigate(route)
+	}
+
+	const handleJoinGame = (e: React.MouseEvent<HTMLButtonElement>) => {
+		e.preventDefault();
+		socket?.emit("playerPlayMulti", { name: name, uuid: uuid });
 	}
 
 	const WaitingLogo = (): JSX.Element => {
@@ -41,6 +48,17 @@ function HomePage() {
 			</div>
 		</div>
 	}
+
+	socket?.on("waitToPlay", (data) => {
+		setRoomId(data.roomId);
+		setWaiting(true);
+		console.log(data);
+	});
+
+	socket?.on("game", () => {
+		setWaiting(false);
+		goToGameRoom();
+	});
 
 	useEffect(() => {
 		const uuid = sessionStorage.getItem("uuid");
