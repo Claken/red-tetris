@@ -25,6 +25,11 @@ export class ManageSocket {
     }
     return ManageSocket._instance;
   }
+
+  public getInfos(uuid: string): IdentifierToSocket | undefined {
+    return this.userSockets.get(uuid);
+  }
+
   public add(socket: Socket, name: string, uuid: string | undefined): void {
     if (uuid == undefined || !this.userSockets.has(uuid)) {
       console.log(uuid);

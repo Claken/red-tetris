@@ -23,30 +23,42 @@ export class Game {
   }
 
   async sendCounterToClient(): Promise<void> {
-    const countdownTime = 3;
+    const countdownTime = 4;
+    // console.log({ room_id: this._room_id });
+    // console.log({ this_server: this._server });
     let currentTime = countdownTime;
     // send the countdown to the client
     return new Promise((resolve) => {
       const intervalId = setInterval(() => {
-        if (currentTime > 0) {
+        if (currentTime == 4) {
           // Envoyer le temps restant aux clients
-          this._server.to(this._room_id).emit('countdown', currentTime);
-          currentTime--;
-        } else {
-          // count down is over we can start the game
-          clearInterval(intervalId);
+
           this._server.to(this._room_id).emit('startGame', {
             player1: {
               grid: this._player1.getGrid(),
               name: this._player1.getPlayerName(),
               uuid: this._player1.getUuid(),
+              roomId: this._room_id,
+              tetrominos: this._player1.getTetrominos().slice(0, 5),
             },
             player2: {
               grid: this._player2.getGrid(),
               name: this._player2.getPlayerName(),
               uuid: this._player2.getUuid(),
+              roomId: this._room_id,
+              tetrominos: this._player2.getTetrominos().slice(0, 5),
             },
           });
+          currentTime--;
+        } else if (currentTime > 0) {
+          this._server.to(this._room_id).emit('countdown', {
+            currentTime: currentTime,
+            roomId: this._room_id,
+          });
+          currentTime--;
+        } else {
+          // count down is over we can start the game
+          clearInterval(intervalId);
           resolve();
         }
       }, 1000); // update every second
@@ -55,15 +67,15 @@ export class Game {
 
   async startGame(): Promise<void> {
     await this.sendCounterToClient();
-    const intervalId = setInterval(() => {
-      this._player1.updateGrid();
-      this._player2.updateGrid();
-      this.sendGameToClient();
-    }, 1000); // update every second
+    // const intervalId = setInterval(() => {
+    //   this._player1.updateGrid();
+    //   this._player2.updateGrid();
+    //   this.sendGameToClient();
+    // }, 1000); // update every second
 
-    if (this.endGame()) {
-      clearInterval(intervalId);
-    }
+    // if (this.endGame()) {
+    //   clearInterval(intervalId);
+    // }
   }
 
   actionGame(playerUuid: string, action: string): void {
@@ -102,11 +114,13 @@ export class Game {
         grid: this._player1.getGrid(),
         name: this._player1.getPlayerName(),
         uuid: this._player1.getUuid(),
+        roomId: this._room_id,
       },
       player2: {
         grid: this._player2.getGrid(),
         name: this._player2.getPlayerName(),
         uuid: this._player2.getUuid(),
+        roomId: this._room_id,
       },
     });
   }
