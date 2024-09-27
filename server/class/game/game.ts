@@ -110,10 +110,10 @@ export class Game {
     this._player2.initTetrominoInsideGrid();
     this.sendGameToClient();
     const intervalId = setInterval(() => {
-      this._player1.moveDownTetromino();
-      this._player2.moveDownTetromino();
       this._player1.updateGrid();
       this._player2.updateGrid();
+      this._player1.moveDownTetromino();
+      this._player2.moveDownTetromino();
       this.sendGameToClient();
       if (this.endGame()) {
         clearInterval(intervalId);

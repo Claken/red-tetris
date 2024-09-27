@@ -183,6 +183,9 @@ export class Player {
     }
 
     if (this.isColisionRotate({ startY, startX, endY, endX })) {
+      this._tetrominos[0].rotateTetromino();
+      this._tetrominos[0].rotateTetromino();
+      this._tetrominos[0].rotateTetromino();
       return;
     }
 
