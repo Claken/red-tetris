@@ -21,16 +21,14 @@ function HomePage() {
 
 	const { socket, setSocket } = socketContext;
 
-	const handleJoinSolo = (e: React.MouseEvent<HTMLButtonElement>) => {
-		e.preventDefault();
-		// TEST
-		// const route = "/room00/" + name;
-		// navigate(route);
-	}
-
 	const goToGameRoom = () => {
 		setRoute("/" + roomId + "/" + name);
 		navigate(route)
+	}
+
+	const handleJoinSolo = (e: React.MouseEvent<HTMLButtonElement>) => {
+		e.preventDefault();
+		// A FAIRE
 	}
 
 	const handleJoinGame = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -55,7 +53,7 @@ function HomePage() {
 		console.log(data);
 	});
 
-	socket?.on("game", () => {
+	socket?.on("beforeGame", () => {
 		setWaiting(false);
 		goToGameRoom();
 	});

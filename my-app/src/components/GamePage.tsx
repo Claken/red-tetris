@@ -1,20 +1,6 @@
 import { useState } from "react";
 import { useSocket } from "../contexts/socketContext";
 
-export const placeTetromino = (grid: number[][], tetromino: number[][], x: number, y: number): number[][] => {
-
-	const newGrid = grid.map(row => [...row]);
-
-	tetromino.forEach((row, rowIndex) => {
-		row.forEach((cell, colIndex) => {
-			if (cell) {
-				newGrid[y + rowIndex][x + colIndex] = cell;
-			}
-		});
-	});
-	return newGrid;
-};
-
 function GamePage() {
 
 	const socketContext = useSocket();
@@ -25,12 +11,28 @@ function GamePage() {
 
 	const { socket } = socketContext;
 	const uuid = sessionStorage.getItem("uuid");
+	const [roomId, setRoomId] = useState<string>("");
 	const numRows = 20;
 	const numCols = 10;
 
 	const [grid, setGrid] = useState<number[][]>(Array.from({ length: numRows }, () =>
 		Array(numCols).fill(0)
 	));
+
+	// const handleKeydown = (e: React.KeyboardEvent) => {
+	// 	console.log(e.key);
+	// 	if (e.key === "ArrowRight") {
+	// 	  socket?.emit("moveRight", { uuid: uuid, roomId: roomId });
+	// 	} else if (e.key === "ArrowLeft") {
+	// 	  socket?.emit("moveLeft", { uuid: uuid, roomId: roomId });
+	// 	} else if (e.key === "ArrowUp") {
+	// 	  socket?.emit("rotate", { uuid: uuid, roomId: roomId });
+	// 	} else if (e.key === "ArrowDown") {
+	// 	  socket?.emit("moveDown", { uuid: uuid, roomId: roomId });
+	// 	} else if (e.key === " ") {
+	// 	  socket?.emit("fallDown", { uuid: uuid, roomId: roomId });
+	// 	}
+	//   };
 
 	socket?.on("countdown", (data) => {
 		console.log(data);
@@ -43,6 +45,7 @@ function GamePage() {
 		} else {
 			setGrid(data.player2.grid);
 		}
+		setRoomId(data.player1.roomId);
 	});
 
 	socket?.on("game", (data) => {

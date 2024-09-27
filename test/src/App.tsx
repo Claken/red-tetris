@@ -34,7 +34,7 @@ function App() {
       socket?.emit("moveRight", { uuid: uuid, roomId: roomId });
     } else if (e.key === "ArrowLeft") {
       socket?.emit("moveLeft", { uuid: uuid, roomId: roomId });
-    } else if (e.key === "ArrowUp") {
+    } else if (e.key === "ArrowUp" ) {
       socket?.emit("rotate", { uuid: uuid, roomId: roomId });
     } else if (e.key === "ArrowDown") {
       socket?.emit("moveDown", { uuid: uuid, roomId: roomId });
