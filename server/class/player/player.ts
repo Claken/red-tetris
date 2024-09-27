@@ -160,6 +160,7 @@ export class Player {
       }
     }
   }
+
   rotateTetromino(): void {
     const lengthTetro = this._tetrominos[0].getLentgth();
     this._tetrominos[0].rotateTetromino();
@@ -266,7 +267,7 @@ export class Player {
         }
       }
       this._tetrominos.shift();
-      transform = false;
+      // transform = false;
     }
     this.clearLines();
     let nbrLineToAdd: number = 0;
@@ -286,7 +287,9 @@ export class Player {
     for (let i = 0; i < nbrLineToAdd; i++) {
       this._grid.unshift(new Array(10).fill(0));
     }
+    console.log({ transform: transform });
     if (transform) {
+      console.log('transform');
       this.initTetrominoInsideGrid();
     }
   }

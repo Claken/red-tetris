@@ -34,6 +34,48 @@ export class SocketGateway implements OnGatewayConnection {
       }
       this.waitGame.addPlayer(data.uuid, infos.name, socket.id);
     });
+    socket.on('moveRight', (data) => {
+      const games = this.waitGame.getGames();
+      const game = games.get(data.roomId);
+      if (game == undefined) {
+        return;
+      }
+      game.moveRight(data.uuid);
+    });
+    socket.on('moveLeft', (data) => {
+      const games = this.waitGame.getGames();
+      const game = games.get(data.roomId);
+      if (game == undefined) {
+        return;
+      }
+      game.moveLeft(data.uuid);
+    });
+    socket.on('rotate', (data) => {
+      const games = this.waitGame.getGames();
+      const game = games.get(data.roomId);
+      if (game == undefined) {
+        return;
+      }
+      game.rotate(data.uuid);
+    });
+
+    socket.on('moveDown', (data) => {
+      const games = this.waitGame.getGames();
+      const game = games.get(data.roomId);
+      if (game == undefined) {
+        return;
+      }
+      game.moveDown(data.uuid);
+    });
+
+    socket.on('fallDown', (data) => {
+      const games = this.waitGame.getGames();
+      const game = games.get(data.roomId);
+      if (game == undefined) {
+        return;
+      }
+      game.fallDown(data.uuid);
+    });
   }
 
   handleConnection(socket: Socket): void {
