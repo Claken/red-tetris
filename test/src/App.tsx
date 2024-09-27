@@ -10,6 +10,11 @@ function App() {
     name: "",
   });
 
+  const handleFormMulti = (e: React.FormEvent) => {
+    e.preventDefault();
+    socket?.emit("playerPlayMulti", { name: name, uuid: uuid });
+  };
+
   const handleForm = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Form submitted");
@@ -19,6 +24,17 @@ function App() {
         query: { name: formData.name, uuid: uuid },
       })
     );
+  };
+
+  const formuMulti = () => {
+    if (name && uuid) {
+      return (
+        <form onSubmit={handleFormMulti}>
+          <button type="submit">Rejoindre une partie</button>
+        </form>
+      );
+    }
+    return null;
   };
 
   const formu = () => {
@@ -36,6 +52,22 @@ function App() {
       </form>
     );
   };
+
+  socket?.on("countdown", (data) => {
+    console.log(data);
+  });
+
+  socket?.on("startGame", (data) => {
+    console.log(data);
+  });
+
+  socket?.on("game", (data) => {
+    console.log(data);
+  });
+
+  socket?.on("waitToPlay", (data) => {
+    console.log(data);
+  });
 
   socket?.on("new-person", (data) => {
     console.log(data);
@@ -66,6 +98,7 @@ function App() {
     <div>
       <h1>Bonjour</h1>
       {formu()}
+      {formuMulti()}
       <p>{name}</p>
       <p>{uuid}</p>
       <p>{socket?.id}</p>

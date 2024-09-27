@@ -3,10 +3,12 @@ import { Game } from '../game/game';
 import { ClientInfo } from '../../interfaces/clientInfo';
 import { Player } from '../player/player';
 import { ManagePlayerTetromino } from '../managePlayerTetromino/managePlayerTetromino';
+import { ManageSocket } from '../manageSocket/manageSocket';
 
 export class WaitGame {
   private static _instance: WaitGame;
   private _server: Server;
+  private room_name = '';
   private games: Map<string, Game> = new Map();
   private UUIDMapings: Map<string, ClientInfo> = new Map();
   private _playerWaiting: Player[] = [];
@@ -28,45 +30,72 @@ export class WaitGame {
       100,
     );
     const game = new Game(
-      'room_id',
+      this.room_name,
       this._playerWaiting[0],
       this._playerWaiting[1],
       this._server,
     );
+    this.games.set(this.room_name, game);
     game.startGame();
   }
-  public addPlayer(uuid: string): void {
+  public addPlayer(uuid: string, name: string, socketId: string): void {
     // check if the player is already in the waiting list
     // uuid recupere le socket.id et le nom du joueur qui se trouve dans le socketManager
+    // console.log(this._playerWaiting[0]?.getUuid());
     if (this._playerWaiting.find((player) => player.getUuid() === uuid)) {
       return;
     }
-    const player1 = new Player(uuid, 'player1');
+    const player1 = new Player(name, uuid);
     this._playerWaiting.push(player1);
+    const instanceManageSocket = ManageSocket.getInstance();
+    const socket = instanceManageSocket
+      .getInfos(uuid)
+      ?.sockets.filter((elem) => elem.id === socketId)[0];
+    if (socket === undefined) return;
     if (this.UUIDMapings.has(uuid)) {
+      // console.log('je suis dans le premier');
+      if (this.room_name === '') {
+        let roomName = name;
+        const infos = this.UUIDMapings.get(uuid);
+        let i = 0;
+        // console.log({ romId: infos?.roomId });
+        while (infos?.roomId.includes(roomName)) {
+          roomName = name + i;
+          i++;
+        }
+        this.room_name = roomName;
+      }
+      const infos = this.UUIDMapings.get(uuid);
+      infos?.socketId.push(socketId);
+      infos?.roomId.push(this.room_name);
+      socket.join(this.room_name);
       // checker dans clientInfo si un le nom de la room est deja pris
       // si oui rajouter un chiffre a la fin et reverifier jusqu'a trouver un nom de room libre
-      const val = this.UUIDMapings.get(uuid);
-      // val.room_id = val.room_id + 1;
-      let name = player1.getPlayerName();
-      while (val?.room_id.find((room) => room === name)) {
-        name = name + 1;
-      }
-      val?.room_id.push(name);
-      if (val) {
-        val.socketId = ['fdf'];
-      }
     } else {
+      if (this.room_name === '') {
+        this.room_name = name;
+      }
+      socket.join(this.room_name);
       this.UUIDMapings.set(uuid, {
-        socketId: ['fjdkf'],
-        room_id: ['player1'],
-        name: 'player1',
+        socketId: [socketId],
+        roomId: [this.room_name],
+        name: name,
       });
     }
+    // console.log({ uuid: uuid });
+    // console.log({ UUIDMapings: this.UUIDMapings.get(uuid) });
     if (this._playerWaiting.length === 1) {
       player1.setIsMaster(true);
+
+      socket.emit('waitToPlay', { roomId: this.room_name, name: name });
+      // socket.emit('new-person', { uuid: uuid, name: name });
+      // console.log({ uuidMapping: this.UUIDMapings });
+      // console.log({ playerWaiting: this._playerWaiting });
+      // console.log("je suis arriver jusqu'ici");
     } else if (this._playerWaiting.length === 2) {
+      socket.emit('waitToPlay', { roomId: this.room_name, name: name });
       this.startGame();
+      this.room_name = '';
       this._playerWaiting = [];
     }
   }

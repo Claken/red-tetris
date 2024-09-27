@@ -20,8 +20,20 @@ export class SocketGateway implements OnGatewayConnection {
   private waitGame: WaitGame;
   private manageSocket: ManageSocket = ManageSocket.getInstance();
 
-  constructor(private readonly socketService: SocketService) {
+  constructor(private readonly socketService: SocketService) {}
+  afterInit(): void {
     this.waitGame = WaitGame.getInstance(this.server);
+  }
+
+  private listenToEmmitter(socket: Socket) {
+    socket.on('playerPlayMulti', (data) => {
+      console.log(data);
+      const infos = this.manageSocket.getInfos(data.uuid);
+      if (infos == undefined) {
+        return;
+      }
+      this.waitGame.addPlayer(data.uuid, infos.name, socket.id);
+    });
   }
 
   handleConnection(socket: Socket): void {
@@ -32,6 +44,7 @@ export class SocketGateway implements OnGatewayConnection {
       return;
     }
     this.manageSocket.add(socket, name, uuid);
+    this.listenToEmmitter(socket);
   }
 
   handleDisconnect(socket: Socket): void {
