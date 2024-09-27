@@ -92,6 +92,7 @@ export class SocketGateway implements OnGatewayConnection {
   handleDisconnect(socket: Socket): void {
     console.log('Client disconnected');
     this.manageSocket.deleteSocket(socket);
+    this.waitGame.deleteSocket(socket.id);
   }
   // Implement other Socket.IO event handlers and message handlers
 }

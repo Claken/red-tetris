@@ -35,12 +35,56 @@ export class WaitGame {
       this._playerWaiting[1],
       this._server,
     );
+    const uuid1 = this._playerWaiting[0].getUuid();
+    const uuid2 = this._playerWaiting[1].getUuid();
     this.games.set(this.room_name, game);
     game.startGame();
+    const roomName = this.room_name;
+    const intervalId = setInterval(() => {
+      game.gamePlay();
+      if (game.endGame()) {
+        clearInterval(intervalId);
+        console.log('end game');
+        console.log(this.UUIDMapings.get(uuid1));
+        let index: number | undefined =
+          this.UUIDMapings.get(uuid1)?.roomId.indexOf(roomName);
+        console.log({ room_name: roomName });
+        if (index != undefined && index !== -1) {
+          this.UUIDMapings.get(uuid1)?.roomId.splice(index, 1);
+        }
+        index = this.UUIDMapings.get(uuid2)?.roomId.indexOf(roomName);
+        if (index != undefined && index !== -1) {
+          this.UUIDMapings.get(uuid2)?.roomId.splice(index, 1);
+        }
+        this.UUIDMapings.get(uuid1)?.socketId.forEach((socketId) => {
+          const socket = this._server.sockets.sockets.get(socketId);
+          if (socket !== undefined) {
+            socket.leave(roomName);
+          }
+        });
+        this.UUIDMapings.get(uuid2)?.socketId.forEach((socketId) => {
+          const socket = this._server.sockets.sockets.get(socketId);
+          if (socket !== undefined) {
+            socket.leave(roomName);
+          }
+        });
+        this.games.delete(roomName);
+        console.log(this.UUIDMapings.get(uuid1));
+      }
+    }, 1000); // update every second
   }
 
   public getGames(): Map<string, Game> {
     return this.games;
+  }
+
+  public deleteSocket(socketId: string): void {
+    this.UUIDMapings.forEach((value) => {
+      const index = value.socketId.indexOf(socketId);
+      if (index !== -1) {
+        value.socketId.splice(index, 1);
+      }
+    });
   }
 
   public addPlayer(uuid: string, name: string, socketId: string): void {
@@ -71,7 +115,9 @@ export class WaitGame {
         this.room_name = roomName;
       }
       const infos = this.UUIDMapings.get(uuid);
-      infos?.socketId.push(socketId);
+      if (!infos?.socketId.includes(socketId)) {
+        infos?.socketId.push(socketId);
+      }
       infos?.roomId.push(this.room_name);
       socket.join(this.room_name);
       // checker dans clientInfo si un le nom de la room est deja pris
@@ -91,7 +137,6 @@ export class WaitGame {
     // console.log({ UUIDMapings: this.UUIDMapings.get(uuid) });
     if (this._playerWaiting.length === 1) {
       player1.setIsMaster(true);
-
       socket.emit('waitToPlay', { roomId: this.room_name, name: name });
       // socket.emit('new-person', { uuid: uuid, name: name });
       // console.log({ uuidMapping: this.UUIDMapings });

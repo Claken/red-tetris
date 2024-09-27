@@ -104,22 +104,30 @@ export class Game {
     });
   }
 
+  gamePlay(): void {
+    this._player1.updateGrid();
+    this._player2.updateGrid();
+    this._player1.moveDownTetromino();
+    this._player2.moveDownTetromino();
+    this.sendGameToClient();
+  }
+
   async startGame(): Promise<void> {
     await this.sendCounterToClient();
     this._player1.initTetrominoInsideGrid();
     this._player2.initTetrominoInsideGrid();
     this.sendGameToClient();
-    const intervalId = setInterval(() => {
-      this._player1.updateGrid();
-      this._player2.updateGrid();
-      this._player1.moveDownTetromino();
-      this._player2.moveDownTetromino();
-      this.sendGameToClient();
-      if (this.endGame()) {
-        clearInterval(intervalId);
-        console.log('end game');
-      }
-    }, 1000); // update every second
+    // const intervalId = setInterval(() => {
+    //   this._player1.updateGrid();
+    //   this._player2.updateGrid();
+    //   this._player1.moveDownTetromino();
+    //   this._player2.moveDownTetromino();
+    //   this.sendGameToClient();
+    //   if (this.endGame()) {
+    //     clearInterval(intervalId);
+    //     console.log('end game');
+    //   }
+    // }, 1000); // update every second
   }
 
   actionGame(playerUuid: string, action: string): void {
