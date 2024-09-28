@@ -1,4 +1,5 @@
 import { Tetromino } from '../tetromino/tetromino';
+import { UNBREAKABLE_BRICK } from '../../constantes/constantes';
 
 export class Player {
   private _player_name: string;
@@ -99,7 +100,7 @@ export class Player {
     const endX = startX + tetromino.getLentgth().x;
     for (let y = 0; y < this._grid.length; y++) {
       for (let x = startX; endX > x; x++) {
-        if (this._grid[y][x] == 2) {
+        if (this._grid[y][x] == 2 || this._grid[y][x] == UNBREAKABLE_BRICK) {
           endY = y;
           return endY - 1;
         }
@@ -183,12 +184,15 @@ export class Player {
     }
 
     if (this.isColisionRotate({ startY, startX, endY, endX })) {
+      this._tetrominos[0].rotateTetromino();
+      this._tetrominos[0].rotateTetromino();
+      this._tetrominos[0].rotateTetromino();
       return;
     }
 
     for (let y = startY, i = 0; y < endY; y++, i++) {
       for (let x = startX, z = 0; x < endX; x++, z++) {
-        if (this._grid[y][x] != 2) {
+        if (this._grid[y][x] != 2 && this._grid[y][x] != UNBREAKABLE_BRICK) {
           this._grid[y][x] = shape[i][z];
         }
       }
@@ -199,7 +203,14 @@ export class Player {
     // const copie = this._grid.map((arr) => arr.slice());
     for (let y = p.startY, i = 0; y < p.endY; y++, i++) {
       for (let x = p.startX, z = 0; x < p.endX; x++, z++) {
-        if (y < 0 || x < 0 || y > 23 || x > 9 || this._grid[y][x] == 2) {
+        if (
+          y < 0 ||
+          x < 0 ||
+          y > 23 ||
+          x > 9 ||
+          this._grid[y][x] == 2 ||
+          this._grid[y][x] == UNBREAKABLE_BRICK
+        ) {
           return true;
         }
       }
@@ -215,7 +226,8 @@ export class Player {
           (y + cy > 23 ||
             x + cx > 9 ||
             x + cx < 0 ||
-            this._grid[y + cy][x + cx] == 2)
+            this._grid[y + cy][x + cx] == 2 ||
+            this._grid[y + cy][x + cx] == UNBREAKABLE_BRICK)
         ) {
           return true;
         }
@@ -225,7 +237,11 @@ export class Player {
   }
   isPlayerLost(): boolean {
     // checker ceci apres un update soit finnis
-    if (this._grid[3].some((elem: number) => elem == 2)) {
+    if (
+      this._grid[3].some(
+        (elem: number) => elem == 2 || elem == UNBREAKABLE_BRICK,
+      )
+    ) {
       return true;
     }
     return false;
@@ -246,14 +262,19 @@ export class Player {
       }
     }
   }
-  updateGrid(): void {
+  updateGrid(): number {
     // tranform number with colision 1 to 2.
     // and destroy line completed with 2.
     // and move down all line above.
     let transform: boolean = false;
     for (let y = this._grid.length - 1; y > 0; y--) {
       for (let x = 0; this._grid[y].length > x; x++) {
-        if (this._grid[y][x] == 1 && (y == 23 || this._grid[y + 1][x] == 2)) {
+        if (
+          this._grid[y][x] == 1 &&
+          (y == 23 ||
+            this._grid[y + 1][x] == 2 ||
+            this._grid[y + 1][x] == UNBREAKABLE_BRICK)
+        ) {
           transform = true;
         }
       }
@@ -287,10 +308,18 @@ export class Player {
     for (let i = 0; i < nbrLineToAdd; i++) {
       this._grid.unshift(new Array(10).fill(0));
     }
-    console.log({ transform: transform });
+    // console.log({ transform: transform });
     if (transform) {
-      console.log('transform');
+      // console.log('transform');
       this.initTetrominoInsideGrid();
+    }
+    return nbrLineToAdd;
+  }
+
+  addLine(nbrLine: number): void {
+    for (let i = 0; i < nbrLine; i++) {
+      this._grid.shift();
+      this._grid.push(new Array(10).fill(3));
     }
   }
 }
