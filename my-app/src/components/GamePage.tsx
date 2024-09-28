@@ -18,43 +18,40 @@ function GamePage() {
 	const [grid, setGrid] = useState<number[][]>(Array.from({ length: numRows }, () =>
 		Array(numCols).fill(0)
 	));
+	const [oppGrid, setOppGrid] = useState<number[][]>(Array.from({ length: numRows }, () =>
+		Array(numCols).fill(0)
+	));
 
-	// const handleKeydown = (e: React.KeyboardEvent) => {
-	// 	console.log(e.key);
-	// 	if (e.key === "ArrowRight") {
-	// 	  socket?.emit("moveRight", { uuid: uuid, roomId: roomId });
-	// 	} else if (e.key === "ArrowLeft") {
-	// 	  socket?.emit("moveLeft", { uuid: uuid, roomId: roomId });
-	// 	} else if (e.key === "ArrowUp") {
-	// 	  socket?.emit("rotate", { uuid: uuid, roomId: roomId });
-	// 	} else if (e.key === "ArrowDown") {
-	// 	  socket?.emit("moveDown", { uuid: uuid, roomId: roomId });
-	// 	} else if (e.key === " ") {
-	// 	  socket?.emit("fallDown", { uuid: uuid, roomId: roomId });
-	// 	}
-	//   };
+	const handleKeydown = (e: React.KeyboardEvent) => {
+		console.log(e.key);
+		if (e.key === "ArrowRight") {
+		  socket?.emit("moveRight", { uuid: uuid, roomId: roomId });
+		} else if (e.key === "ArrowLeft") {
+		  socket?.emit("moveLeft", { uuid: uuid, roomId: roomId });
+		} else if (e.key === "ArrowUp") {
+		  socket?.emit("rotate", { uuid: uuid, roomId: roomId });
+		} else if (e.key === "ArrowDown") {
+		  socket?.emit("moveDown", { uuid: uuid, roomId: roomId });
+		} else if (e.key === " ") {
+		  socket?.emit("fallDown", { uuid: uuid, roomId: roomId });
+		}
+	  };
 
 	socket?.on("countdown", (data) => {
 		console.log(data);
 		// A FAIRE
-	  });
+	});
 
 	socket?.on("beforeGame", (data) => {
-		if (data.player1.uuid === uuid) {
-			setGrid(data.player1.grid);
-		} else {
-			setGrid(data.player2.grid);
-		}
+		setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
+		setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
 		setRoomId(data.player1.roomId);
 	});
 
 	socket?.on("game", (data) => {
 		console.log(data);
-		if (data.player1.uuid === uuid) {
-			setGrid(data.player1.grid);
-		} else {
-			setGrid(data.player2.grid);
-		}
+		setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
+		setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
 	});
 
 	return (
