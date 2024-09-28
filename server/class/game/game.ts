@@ -105,8 +105,10 @@ export class Game {
   }
 
   gamePlay(): void {
-    this._player1.updateGrid();
-    this._player2.updateGrid();
+    const nbrLine = this._player1.updateGrid();
+    const nbrLine2 = this._player2.updateGrid();
+    this._player1.addLine(nbrLine2);
+    this._player2.addLine(nbrLine);
     this._player1.moveDownTetromino();
     this._player2.moveDownTetromino();
     this.sendGameToClient();
@@ -159,7 +161,7 @@ export class Game {
     }
     return false;
   }
-  private sendGameToClient(): void {
+  public sendGameToClient(): void {
     // send the five first pieces to the client
     this._server.to(this._room_id).emit('game', {
       player1: {

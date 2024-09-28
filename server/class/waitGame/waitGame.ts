@@ -22,6 +22,14 @@ export class WaitGame {
     return WaitGame._instance;
   }
 
+  public getRoomName = (): string => {
+    return this.room_name;
+  };
+
+  public getPlayerWaiting = (): Player[] => {
+    return this._playerWaiting;
+  };
+
   private startGame(): void {
     const managePT = new ManagePlayerTetromino();
     managePT.injectmultipleTetromino(
@@ -44,11 +52,11 @@ export class WaitGame {
       game.gamePlay();
       if (game.endGame()) {
         clearInterval(intervalId);
-        console.log('end game');
-        console.log(this.UUIDMapings.get(uuid1));
+        // console.log('end game');
+        // console.log(this.UUIDMapings.get(uuid1));
         let index: number | undefined =
           this.UUIDMapings.get(uuid1)?.roomId.indexOf(roomName);
-        console.log({ room_name: roomName });
+        // console.log({ room_name: roomName });
         if (index != undefined && index !== -1) {
           this.UUIDMapings.get(uuid1)?.roomId.splice(index, 1);
         }
@@ -69,7 +77,7 @@ export class WaitGame {
           }
         });
         this.games.delete(roomName);
-        console.log(this.UUIDMapings.get(uuid1));
+        // console.log(this.UUIDMapings.get(uuid1));
       }
     }, 1000); // update every second
   }
@@ -85,6 +93,24 @@ export class WaitGame {
         value.socketId.splice(index, 1);
       }
     });
+  }
+
+  public isInGame(uuid: string, socketId: string): any {
+    const infos = this.UUIDMapings.get(uuid);
+    if (infos === undefined) {
+      return;
+    }
+    const rooms: any = [];
+    if (infos.roomId.length > 0) {
+      infos.roomId.forEach((roomName) => {
+        const game = this.games.get(roomName);
+        if (game !== undefined) {
+          rooms.push(roomName);
+        }
+      });
+      infos.socketId.push(socketId);
+    }
+    return rooms;
   }
 
   public addPlayer(uuid: string, name: string, socketId: string): void {

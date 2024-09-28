@@ -27,7 +27,7 @@ export class SocketGateway implements OnGatewayConnection {
 
   private listenToEmmitter(socket: Socket) {
     socket.on('playerPlayMulti', (data) => {
-      console.log(data);
+      // console.log(data);
       const infos = this.manageSocket.getInfos(data.uuid);
       if (infos == undefined) {
         return;
@@ -35,11 +35,14 @@ export class SocketGateway implements OnGatewayConnection {
       this.waitGame.addPlayer(data.uuid, infos.name, socket.id);
     });
     socket.on('moveRight', (data) => {
+      // console.log('move right');
+      // console.log(data);
       const games = this.waitGame.getGames();
       const game = games.get(data.roomId);
       if (game == undefined) {
         return;
       }
+      // console.log('moove right');
       game.moveRight(data.uuid);
     });
     socket.on('moveLeft', (data) => {
@@ -76,6 +79,28 @@ export class SocketGateway implements OnGatewayConnection {
       }
       game.fallDown(data.uuid);
     });
+
+    socket.on('isInGame', (data) => {
+      const uuid = data.uuid;
+      const playerWaits = this.waitGame.getPlayerWaiting();
+      if (playerWaits.length != 0) {
+        const room = this.waitGame.getRoomName();
+        socket.join(room);
+      }
+      const infos = this.manageSocket.getInfos(uuid);
+      // console.log({ infos: infos?.sockets });
+      const rooms = this.waitGame.isInGame(uuid, socket.id);
+      if (rooms == undefined) {
+        return;
+      }
+      socket.join(rooms);
+      const games = this.waitGame.getGames();
+      const game = games.get(rooms[0]);
+      if (game == undefined) {
+        return;
+      }
+      game.sendCounterToClient();
+    });
   }
 
   handleConnection(socket: Socket): void {
@@ -90,9 +115,9 @@ export class SocketGateway implements OnGatewayConnection {
   }
 
   handleDisconnect(socket: Socket): void {
-    console.log('Client disconnected');
-    this.manageSocket.deleteSocket(socket);
+    // console.log('Client disconnected');
     this.waitGame.deleteSocket(socket.id);
+    this.manageSocket.deleteSocket(socket);
   }
   // Implement other Socket.IO event handlers and message handlers
 }

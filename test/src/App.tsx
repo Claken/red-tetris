@@ -90,7 +90,16 @@ function App() {
                   <div
                     className="cell"
                     key={index}
-                    style={{ backgroundColor: cell === 0 ? "black" : "white" }}
+                    style={{
+                      backgroundColor:
+                        cell === 0
+                          ? "black"
+                          : cell === 3
+                          ? "red"
+                          : cell === 2
+                          ? "blue"
+                          : "white",
+                    }}
                   ></div>
                 );
               })}
@@ -102,10 +111,12 @@ function App() {
   };
 
   socket?.on("countdown", (data) => {
+    console.log("countdown");
     console.log(data);
   });
 
   socket?.on("beforeGame", (data) => {
+    console.log("beforeGame");
     console.log(data);
     if (data.player1.uuid === uuid) {
       setGrid(data.player1.grid);
@@ -118,8 +129,10 @@ function App() {
     console.log(data);
     if (data.player1.uuid === uuid) {
       setGrid(data.player1.grid);
+      setRoomId(data.player1.roomId);
     } else {
       setGrid(data.player2.grid);
+      setRoomId(data.player2.roomId);
     }
   });
 
@@ -157,6 +170,13 @@ function App() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    const uuid = sessionStorage.getItem("uuid");
+    if (uuid && socket) {
+      socket.emit("isInGame", { uuid: uuid });
+    }
+  }, [socket]);
 
   return (
     <div>
