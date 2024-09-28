@@ -114,9 +114,6 @@ export class WaitGame {
   }
 
   public addPlayer(uuid: string, name: string, socketId: string): void {
-    // check if the player is already in the waiting list
-    // uuid recupere le socket.id et le nom du joueur qui se trouve dans le socketManager
-    // console.log(this._playerWaiting[0]?.getUuid());
     if (this._playerWaiting.find((player) => player.getUuid() === uuid)) {
       return;
     }
@@ -146,8 +143,6 @@ export class WaitGame {
       }
       infos?.roomId.push(this.room_name);
       socket.join(this.room_name);
-      // checker dans clientInfo si un le nom de la room est deja pris
-      // si oui rajouter un chiffre a la fin et reverifier jusqu'a trouver un nom de room libre
     } else {
       if (this.room_name === '') {
         this.room_name = name;
@@ -159,15 +154,9 @@ export class WaitGame {
         name: name,
       });
     }
-    // console.log({ uuid: uuid });
-    // console.log({ UUIDMapings: this.UUIDMapings.get(uuid) });
     if (this._playerWaiting.length === 1) {
       player1.setIsMaster(true);
       socket.emit('waitToPlay', { roomId: this.room_name, name: name });
-      // socket.emit('new-person', { uuid: uuid, name: name });
-      // console.log({ uuidMapping: this.UUIDMapings });
-      // console.log({ playerWaiting: this._playerWaiting });
-      // console.log("je suis arriver jusqu'ici");
     } else if (this._playerWaiting.length === 2) {
       socket.emit('waitToPlay', { roomId: this.room_name, name: name });
       this.startGame();
