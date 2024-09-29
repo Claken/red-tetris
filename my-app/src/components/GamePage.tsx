@@ -12,6 +12,7 @@ function GamePage() {
 	const { socket } = socketContext;
 	const uuid = sessionStorage.getItem("uuid");
 	const [roomId, setRoomId] = useState<string>("");
+	const [countdown, setCountdown] = useState<number | null>(null);
 	const numRows = 20;
 	const numCols = 10;
 
@@ -40,7 +41,7 @@ function GamePage() {
 
 	socket?.on("countdown", (data) => {
 		console.log(data);
-		// A FAIRE
+		setCountdown(data.currentTime === 0 ? null : data.currentTime );
 	});
 
 	socket?.on("beforeGame", (data) => {
@@ -79,6 +80,13 @@ function GamePage() {
 								))
 							)}
 						</div>
+						{countdown !== null && (
+							<div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
+								<h1 className="text-white text-6xl font-bold">
+									{countdown}
+								</h1>
+							</div>
+						)}
 					</div>
 				</div>
 			</div>
