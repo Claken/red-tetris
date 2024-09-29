@@ -24,18 +24,19 @@ function GamePage() {
 
 	const handleKeydown = (e: React.KeyboardEvent) => {
 		console.log(e.key);
+		console.log("key beach");
 		if (e.key === "ArrowRight") {
-		  socket?.emit("moveRight", { uuid: uuid, roomId: roomId });
+			socket?.emit("moveRight", { uuid: uuid, roomId: roomId });
 		} else if (e.key === "ArrowLeft") {
-		  socket?.emit("moveLeft", { uuid: uuid, roomId: roomId });
+			socket?.emit("moveLeft", { uuid: uuid, roomId: roomId });
 		} else if (e.key === "ArrowUp") {
-		  socket?.emit("rotate", { uuid: uuid, roomId: roomId });
+			socket?.emit("rotate", { uuid: uuid, roomId: roomId });
 		} else if (e.key === "ArrowDown") {
-		  socket?.emit("moveDown", { uuid: uuid, roomId: roomId });
+			socket?.emit("moveDown", { uuid: uuid, roomId: roomId });
 		} else if (e.key === " ") {
-		  socket?.emit("fallDown", { uuid: uuid, roomId: roomId });
+			socket?.emit("fallDown", { uuid: uuid, roomId: roomId });
 		}
-	  };
+	};
 
 	socket?.on("countdown", (data) => {
 		console.log(data);
@@ -49,7 +50,7 @@ function GamePage() {
 	});
 
 	socket?.on("game", (data) => {
-		console.log(data);
+		// console.log(data);
 		setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
 		setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
 	});
@@ -59,7 +60,9 @@ function GamePage() {
 			<div className="flex items-center justify-center h-screen">\
 				<div className="border-8 border-red-500">
 					<div className="border-2 border-black">
-						<div className="grid grid-cols-10 gap-0.5">
+						<div className="grid grid-cols-10 gap-0.5"
+							onKeyDown={handleKeydown}
+						>
 							{grid.map((row, rowIndex) =>
 								row.map((cell, colIndex) => (
 									<div

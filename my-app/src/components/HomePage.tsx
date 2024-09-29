@@ -22,8 +22,8 @@ function HomePage() {
 	const { socket, setSocket } = socketContext;
 
 	const goToGameRoom = () => {
-		setRoute("/" + roomId + "/" + name);
-		navigate(route)
+		console.log("go to game")
+		navigate(route);
 	}
 
 	const handleJoinSolo = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -49,8 +49,10 @@ function HomePage() {
 
 	socket?.on("waitToPlay", (data) => {
 		setRoomId(data.roomId);
+		const roomName = roomId === "" ? data.roomId : roomId;
+		const goToRoute = "/" + roomName + "/" + name;
+		setRoute(goToRoute);
 		setWaiting(true);
-		console.log(data);
 	});
 
 	socket?.on("beforeGame", () => {
