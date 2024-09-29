@@ -39,9 +39,9 @@ export class WaitGame {
     );
     const game = new Game(
       this.room_name,
+      this._server,
       this._playerWaiting[0],
       this._playerWaiting[1],
-      this._server,
     );
     const uuid1 = this._playerWaiting[0].getUuid();
     const uuid2 = this._playerWaiting[1].getUuid();
