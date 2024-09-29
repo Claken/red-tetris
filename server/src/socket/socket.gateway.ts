@@ -27,12 +27,12 @@ export class SocketGateway implements OnGatewayConnection {
 
   private listenToEmmitter(socket: Socket) {
     socket.on('playerAlone', (data) => {
-      console.log(data);
+      // console.log(data);
       const infos = this.manageSocket.getInfos(data.uuid);
       if (infos == undefined) {
         return;
       }
-      // this.waitGame.addPlayer(data.uuid, infos.name, socket.id);
+      this.waitGame.addPlayer(data.uuid, infos.name, socket.id, true);
     });
     socket.on('playerPlayMulti', (data) => {
       // console.log(data);
@@ -40,7 +40,7 @@ export class SocketGateway implements OnGatewayConnection {
       if (infos == undefined) {
         return;
       }
-      this.waitGame.addPlayer(data.uuid, infos.name, socket.id);
+      this.waitGame.addPlayer(data.uuid, infos.name, socket.id, false);
     });
     socket.on('moveRight', (data) => {
       // console.log('move right');

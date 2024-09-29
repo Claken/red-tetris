@@ -19,4 +19,16 @@ export class ManagePlayerTetromino {
       this.injectTetromino(player1, player2);
     }
   }
+
+  injectTetrominoSolo(player: Player): void {
+    const tetromino = new Tetromino();
+    tetromino.generateRandomTetromino();
+    player.addTeromino(tetromino);
+  }
+
+  injectmultipleTetrominoSolo(player1: Player, num: number): void {
+    for (let i = 0; i < num; i++) {
+      this.injectTetrominoSolo(player1);
+    }
+  }
 }
