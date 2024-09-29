@@ -26,6 +26,14 @@ export class SocketGateway implements OnGatewayConnection {
   }
 
   private listenToEmmitter(socket: Socket) {
+    socket.on('playerAlone', (data) => {
+      console.log(data);
+      const infos = this.manageSocket.getInfos(data.uuid);
+      if (infos == undefined) {
+        return;
+      }
+      // this.waitGame.addPlayer(data.uuid, infos.name, socket.id);
+    });
     socket.on('playerPlayMulti', (data) => {
       // console.log(data);
       const infos = this.manageSocket.getInfos(data.uuid);
@@ -87,7 +95,7 @@ export class SocketGateway implements OnGatewayConnection {
         const room = this.waitGame.getRoomName();
         socket.join(room);
       }
-      const infos = this.manageSocket.getInfos(uuid);
+      // const infos = this.manageSocket.getInfos(uuid);
       // console.log({ infos: infos?.sockets });
       const rooms = this.waitGame.isInGame(uuid, socket.id);
       if (rooms == undefined) {
