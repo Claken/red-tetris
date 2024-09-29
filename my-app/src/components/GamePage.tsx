@@ -22,7 +22,7 @@ function GamePage() {
 		Array(numCols).fill(0)
 	));
 
-	const handleKeydown = (e: React.KeyboardEvent) => {
+	const handleKeydown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 		console.log(e.key);
 		console.log("key beach");
 		if (e.key === "ArrowRight") {
@@ -55,12 +55,19 @@ function GamePage() {
 		setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
 	});
 
+	socket?.on("endGame", (data) => {
+		console.log(data);
+		setGrid([]);
+		setOppGrid([]);
+	});
+
 	return (
 		<div className="bg-black h-screen">
 			<div className="flex items-center justify-center h-screen">\
 				<div className="border-8 border-red-500">
 					<div className="border-2 border-black">
 						<div className="grid grid-cols-10 gap-0.5"
+							tabIndex={0}
 							onKeyDown={handleKeydown}
 						>
 							{grid.map((row, rowIndex) =>
