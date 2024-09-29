@@ -246,8 +246,8 @@ export class Player {
     }
     return false;
   }
-  clearLines(): void {
-    // clear line
+  clearLines(): number {
+    let nbrLineToDestroy = 0;
     for (let y = this._grid.length - 1; y > 0; y--) {
       let count = 0;
       for (let x = 0; this._grid[y].length > x; x++) {
@@ -259,13 +259,16 @@ export class Player {
         for (let x = 0; this._grid[y].length > x; x++) {
           this._grid[y][x] = 0;
         }
+        this._grid.splice(y, 1);
+        nbrLineToDestroy++;
       }
     }
+    for (let i = 0; i < nbrLineToDestroy; i++) {
+      this._grid.unshift(new Array(10).fill(0));
+    }
+    return nbrLineToDestroy;
   }
-  updateGrid(): number {
-    // tranform number with colision 1 to 2.
-    // and destroy line completed with 2.
-    // and move down all line above.
+  updateGrid(touched: number): any {
     let transform: boolean = false;
     for (let y = this._grid.length - 1; y > 0; y--) {
       for (let x = 0; this._grid[y].length > x; x++) {
@@ -279,6 +282,17 @@ export class Player {
         }
       }
     }
+    if (transform == false) {
+      touched = 1;
+    }
+    if (transform == true) {
+      touched--;
+      if (touched == 0) transform = false;
+      if (touched == -1) {
+        transform = true;
+        touched = 1;
+      }
+    }
     if (transform == true) {
       for (let y = this._grid.length - 1; y > 0; y--) {
         for (let x = 0; this._grid[y].length > x; x++) {
@@ -290,30 +304,33 @@ export class Player {
       this._tetrominos.shift();
       // transform = false;
     }
-    this.clearLines();
-    let nbrLineToAdd: number = 0;
-    let canIstartCountLinesToAdd: boolean = false;
-    for (let y = 0; y < this._grid.length; y++) {
-      if (this._grid[y].some((elem) => elem == 2)) {
-        canIstartCountLinesToAdd = true;
-      }
-      if (
-        canIstartCountLinesToAdd &&
-        this._grid[y].every((elem) => elem == 0)
-      ) {
-        this._grid.splice(y, 1);
-        nbrLineToAdd++;
-      }
-    }
-    for (let i = 0; i < nbrLineToAdd; i++) {
-      this._grid.unshift(new Array(10).fill(0));
-    }
+    const nbrLineToAdd = this.clearLines();
+    // let nbrLineToAdd: number = 0;
+    // let canIstartCountLinesToAdd: boolean = false;
+    // for (let y = 0; y < this._grid.length; y++) {
+    //   if (this._grid[y].some((elem) => elem == 2)) {
+    //     canIstartCountLinesToAdd = true;
+    //   }
+    //   if (
+    //     canIstartCountLinesToAdd &&
+    //     this._grid[y].every((elem) => elem == 0)
+    //   ) {
+    //     this._grid.splice(y, 1);
+    //     nbrLineToAdd++;
+    //   }
+    // }
+    // for (let i = 0; i < nbrLineToAdd; i++) {
+    //   this._grid.unshift(new Array(10).fill(0));
+    // }
     // console.log({ transform: transform });
     if (transform) {
       // console.log('transform');
       this.initTetrominoInsideGrid();
     }
-    return nbrLineToAdd;
+    if (transform && nbrLineToAdd > 0) {
+      console.log({ nbrLineToAdd: nbrLineToAdd });
+    }
+    return { nbrLineToAdd: nbrLineToAdd - 1, touched: touched };
   }
 
   addLine(nbrLine: number): void {

@@ -43,8 +43,9 @@ export class WaitGame {
     this.games.set(this.room_name, game);
     game.startGame();
     const roomName = this.room_name;
+    const touch = { touch1: 1, touch2: 1 };
     const intervalId = setInterval(() => {
-      game.gamePlay();
+      game.gamePlay(touch);
       if (game.endGame()) {
         clearInterval(intervalId);
         const index: number | undefined =
@@ -86,8 +87,9 @@ export class WaitGame {
     this.games.set(this.room_name, game);
     game.startGame();
     const roomName = this.room_name;
+    const touch = { touch1: 1, touch2: 1 };
     const intervalId = setInterval(() => {
-      game.gamePlay();
+      game.gamePlay(touch);
       if (game.endGame()) {
         clearInterval(intervalId);
         // console.log('end game');
