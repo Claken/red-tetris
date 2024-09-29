@@ -21,7 +21,7 @@ export class AppService {
     while (player1.getGrid()[3].some((elem) => elem == 2) == false) {
       player1.initTetrominoInsideGrid();
       player1.fallTetromino();
-      player1.updateGrid();
+      // player1.updateGrid();
     }
     console.log(player1.isPlayerLost());
     print2DArray(player1.getGrid());

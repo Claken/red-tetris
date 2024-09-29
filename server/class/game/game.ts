@@ -142,15 +142,18 @@ export class Game {
     });
   }
 
-  gamePlay(): void {
-    const nbrLine = this._player1.updateGrid();
+  gamePlay(touch: any): void {
+    const nbrLine = this._player1.updateGrid(touch.touch1);
     if (this._player2 != undefined) {
-      const nbrLine2 = this._player2.updateGrid();
-      this._player1.addLine(nbrLine2);
-      this._player2.addLine(nbrLine);
+      const nbrLine2 = this._player2.updateGrid(touch.touch2);
+      this._player1.addLine(nbrLine2.nbrLineToAdd);
+      this._player2.addLine(nbrLine.nbrLineToAdd);
       this._player2.moveDownTetromino();
+      touch.touch2 = nbrLine2.touched;
     }
     this._player1.moveDownTetromino();
+    touch.touch1 = nbrLine.touched;
+    console.log({ touch1: touch.touch1, touch2: touch.touch2 });
     this.sendGameToClient();
   }
 
