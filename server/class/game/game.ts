@@ -115,6 +115,16 @@ export class Game {
                 tetrominos: this._player2.getTetrominos().slice(0, 5),
               },
             });
+          } else {
+            this._server.to(this._room_id).emit('beforeGame', {
+              player1: {
+                grid: this._player1.getGrid(),
+                name: this._player1.getPlayerName(),
+                uuid: this._player1.getUuid(),
+                roomId: this._room_id,
+                tetrominos: this._player1.getTetrominos().slice(0, 5),
+              },
+            });
           }
           currentTime--;
         } else if (currentTime > 0) {
@@ -149,17 +159,6 @@ export class Game {
     this._player1.initTetrominoInsideGrid();
     if (this._player2 != undefined) this._player2.initTetrominoInsideGrid();
     this.sendGameToClient();
-    // const intervalId = setInterval(() => {
-    //   this._player1.updateGrid();
-    //   this._player2.updateGrid();
-    //   this._player1.moveDownTetromino();
-    //   this._player2.moveDownTetromino();
-    //   this.sendGameToClient();
-    //   if (this.endGame()) {
-    //     clearInterval(intervalId);
-    //     console.log('end game');
-    //   }
-    // }, 1000); // update every second
   }
 
   actionGame(playerUuid: string, action: string): void {
@@ -196,6 +195,20 @@ export class Game {
         },
       });
       return true;
+    } else if (
+      this._type == SINGLE &&
+      this._player2 == undefined &&
+      this._player1.isPlayerLost()
+    ) {
+      this._server.to(this._room_id).emit('endGame', {
+        player1: {
+          grid: this._player1.getGrid(),
+          name: this._player1.getPlayerName(),
+          uuid: this._player1.getUuid(),
+          winner: true,
+        },
+      });
+      return true;
     }
     return false;
   }
@@ -213,6 +226,15 @@ export class Game {
           grid: this._player2.getGrid(),
           name: this._player2.getPlayerName(),
           uuid: this._player2.getUuid(),
+          roomId: this._room_id,
+        },
+      });
+    } else {
+      this._server.to(this._room_id).emit('game', {
+        player1: {
+          grid: this._player1.getGrid(),
+          name: this._player1.getPlayerName(),
+          uuid: this._player1.getUuid(),
           roomId: this._room_id,
         },
       });

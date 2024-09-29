@@ -5,7 +5,7 @@ import "./App.css";
 function App() {
   const [name, setName] = useState("");
   const [grid, setGrid] = useState([]);
-  const [grid2, setGrid2] = useState([]);
+  // const [grid2, setGrid2] = useState([]);
   const [roomId, setRoomId] = useState("");
   const [uuid, setUuid] = useState<string | undefined>(undefined);
   const [socket, setSocket] = useState<Socket | undefined>(undefined);
@@ -126,41 +126,41 @@ function App() {
     );
   };
 
-  const gridTetris2 = () => {
-    return (
-      <div
-        tabIndex={0}
-        className="grid"
-        onClick={lala}
-        onKeyDown={handleKeydown}
-      >
-        {grid2?.map((row: number[], index) => {
-          return (
-            <div className="line" key={index}>
-              {row?.map((cell: number, index) => {
-                return (
-                  <div
-                    className="cell"
-                    key={index}
-                    style={{
-                      backgroundColor:
-                        cell === 0
-                          ? "black"
-                          : cell === 3
-                          ? "red"
-                          : cell === 2
-                          ? "blue"
-                          : "white",
-                    }}
-                  ></div>
-                );
-              })}
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
+  // const gridTetris2 = () => {
+  //   return (
+  //     <div
+  //       tabIndex={0}
+  //       className="grid"
+  //       onClick={lala}
+  //       onKeyDown={handleKeydown}
+  //     >
+  //       {grid2?.map((row: number[], index) => {
+  //         return (
+  //           <div className="line" key={index}>
+  //             {row?.map((cell: number, index) => {
+  //               return (
+  //                 <div
+  //                   className="cell"
+  //                   key={index}
+  //                   style={{
+  //                     backgroundColor:
+  //                       cell === 0
+  //                         ? "black"
+  //                         : cell === 3
+  //                         ? "red"
+  //                         : cell === 2
+  //                         ? "blue"
+  //                         : "white",
+  //                   }}
+  //                 ></div>
+  //               );
+  //             })}
+  //           </div>
+  //         );
+  //       })}
+  //     </div>
+  //   );
+  // };
 
   socket?.on("countdown", (data) => {
     console.log("countdown");
@@ -172,24 +172,27 @@ function App() {
     console.log(data);
     if (data.player1.uuid === uuid) {
       setGrid(data.player1.grid);
-      setGrid2(data.player2.grid);
-    } else {
+    } else if (data.player2 !== undefined && data.player2.uuid === uuid) {
       setGrid(data.player2.grid);
-      setGrid2(data.player1.grid);
     }
+    // else {
+    //   setGrid(data.player2.grid);
+    //   // setGrid2(data.player1.grid);
+    // }
   });
 
   socket?.on("game", (data) => {
-    console.log(data);
     if (data.player1.uuid === uuid) {
       setGrid(data.player1.grid);
-      setGrid2(data.player2.grid);
       setRoomId(data.player1.roomId);
-    } else {
+    } else if (data.player2 !== undefined && data.player2.uuid === uuid) {
       setGrid(data.player2.grid);
-      setGrid2(data.player1.grid);
-      setRoomId(data.player2.roomId);
     }
+    // else {
+    //   setGrid(data.player2.grid);
+    //   // setGrid2(data.player1.grid);
+    //   setRoomId(data.player2.roomId);
+    // }
   });
 
   socket?.on("waitToPlay", (data) => {
@@ -207,7 +210,7 @@ function App() {
   socket?.on("endGame", (data) => {
     console.log(data);
     setGrid([]);
-    setGrid2([]);
+    // setGrid2([]);
   });
 
   useEffect(() => {
@@ -242,7 +245,7 @@ function App() {
       {formuMulti()}
       {formAlone()}
       {gridTetris()}
-      {gridTetris2()}
+      {/* {gridTetris2()} */}
       <p>{name}</p>
       <p>{uuid}</p>
       <p>{socket?.id}</p>

@@ -30,13 +30,51 @@ export class WaitGame {
     return this._playerWaiting;
   };
 
+  private startGameSolo(): void {
+    const managePT = new ManagePlayerTetromino();
+    managePT.injectmultipleTetrominoSolo(this._playerWaiting[0], 100);
+    const game = new Game(
+      this.room_name,
+      this._server,
+      this._playerWaiting[0],
+      undefined,
+    );
+    const uuid1 = this._playerWaiting[0].getUuid();
+    this.games.set(this.room_name, game);
+    game.startGame();
+    const roomName = this.room_name;
+    const intervalId = setInterval(() => {
+      game.gamePlay();
+      if (game.endGame()) {
+        clearInterval(intervalId);
+        const index: number | undefined =
+          this.UUIDMapings.get(uuid1)?.roomId.indexOf(roomName);
+        if (index != undefined && index !== -1) {
+          this.UUIDMapings.get(uuid1)?.roomId.splice(index, 1);
+        }
+        this.UUIDMapings.get(uuid1)?.socketId.forEach((socketId) => {
+          const socket = this._server.sockets.sockets.get(socketId);
+          if (socket !== undefined) {
+            socket.leave(roomName);
+          }
+        });
+        this.games.delete(roomName);
+      }
+    }, 1000); // update every second
+  }
+
   private startGame(): void {
+    if (this._playerWaiting.length === 1) {
+      this.startGameSolo();
+      return;
+    }
     const managePT = new ManagePlayerTetromino();
     managePT.injectmultipleTetromino(
       this._playerWaiting[0],
       this._playerWaiting[1],
       100,
     );
+
     const game = new Game(
       this.room_name,
       this._server,
@@ -113,7 +151,12 @@ export class WaitGame {
     return rooms;
   }
 
-  public addPlayer(uuid: string, name: string, socketId: string): void {
+  public addPlayer(
+    uuid: string,
+    name: string,
+    socketId: string,
+    isGameSingle: boolean,
+  ): void {
     if (this._playerWaiting.find((player) => player.getUuid() === uuid)) {
       return;
     }
@@ -157,6 +200,11 @@ export class WaitGame {
     if (this._playerWaiting.length === 1) {
       player1.setIsMaster(true);
       socket.emit('waitToPlay', { roomId: this.room_name, name: name });
+      if (isGameSingle) {
+        this.startGame();
+        this.room_name = '';
+        this._playerWaiting = [];
+      }
     } else if (this._playerWaiting.length === 2) {
       socket.emit('waitToPlay', { roomId: this.room_name, name: name });
       this.startGame();
