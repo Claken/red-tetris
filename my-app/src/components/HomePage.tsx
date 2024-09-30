@@ -55,7 +55,7 @@ function HomePage() {
 		setWaiting(true);
 	});
 
-	socket?.on("beforeGame", () => {
+	socket?.on("changePage", () => {
 		setWaiting(false);
 		goToGameRoom();
 	});

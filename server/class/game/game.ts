@@ -72,6 +72,7 @@ export class Game {
     return new Promise((resolve) => {
       const intervalId = setInterval(() => {
         if (currentTime == 4) {
+          this._server.to(this._room_id).emit('changePage');
           this._server.to(this._room_id).emit('beforeGame', {
             player1: {
               grid: this._player1.getGrid(),

@@ -15,13 +15,11 @@ function GamePage() {
 	const [countdown, setCountdown] = useState<number | null>(null);
 	const numRows = 20;
 	const numCols = 10;
+	const emptyGrid = Array.from({ length: numRows }, () => Array(numCols).fill(0));
 
-	const [grid, setGrid] = useState<number[][]>(Array.from({ length: numRows }, () =>
-		Array(numCols).fill(0)
-	));
-	const [oppGrid, setOppGrid] = useState<number[][]>(Array.from({ length: numRows }, () =>
-		Array(numCols).fill(0)
-	));
+	const [grid, setGrid] = useState<number[][]>(emptyGrid);
+	const [oppGrid, setOppGrid] = useState<number[][]>(emptyGrid);
+
 
 	const handleKeydown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 		console.log(e.key);
@@ -44,6 +42,7 @@ function GamePage() {
 	});
 
 	socket?.on("beforeGame", (data) => {
+		console.log("beforeGame");
 		setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
 		setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
 		setRoomId(data.player1.roomId);
@@ -52,12 +51,14 @@ function GamePage() {
 	socket?.on("game", (data) => {
 		setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
 		setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
+		if (roomId != "") {
+			setRoomId(data.player1.roomId);
+		}
 	});
 
-	socket?.on("endGame", (data) => {
-		console.log(data);
-		setGrid([]);
-		setOppGrid([]);
+	socket?.on("endGame", () => {
+		setGrid(emptyGrid);
+		setOppGrid(emptyGrid);
 	});
 
 	return (
