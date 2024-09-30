@@ -40,8 +40,7 @@ function GamePage() {
 	};
 
 	socket?.on("countdown", (data) => {
-		console.log(data);
-		setCountdown(data.currentTime === 0 ? null : data.currentTime );
+		setCountdown(data.currentTime === 0 ? null : data.currentTime);
 	});
 
 	socket?.on("beforeGame", (data) => {
@@ -51,7 +50,6 @@ function GamePage() {
 	});
 
 	socket?.on("game", (data) => {
-		// console.log(data);
 		setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
 		setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
 	});
@@ -64,7 +62,21 @@ function GamePage() {
 
 	return (
 		<div className="bg-black h-screen">
-			<div className="flex items-center justify-center h-screen">\
+			<div className="absolute left-0 top-1/2 transform -translate-y-1/2 border-4 border-blue-500">
+				<div className="border-4 border-blue-500">
+					<div className="grid grid-cols-10 gap-0.5">
+						{oppGrid.map((row, rowIndex) =>
+							row.map((cell, colIndex) => (
+								<div
+									key={`opp-${rowIndex}-${colIndex}`}
+									className={`w-2 h-2 sm:w-2 sm:h-2 md:w-4 md:h-4 lg:w-4 lg:h-4 lx:w-6 lx:h-6 border border-blue-700 ${cell ? 'bg-blue-500' : 'bg-blue-900'}`}
+								></div>
+							))
+						)}
+					</div>
+				</div>
+			</div>
+			<div className="flex items-center justify-center h-screen">
 				<div className="border-8 border-red-500">
 					<div className="border-2 border-black">
 						<div className="grid grid-cols-10 gap-0.5"
