@@ -92,8 +92,6 @@ export class Player {
   }
   private fallPositionYTetromino(): number {
     let endY = 24;
-    // const tetromino = this._tetrominos[0];
-    // console.log({ tetromino: tetromino });
     let startX = 10;
     let endX = 0;
     for (let y = 0; y < this._grid.length; y++) {
@@ -106,8 +104,6 @@ export class Player {
         }
       }
     }
-    // const endX = startX + tetromino.getLentgth().x;
-    // console.log({ startX: startX, endX: endX });
     for (let y = 0; y < this._grid.length; y++) {
       for (let x = startX; endX > x; x++) {
         if (
@@ -143,7 +139,9 @@ export class Player {
         if (this._grid[y][x] == 1) points.push({ y: y, x: x });
       }
     }
+    if (points.length == 0) return;
     this.fallTetromino();
+
     for (let y = 0; y < this._grid.length; y++) {
       for (let x = 0; this._grid[y].length > x; x++) {
         if (this._grid[y][x] == 1) this._grid[y][x] = SPECTRUM;
@@ -160,79 +158,6 @@ export class Player {
       }
     }
   }
-
-  // fallSpectrum(): void {
-  //   for (let y = this._grid.length - 1; y > 0; y--) {
-  //     for (let x = 0; this._grid[y].length > x; x++) {
-  //       if (this._grid[y][x] == SPECTRUM) {
-  //         this._grid[y][x] = 0;
-  //       }
-  //     }
-  //   }
-  //   if (this.isCollisionMove(1, 0)) return;
-  //   let endY = this.fallPositionYTetromino();
-  //   let enter = false;
-  //   for (let y = this._grid.length - 1; y > -1; y--) {
-  //     for (let x = 0; this._grid[y].length > x; x++) {
-  //       if (this._grid[y][x] == 1) {
-  //         enter = true;
-  //         if (this._grid[endY][x] == 1) {
-  //           console.log("j'ecris 11");
-  //           console.log({ endY: endY, x: x });
-  //           this._grid[endY][x] = 11;
-  //         } else this._grid[endY][x] = SPECTRUM;
-  //       }
-  //     }
-  //     if (enter) endY--;
-  //   }
-  //   // while (this.isCollisionSpectrum(1, 0) == false) {
-  //   this.mooveDownSpectrum();
-  //   this.mooveDownSpectrum();
-  //   this.mooveDownSpectrum();
-  //   for (let y = 0; y < this._grid.length; y++) {
-  //     for (let x = 0; this._grid[y].length > x; x++) {
-  //       if (this._grid[y][x] == 11) {
-  //         this._grid[y][x] = 1;
-  //       }
-  //     }
-  //   }
-  // }
-
-  // mooveDownSpectrum(): void {
-  //   if (this.isCollisionSpectrum(1, 0)) return;
-  //   let first = 0;
-  //   for (let y = this._grid.length - 1; y > 0; y--) {
-  //     if (first == 1) first = 2;
-  //     for (let x = 0; this._grid[y].length > x; x++) {
-  //       if (this._grid[y - 1][x] == 11 || this._grid[y - 1][x] == SPECTRUM) {
-  //         if (this._grid[y - 1][x] == 11) first = 1;
-  //         // if (this._grid[y - 1][x] == 11 && (first == 0 || first == 1)) {
-  //         //   console.log('je rentre ici');
-  //         //   first = 1;
-  //         //   this._grid[y - 1][x] = 1;
-  //         //   this._grid[y][x] = this._grid[y - 1][x];
-  //         //   this._grid[y - 1][x] = 0;
-  //         // } else {
-  //         this._grid[y][x] = this._grid[y - 1][x];
-  //         this._grid[y - 1][x] = 0;
-  //         // }
-  //       }
-  //     }
-  //   }
-  //   if (first == 1) {
-  //     let end = 0;
-  //     for (let y = 0; y < this._grid.length; y++) {
-  //       if (end != 0) return;
-  //       for (let x = 0; this._grid[y].length > x; x++) {
-  //         if (this._grid[y][x] == 11) {
-  //           console.log('je rentre ici');
-  //           end = 1;
-  //           this._grid[y][x] = 1;
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
 
   isCollisionSpectrum(cy: number, cx: number): boolean {
     for (let y = 0; y < this._grid.length; y++) {
@@ -254,25 +179,9 @@ export class Player {
   }
 
   fallTetromino(): void {
-    if (this.isCollisionMove(1, 0)) return;
-    let endY = this.fallPositionYTetromino();
-    let enter = false;
-    for (let y = this._grid.length - 1; y > -1; y--) {
-      for (let x = 0; this._grid[y].length > x; x++) {
-        if (this._grid[y][x] == 1) {
-          enter = true;
-          this._grid[endY][x] = 1;
-          this._grid[y][x] = 0;
-        }
-      }
-      if (enter) {
-        endY--;
-      }
-    }
     while (this.isCollisionMove(1, 0) == false) {
       this.moveDownTetromino(1);
     }
-    // this.fallSpectrum();
   }
   moveDownTetromino(num?: number): void {
     if (this.isCollisionMove(1, 0)) return;
@@ -284,7 +193,7 @@ export class Player {
         }
       }
     }
-    if (num != undefined) this.fallSpectrum();
+    if (num == undefined) this.fallSpectrum();
   }
   moveLeftTetromino(): void {
     if (this.isCollisionMove(0, -1)) return;
