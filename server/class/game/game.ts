@@ -153,7 +153,7 @@ export class Game {
     }
     this._player1.moveDownTetromino();
     touch.touch1 = nbrLine.touched;
-    console.log({ touch1: touch.touch1, touch2: touch.touch2 });
+    // console.log({ touch1: touch.touch1, touch2: touch.touch2 });
     this.sendGameToClient();
   }
 
@@ -233,6 +233,7 @@ export class Game {
         },
       });
     } else {
+      // console.log({ room_id: this._room_id });
       this._server.to(this._room_id).emit('game', {
         player1: {
           grid: this._player1.getGrid(),

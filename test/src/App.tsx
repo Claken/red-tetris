@@ -99,6 +99,9 @@ function App() {
         onKeyDown={handleKeydown}
       >
         {grid?.map((row: number[], index) => {
+          if (index < 4) {
+            return null;
+          }
           return (
             <div className="line" key={index}>
               {row?.map((cell: number, index) => {
@@ -114,6 +117,8 @@ function App() {
                           ? "red"
                           : cell === 2
                           ? "blue"
+                          : cell === 102
+                          ? "green"
                           : "white",
                     }}
                   ></div>
@@ -182,6 +187,7 @@ function App() {
   });
 
   socket?.on("game", (data) => {
+    console.log("game");
     if (data.player1.uuid === uuid) {
       setGrid(data.player1.grid);
       setRoomId(data.player1.roomId);
