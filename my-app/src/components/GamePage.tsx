@@ -61,7 +61,7 @@ function GamePage() {
 
 	return (
 		<div className="bg-black h-screen">
-			<div className="absolute left-0 top-1/2 transform -translate-y-1/2 border-4 border-blue-500">
+			<div className="absolute top-1/2 transform -translate-y-1/2 border-4 border-blue-500">
 				<div className="border-4 border-blue-500">
 					<div className="grid grid-cols-10 gap-0.5">
 						{oppGrid.map((row, rowIndex) =>
