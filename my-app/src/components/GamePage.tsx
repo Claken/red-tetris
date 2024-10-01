@@ -19,7 +19,7 @@ function GamePage() {
 
 	const [grid, setGrid] = useState<number[][]>(emptyGrid);
 	const [oppGrid, setOppGrid] = useState<number[][]>(emptyGrid);
-
+	const [tetrominos, setTetro] = useState<number[][]>(emptyGrid);
 
 	const handleKeydown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 		console.log(e.key);
@@ -42,18 +42,16 @@ function GamePage() {
 	});
 
 	socket?.on("beforeGame", (data) => {
-		console.log("beforeGame");
 		setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
 		setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
 		setRoomId(data.player1.roomId);
+		setTetro(data.player1.uuid === uuid ? data.player1.tetrominos : data.player2.tetrominos);
 	});
 
 	socket?.on("game", (data) => {
 		setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
 		setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
-		if (roomId != "") {
-			setRoomId(data.player1.roomId);
-		}
+		console.log(tetrominos);
 	});
 
 	socket?.on("endGame", () => {
