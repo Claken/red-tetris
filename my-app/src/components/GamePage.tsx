@@ -36,8 +36,7 @@ function GamePage() {
 		}
 	};
 
-	const checkCellColorMainGrid = (cell: number) => {
-
+	const cellColorMainGrid = (cell: number) => {
 		if (cell === 1 || cell === 2) {
 			return 'bg-red-500';
 		}
@@ -47,8 +46,7 @@ function GamePage() {
 		return 'bg-red-900';
 	}
 
-	const checkCellColorOppGrid = (cell: number) => {
-
+	const cellColorOppGrid = (cell: number) => {
 		if (cell === 1 || cell === 2) {
 			return 'bg-blue-500';
 		}
@@ -67,13 +65,12 @@ function GamePage() {
 		setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
 		setRoomId(data.player1.roomId);
 		setTetro(data.player1.uuid === uuid ? data.player1.tetrominos : data.player2.tetrominos);
-		console.log(data.player1.tetrominos.shape)
+		console.log(data.player1.tetrominos)
 	});
 
 	socket?.on("game", (data) => {
 		setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
 		setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
-		console.log(grid);
 	});
 
 	socket?.on("endGame", () => {
@@ -91,7 +88,7 @@ function GamePage() {
 							row.map((cell, colIndex) => (
 								<div
 									key={`opp-${rowIndex}-${colIndex}`}
-									className={`w-2 h-2 sm:w-2 sm:h-2 md:w-4 md:h-4 lg:w-4 lg:h-4 lx:w-6 lx:h-6 border border-blue-700 ${checkCellColorOppGrid(cell)}`}
+									className={`w-2 h-2 sm:w-2 sm:h-2 md:w-4 md:h-4 lg:w-4 lg:h-4 lx:w-6 lx:h-6 border border-blue-700 ${cellColorOppGrid(cell)}`}
 								></div>
 							))
 						)}
@@ -109,7 +106,7 @@ function GamePage() {
 								row.map((cell, colIndex) => (
 									<div
 										key={`${rowIndex}-${colIndex}`}
-										className={`w-4 h-4 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-6 lg:h-6 lx:w-8 lx:h-8 border border-red-700 ${checkCellColorMainGrid(cell)}`}
+										className={`w-4 h-4 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-6 lg:h-6 lx:w-8 lx:h-8 border border-red-700 ${cellColorMainGrid(cell)}`}
 									></div>
 								))
 							)}
