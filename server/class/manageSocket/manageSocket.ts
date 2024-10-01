@@ -9,7 +9,7 @@ export class ManageSocket {
 
   private addNewUser(name: string, socket: Socket): void {
     const uuid = uuidv4();
-    console.log(uuid);
+    // console.log(uuid);
     const idTosocket: IdentifierToSocket = { name: name, sockets: [socket] };
     try {
       this.userSockets.set(uuid, idTosocket);
@@ -32,14 +32,9 @@ export class ManageSocket {
 
   public add(socket: Socket, name: string, uuid: string | undefined): void {
     if (uuid == undefined || !this.userSockets.has(uuid)) {
-      console.log(uuid);
       this.addNewUser(name, socket);
     } else {
-      console.log('user already exist');
-      console.log('je passe ici');
       this.userSockets.get(uuid)?.sockets.push(socket);
-
-      console.log(this.userSockets);
     }
   }
   public IdentifierToSocket(uuid: string): IdentifierToSocket | undefined {

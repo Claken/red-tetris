@@ -5,6 +5,7 @@ import "./App.css";
 function App() {
   const [name, setName] = useState("");
   const [grid, setGrid] = useState([]);
+  // const [grid2, setGrid2] = useState([]);
   const [roomId, setRoomId] = useState("");
   const [uuid, setUuid] = useState<string | undefined>(undefined);
   const [socket, setSocket] = useState<Socket | undefined>(undefined);
@@ -15,6 +16,11 @@ function App() {
   const handleFormMulti = (e: React.FormEvent) => {
     e.preventDefault();
     socket?.emit("playerPlayMulti", { name: name, uuid: uuid });
+  };
+
+  const handleAlone = (e: React.FormEvent) => {
+    e.preventDefault();
+    socket?.emit("playerAlone", { name: name, uuid: uuid });
   };
 
   const handleForm = (e: React.FormEvent) => {
@@ -54,6 +60,16 @@ function App() {
     return null;
   };
 
+  const formAlone = () => {
+    if (name && uuid) {
+      return (
+        <form onSubmit={handleAlone}>
+          <button type="submit">Jouer seul</button>
+        </form>
+      );
+    }
+  };
+
   const formu = () => {
     if (uuid && name) {
       return null;
@@ -83,6 +99,9 @@ function App() {
         onKeyDown={handleKeydown}
       >
         {grid?.map((row: number[], index) => {
+          if (index < 4) {
+            return null;
+          }
           return (
             <div className="line" key={index}>
               {row?.map((cell: number, index) => {
@@ -90,7 +109,18 @@ function App() {
                   <div
                     className="cell"
                     key={index}
-                    style={{ backgroundColor: cell === 0 ? "black" : "white" }}
+                    style={{
+                      backgroundColor:
+                        cell === 0
+                          ? "black"
+                          : cell === 3
+                          ? "red"
+                          : cell === 2
+                          ? "blue"
+                          : cell === 102
+                          ? "green"
+                          : "white",
+                    }}
                   ></div>
                 );
               })}
@@ -101,26 +131,74 @@ function App() {
     );
   };
 
+  // const gridTetris2 = () => {
+  //   return (
+  //     <div
+  //       tabIndex={0}
+  //       className="grid"
+  //       onClick={lala}
+  //       onKeyDown={handleKeydown}
+  //     >
+  //       {grid2?.map((row: number[], index) => {
+  //         return (
+  //           <div className="line" key={index}>
+  //             {row?.map((cell: number, index) => {
+  //               return (
+  //                 <div
+  //                   className="cell"
+  //                   key={index}
+  //                   style={{
+  //                     backgroundColor:
+  //                       cell === 0
+  //                         ? "black"
+  //                         : cell === 3
+  //                         ? "red"
+  //                         : cell === 2
+  //                         ? "blue"
+  //                         : "white",
+  //                   }}
+  //                 ></div>
+  //               );
+  //             })}
+  //           </div>
+  //         );
+  //       })}
+  //     </div>
+  //   );
+  // };
+
   socket?.on("countdown", (data) => {
+    console.log("countdown");
     console.log(data);
   });
 
   socket?.on("beforeGame", (data) => {
+    console.log("beforeGame");
     console.log(data);
     if (data.player1.uuid === uuid) {
       setGrid(data.player1.grid);
-    } else {
+    } else if (data.player2 !== undefined && data.player2.uuid === uuid) {
       setGrid(data.player2.grid);
     }
+    // else {
+    //   setGrid(data.player2.grid);
+    //   // setGrid2(data.player1.grid);
+    // }
   });
 
   socket?.on("game", (data) => {
-    console.log(data);
+    console.log("game");
     if (data.player1.uuid === uuid) {
       setGrid(data.player1.grid);
-    } else {
+      setRoomId(data.player1.roomId);
+    } else if (data.player2 !== undefined && data.player2.uuid === uuid) {
       setGrid(data.player2.grid);
     }
+    // else {
+    //   setGrid(data.player2.grid);
+    //   // setGrid2(data.player1.grid);
+    //   setRoomId(data.player2.roomId);
+    // }
   });
 
   socket?.on("waitToPlay", (data) => {
@@ -138,6 +216,7 @@ function App() {
   socket?.on("endGame", (data) => {
     console.log(data);
     setGrid([]);
+    // setGrid2([]);
   });
 
   useEffect(() => {
@@ -158,12 +237,21 @@ function App() {
     }
   }, []);
 
+  useEffect(() => {
+    const uuid = sessionStorage.getItem("uuid");
+    if (uuid && socket) {
+      socket.emit("isInGame", { uuid: uuid });
+    }
+  }, [socket]);
+
   return (
     <div>
       <h1>Bonjour</h1>
       {formu()}
       {formuMulti()}
+      {formAlone()}
       {gridTetris()}
+      {/* {gridTetris2()} */}
       <p>{name}</p>
       <p>{uuid}</p>
       <p>{socket?.id}</p>
