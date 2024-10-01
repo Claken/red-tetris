@@ -47,6 +47,9 @@ export class WaitGame {
     console.log({ roomName: roomName });
     const touch = { touch1: 1, touch2: 1 };
     const intervalId = setInterval(() => {
+      if (game.haveToReloadTetrominos()) {
+        managePT.injectmultipleTetrominoSolo(game.getPlayer1(), 10);
+      }
       game.gamePlay(touch);
       if (game.endGame()) {
         clearInterval(intervalId);
@@ -92,6 +95,12 @@ export class WaitGame {
     const roomName = this.room_name;
     const touch = { touch1: 1, touch2: 1 };
     const intervalId = setInterval(() => {
+      if (game.haveToReloadTetrominos()) {
+        const player2 = game.getPlayer2();
+        if (player2 != undefined) {
+          managePT.injectmultipleTetromino(game.getPlayer1(), player2, 10);
+        }
+      }
       game.gamePlay(touch);
       if (game.endGame()) {
         clearInterval(intervalId);
