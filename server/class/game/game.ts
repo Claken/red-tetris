@@ -21,6 +21,23 @@ export class Game {
     this._server = server;
   }
 
+  public getPlayer1(): Player {
+    return this._player1;
+  }
+  public getPlayer2(): Player | undefined {
+    return this._player2;
+  }
+
+  public haveToReloadTetrominos(): boolean {
+    if (
+      (this._player1 !== undefined &&
+        this._player1.getTetrominos().length < 90) ||
+      (this._player2 !== undefined && this._player2.getTetrominos().length < 90)
+    ) {
+      return true;
+    }
+    return false;
+  }
   public moveRight(playerUuid: string): void {
     if (playerUuid == this._player1.getUuid()) {
       this._player1.moveRightTetromino();

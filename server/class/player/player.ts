@@ -140,7 +140,7 @@ export class Player {
       }
     }
     if (points.length == 0) return;
-    this.fallTetromino();
+    this.fallTetromino(1);
 
     for (let y = 0; y < this._grid.length; y++) {
       for (let x = 0; this._grid[y].length > x; x++) {
@@ -178,10 +178,11 @@ export class Player {
     return false;
   }
 
-  fallTetromino(): void {
+  fallTetromino(num?: number): void {
     while (this.isCollisionMove(1, 0) == false) {
       this.moveDownTetromino(1);
     }
+    if (num == undefined) this.updateGrid(0);
   }
   moveDownTetromino(num?: number): void {
     if (this.isCollisionMove(1, 0)) return;
@@ -361,29 +362,9 @@ export class Player {
         }
       }
       this._tetrominos.shift();
-      // transform = false;
     }
     const nbrLineToAdd = this.clearLines();
-    // let nbrLineToAdd: number = 0;
-    // let canIstartCountLinesToAdd: boolean = false;
-    // for (let y = 0; y < this._grid.length; y++) {
-    //   if (this._grid[y].some((elem) => elem == 2)) {
-    //     canIstartCountLinesToAdd = true;
-    //   }
-    //   if (
-    //     canIstartCountLinesToAdd &&
-    //     this._grid[y].every((elem) => elem == 0)
-    //   ) {
-    //     this._grid.splice(y, 1);
-    //     nbrLineToAdd++;
-    //   }
-    // }
-    // for (let i = 0; i < nbrLineToAdd; i++) {
-    //   this._grid.unshift(new Array(10).fill(0));
-    // }
-    // console.log({ transform: transform });
     if (transform) {
-      // console.log('transform');
       this.initTetrominoInsideGrid();
     }
     if (transform && nbrLineToAdd > 0) {
