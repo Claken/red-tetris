@@ -56,6 +56,19 @@ function GamePage() {
 		return 'bg-blue-900';
 	}
 
+	const displayTetromino = (tetromino: any) => {
+		return tetromino.shape.map((row: number[], rowIndex: number) => (
+			<div key={rowIndex} className="flex">
+				{row.map((cell: number, colIndex: number) => (
+					<div
+						key={colIndex}
+						className={`w-4 h-4 border ${cell === 1 ? 'bg-yellow-500' : 'bg-transparent'}`}
+					></div>
+				))}
+			</div>
+		));
+	};
+
 	socket?.on("countdown", (data) => {
 		setCountdown(data.currentTime === 0 ? null : data.currentTime);
 	});
@@ -81,7 +94,6 @@ function GamePage() {
 
 	return (
 		<div className="bg-black h-screen">
-
 			<div className="absolute top-1/2 transform -translate-y-1/2 border-4 border-blue-500">
 				<div className="border-4 border-blue-500">
 					<div className="grid grid-cols-10 gap-0.5">
@@ -95,6 +107,13 @@ function GamePage() {
 						)}
 					</div>
 				</div>
+			</div>
+			<div className="absolute top-1/2 right-1 transform -translate-y-1/2">
+				{tetrominos && tetrominos.length > 0 && tetrominos.map((tetro, index) => (
+					<div key={index} className="mb-4">
+						{displayTetromino(tetro)}
+					</div>
+				))}
 			</div>
 			<div className="flex items-center justify-center h-screen">
 				<div className="border-8 border-red-500">
