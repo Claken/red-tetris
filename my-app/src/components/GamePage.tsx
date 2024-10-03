@@ -94,7 +94,10 @@ function GamePage() {
 
 	return (
 		<div className="bg-black h-screen">
-			<div className="absolute top-1/2 transform -translate-y-1/2 border-4 border-blue-500">
+			<div className="absolute top-1/2 transform -translate-y-1/2">
+				<div className="text-white text-center">
+					OPP GRID
+				</div>
 				<div className="border-4 border-blue-500">
 					<div className="grid grid-cols-10 gap-0.5">
 						{oppGrid.map((row, rowIndex) =>
@@ -108,9 +111,12 @@ function GamePage() {
 					</div>
 				</div>
 			</div>
-			<div className="absolute top-1/2 right-1 transform -translate-y-1/2">
+			<div className="absolute top-1/2 right-5 transform -translate-y-1/2">
+				<div className="text-white">
+					NEXT FIVE TETROMINOS
+				</div>
 				{tetrominos && tetrominos.length > 0 && tetrominos.map((tetro, index) => (
-					<div key={index} className="mb-4">
+					<div key={index} className="mb-4 items-center">
 						{displayTetromino(tetro)}
 					</div>
 				))}
