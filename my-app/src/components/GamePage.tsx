@@ -13,6 +13,7 @@ function GamePage() {
 	const uuid = sessionStorage.getItem("uuid");
 	const [roomId, setRoomId] = useState<string>("");
 	const [countdown, setCountdown] = useState<number | null>(null);
+	const [oppName, setOppName] = useState<string>("");
 	// const [soloGame, setSoloGame] = useState<boolean>(false);
 	const numRows = 20;
 	const numCols = 10;
@@ -76,6 +77,7 @@ function GamePage() {
 	socket?.on("beforeGame", (data) => {
 		setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
 		setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
+		setOppName(data.player1.uuid === uuid ? data.player2.name: data.player1.name);
 		setRoomId(data.player1.roomId);
 		setTetro(data.player1.uuid === uuid ? data.player1.tetrominos : data.player2.tetrominos);
 	});
@@ -95,7 +97,7 @@ function GamePage() {
 		<div className="bg-black h-screen">
 			<div className="absolute top-1/2 transform -translate-y-1/2">
 				<div className="text-red-500 text-center">
-					OPP GRID
+					{oppName === "" ? "player2" : oppName}'s grid
 				</div>
 				<div className="border-4 border-blue-500">
 					<div className="grid grid-cols-10 gap-0.5">

@@ -246,14 +246,14 @@ export class Game {
           name: this._player1.getPlayerName(),
           uuid: this._player1.getUuid(),
           roomId: this._room_id,
-          tetrominos: this._player1.getTetrominos().slice(0, 5),
+          tetrominos: this._player1.getTetrominos().slice(1, 6),
         },
         player2: {
           grid: this._player2.getGrid(),
           name: this._player2.getPlayerName(),
           uuid: this._player2.getUuid(),
           roomId: this._room_id,
-          tetrominos: this._player2.getTetrominos().slice(0, 5),
+          tetrominos: this._player2.getTetrominos().slice(1, 6),
         },
       });
     } else {
@@ -264,7 +264,7 @@ export class Game {
           name: this._player1.getPlayerName(),
           uuid: this._player1.getUuid(),
           roomId: this._room_id,
-          tetrominos: this._player1.getTetrominos().slice(0, 5),
+          tetrominos: this._player1.getTetrominos().slice(1, 6),
         },
       });
     }
