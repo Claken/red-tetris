@@ -74,7 +74,6 @@ function GamePage() {
 	});
 
 	socket?.on("beforeGame", (data) => {
-		console.log(data.player1.tetrominos)
 		setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
 		setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
 		setRoomId(data.player1.roomId);
@@ -82,9 +81,9 @@ function GamePage() {
 	});
 
 	socket?.on("game", (data) => {
-		// console.log(tetrominos ? tetrominos[0].shape : null);
 		setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
 		setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
+		setTetro(data.player1.uuid === uuid ? data.player1.tetrominos : data.player2.tetrominos);
 	});
 
 	socket?.on("endGame", () => {
@@ -95,7 +94,7 @@ function GamePage() {
 	return (
 		<div className="bg-black h-screen">
 			<div className="absolute top-1/2 transform -translate-y-1/2">
-				<div className="text-white text-center">
+				<div className="text-red-500 text-center">
 					OPP GRID
 				</div>
 				<div className="border-4 border-blue-500">
@@ -112,7 +111,7 @@ function GamePage() {
 				</div>
 			</div>
 			<div className="absolute top-1/2 right-5 transform -translate-y-1/2">
-				<div className="text-white">
+				<div className="text-red-500">
 					NEXT FIVE TETROMINOS
 				</div>
 				{tetrominos && tetrominos.length > 0 && tetrominos.map((tetro, index) => (
