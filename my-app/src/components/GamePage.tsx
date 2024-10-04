@@ -112,7 +112,7 @@ function GamePage() {
 			</div>
 			<div className="absolute top-1/2 right-5 transform -translate-y-1/2">
 				<div className="text-red-500">
-					NEXT FIVE TETROMINOS
+					TETROMINOS :
 				</div>
 				{tetrominos && tetrominos.length > 0 && tetrominos.map((tetro, index) => (
 					<div key={index} className="mb-4 items-center">
