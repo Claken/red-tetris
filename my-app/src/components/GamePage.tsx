@@ -24,6 +24,9 @@ function GamePage() {
 	const [tetrominos, setTetro] = useState();
 
 	const handleKeydown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+		console.log(e.key);
+		console.log(uuid)
+		console.log(roomId)
 		if (e.key === "ArrowRight") {
 			socket?.emit("moveRight", { uuid: uuid, roomId: roomId });
 		} else if (e.key === "ArrowLeft") {
