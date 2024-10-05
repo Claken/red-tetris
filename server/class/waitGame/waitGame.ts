@@ -82,6 +82,7 @@ export class WaitGame {
           const socket = this._server.sockets.sockets.get(socketsId[i]);
           if (socket !== undefined) socket.leave(roomName);
         }
+        infos.ownedRoomsId.splice(infos.ownedRoomsId.indexOf(roomName), 1);
         this.games.delete(roomName);
       }
     }, 1000); // update every second

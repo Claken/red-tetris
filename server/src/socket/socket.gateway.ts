@@ -94,6 +94,25 @@ export class SocketGateway implements OnGatewayConnection {
       if (game == undefined) return;
       game.fallDown(data.uuid, infos.socketsId);
     });
+
+    socket.on('getRooms', (data) => {
+      if (data == undefined || data.uuid == undefined) return;
+      const infos = this.waitGame.getUUIDMapings().get(data.uuid);
+      if (infos == undefined) return;
+      infos.socketsId.push(socket.id);
+      for (let i = 0; i < infos.ownedRoomsId.length; i++) {
+        socket.join(infos.ownedRoomsId[i]);
+      }
+      for (let i = 0; i < infos.otherRoomsId.length; i++) {
+        socket.join(infos.otherRoomsId[i]);
+      }
+      socket.emit('getRooms', {
+        rooms: {
+          ownedRoomsId: infos.ownedRoomsId,
+          otherRoomsId: infos.otherRoomsId,
+        },
+      });
+    });
     // socket.on('isInGame', (data) => {
     //   const uuid = data.uuid;
     //   const playerWaits = this.waitGame.getPlayerWaiting();

@@ -130,24 +130,16 @@ function App() {
     );
   };
 
-  // socket?.on("countdown", (data) => {
-  //   console.log("countdown");
-  //   console.log(data);
-  // });
+  socket?.on("countdown", (data) => {
+    console.log("countdown");
+    console.log(data);
+  });
 
-  // socket?.on("beforeGame", (data) => {
-  //   console.log("beforeGame");
-  //   console.log(data);
-  //   if (data.player1.uuid === uuid) {
-  //     setGrid(data.player1.grid);
-  //   } else if (data.player2 !== undefined && data.player2.uuid === uuid) {
-  //     setGrid(data.player2.grid);
-  //   }
-  //   // else {
-  //   //   setGrid(data.player2.grid);
-  //   //   // setGrid2(data.player1.grid);
-  //   // }
-  // });
+  socket?.on("beforeGame", (data) => {
+    console.log("beforeGame");
+    console.log(data);
+    setGrid(data.player.grid);
+  });
 
   socket?.on("myGame", (data) => {
     console.log("myGame");
@@ -171,6 +163,10 @@ function App() {
   socket?.on("endGame", (data) => {
     console.log(data);
     setGrid([]);
+  });
+
+  socket?.on("getRooms", (data) => {
+    console.log(data);
   });
 
   useEffect(() => {

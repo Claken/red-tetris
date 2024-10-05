@@ -7,6 +7,7 @@ import { ManagePlayerTetromino } from '../managePlayerTetromino/managePlayerTetr
 export class Game {
   private _players: Player[];
   private _playersLost: Player[] = [];
+  private _waitingPlayers: Player[] = [];
   private _roomId: string;
   private _type: number;
   private _server: Server;
@@ -73,7 +74,12 @@ export class Game {
   }
 
   async startGame(UUIDMapings: Map<string, ClientInfo>): Promise<void> {
-    // await this.sendCounterToClient();
+    for (let i = 0; i < this._players.length; i++) {
+      await this.sendCounterToClient(
+        this._players[i],
+        UUIDMapings.get(this._players[i].getUuid())?.socketsId ?? [],
+      );
+    }
     const managePT = new ManagePlayerTetromino();
     managePT.injectmultipleTetrominos(this._players, 100);
     for (let i = 0; i < this._players.length; i++) {
@@ -103,6 +109,59 @@ export class Game {
       }
     }
     return false;
+  }
+
+  public async sendCounterToClient(
+    player: Player,
+    socketId: string[],
+  ): Promise<void> {
+    const countdownTime = 4;
+    let currentTime = countdownTime;
+    return new Promise((resolve) => {
+      const intervalId = setInterval(() => {
+        if (currentTime == 4) {
+          if (this._type === SINGLE) {
+            this._server.to(this._roomId).emit('beforeGame', {
+              player: {
+                grid: player.getGrid(),
+                name: player.getPlayerName(),
+                uuid: player.getUuid(),
+                roomId: this._roomId,
+                tetrominos: player.getTetrominos().slice(1, 6),
+              },
+            });
+          } else {
+            this._server.to(socketId).emit('beforeGame', {
+              player: {
+                grid: player.getGrid(),
+                name: player.getPlayerName(),
+                uuid: player.getUuid(),
+                roomId: this._roomId,
+                tetrominos: player.getTetrominos().slice(1, 6),
+              },
+            });
+          }
+          currentTime--;
+        } else if (currentTime > 0) {
+          if (this._type === SINGLE) {
+            this._server.to(this._roomId).emit('countdown', {
+              currentTime: currentTime,
+              roomId: this._roomId,
+            });
+          } else {
+            this._server.to(socketId).emit('countdown', {
+              currentTime: currentTime,
+              roomId: this._roomId,
+            });
+          }
+          currentTime--;
+        } else {
+          // count down is over we can start the game
+          clearInterval(intervalId);
+          resolve();
+        }
+      }, 1000); // update every second
+    });
   }
 
   // getControlGame(): Player {
