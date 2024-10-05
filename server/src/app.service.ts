@@ -1,30 +1,30 @@
 import { Injectable } from '@nestjs/common';
-import { Player } from '../class/player/player';
-import { v4 as uuidv4 } from 'uuid';
-import { ManagePlayerTetromino } from '../class/managePlayerTetromino/managePlayerTetromino';
+// import { Player } from '../class/player/player';
+// import { v4 as uuidv4 } from 'uuid';
+// import { ManagePlayerTetromino } from '../class/managePlayerTetromino/managePlayerTetromino';
 @Injectable()
 export class AppService {
   getHello(): string {
-    const manage = new ManagePlayerTetromino();
-    const player1 = new Player('raphael', uuidv4());
-    const player2 = new Player('samy', uuidv4());
+    // const manage = new ManagePlayerTetromino();
+    // const player1 = new Player('raphael', uuidv4());
+    // const player2 = new Player('samy', uuidv4());
 
-    const print2DArray = (arr: any) => {
-      console.log('[');
-      for (let i = 0; i < arr.length; i++) {
-        console.log('  [' + arr[i].join(',') + ']');
-      }
-      console.log(']');
-    };
+    // const print2DArray = (arr: any) => {
+    //   console.log('[');
+    //   for (let i = 0; i < arr.length; i++) {
+    //     console.log('  [' + arr[i].join(',') + ']');
+    //   }
+    //   console.log(']');
+    // };
 
-    manage.injectmultipleTetromino(player1, player2, 100);
-    while (player1.getGrid()[3].some((elem) => elem == 2) == false) {
-      player1.initTetrominoInsideGrid();
-      player1.fallTetromino();
-      // player1.updateGrid();
-    }
-    console.log(player1.isPlayerLost());
-    print2DArray(player1.getGrid());
+    // manage.injectmultipleTetromino(player1, player2, 100);
+    // while (player1.getGrid()[3].some((elem) => elem == 2) == false) {
+    //   player1.initTetrominoInsideGrid();
+    //   player1.fallTetromino();
+    //   // player1.updateGrid();
+    // }
+    // console.log(player1.isPlayerLost());
+    // print2DArray(player1.getGrid());
 
     // manage.injectTetromino(player1, player2);
     // player1.initTetrominoInsideGrid();
