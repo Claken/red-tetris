@@ -84,9 +84,12 @@ function HomePage() {
 				{isWaiting == false ?
 					<div className="flex items-center justify-center h-screen">
 						<div className="relative border-4 border-red-500 w-64 h-96">
-							<div className="flex flex-col my-8 space-y-5 p-10">
+							<div className="flex flex-col my-1 space-y-5 p-10">
 								<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full" onClick={handleJoinSolo}>Solo game</button>
+								<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full" onClick={() => {}}>Create a room</button>
+								<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full" onClick={() => {}}>ALL MY ROOMS</button>
 								<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full" onClick={handleJoinGame}>Join a game</button>
+								<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full" onClick={() => {}}>Go back to a game</button>
 							</div>
 						</div>
 					</div>
