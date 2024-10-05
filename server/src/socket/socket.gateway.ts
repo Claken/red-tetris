@@ -7,6 +7,7 @@ import { Socket, Server } from 'socket.io';
 import { WaitGame } from '../../class/waitGame/waitGame';
 import { SocketService } from './socket.service';
 import { ManageSocket } from '../../class/manageSocket/manageSocket';
+import { ClientInfo } from '../../interfaces/clientInfo';
 
 // import { Logger } from '@nestjs/common';
 
@@ -26,89 +27,113 @@ export class SocketGateway implements OnGatewayConnection {
   }
 
   private listenToEmmitter(socket: Socket) {
-    socket.on('playerAlone', (data) => {
+    console.log(socket.id);
+    socket.on('startSingleTetrisGame', (data) => {
       // console.log(data);
       const infos = this.manageSocket.getInfos(data.uuid);
       if (infos == undefined) {
         return;
       }
-      this.waitGame.addPlayer(data.uuid, infos.name, socket.id, true);
+      this.waitGame.startSingleTetrisGame(data.uuid, infos.name, socket.id);
     });
-    socket.on('playerPlayMulti', (data) => {
-      // console.log(data);
-      const infos = this.manageSocket.getInfos(data.uuid);
-      if (infos == undefined) {
-        return;
-      }
-      this.waitGame.addPlayer(data.uuid, infos.name, socket.id, false);
-    });
+    // socket.on('playerPlayMulti', (data) => {
+    //   // console.log(data);
+    //   const infos = this.manageSocket.getInfos(data.uuid);
+    //   if (infos == undefined) {
+    //     return;
+    //   }
+    //   this.waitGame.addPlayer(data.uuid, infos.name, socket.id, false);
+    // });
     socket.on('moveRight', (data) => {
-      // console.log('move right');
-      // console.log(data);
+      const infos: ClientInfo | undefined = this.waitGame
+        .getUUIDMapings()
+        .get(data.uuid);
+      if (infos == undefined) return;
       const games = this.waitGame.getGames();
       const game = games.get(data.roomId);
-      if (game == undefined) {
-        return;
-      }
-      // console.log('moove right');
-      game.moveRight(data.uuid);
+      if (game == undefined) return;
+      game.moveRight(data.uuid, infos.socketsId);
     });
     socket.on('moveLeft', (data) => {
+      const infos: ClientInfo | undefined = this.waitGame
+        .getUUIDMapings()
+        .get(data.uuid);
+      if (infos == undefined) return;
       const games = this.waitGame.getGames();
       const game = games.get(data.roomId);
-      if (game == undefined) {
-        return;
-      }
-      game.moveLeft(data.uuid);
+      if (game == undefined) return;
+      game.moveLeft(data.uuid, infos.socketsId);
     });
     socket.on('rotate', (data) => {
+      const infos: ClientInfo | undefined = this.waitGame
+        .getUUIDMapings()
+        .get(data.uuid);
+      if (infos == undefined) return;
       const games = this.waitGame.getGames();
       const game = games.get(data.roomId);
-      if (game == undefined) {
-        return;
-      }
-      game.rotate(data.uuid);
+      if (game == undefined) return;
+      game.rotate(data.uuid, infos.socketsId);
     });
-
     socket.on('moveDown', (data) => {
+      const infos: ClientInfo | undefined = this.waitGame
+        .getUUIDMapings()
+        .get(data.uuid);
+      if (infos == undefined) return;
       const games = this.waitGame.getGames();
       const game = games.get(data.roomId);
-      if (game == undefined) {
-        return;
-      }
-      game.moveDown(data.uuid);
+      if (game == undefined) return;
+      game.moveDown(data.uuid, infos.socketsId);
     });
-
     socket.on('fallDown', (data) => {
+      const infos: ClientInfo | undefined = this.waitGame
+        .getUUIDMapings()
+        .get(data.uuid);
+      if (infos == undefined) return;
       const games = this.waitGame.getGames();
       const game = games.get(data.roomId);
-      if (game == undefined) {
-        return;
-      }
-      game.fallDown(data.uuid);
+      if (game == undefined) return;
+      game.fallDown(data.uuid, infos.socketsId);
     });
 
-    socket.on('isInGame', (data) => {
-      const uuid = data.uuid;
-      const playerWaits = this.waitGame.getPlayerWaiting();
-      if (playerWaits.length != 0) {
-        const room = this.waitGame.getRoomName();
-        socket.join(room);
+    socket.on('getRooms', (data) => {
+      if (data == undefined || data.uuid == undefined) return;
+      const infos = this.waitGame.getUUIDMapings().get(data.uuid);
+      if (infos == undefined) return;
+      infos.socketsId.push(socket.id);
+      for (let i = 0; i < infos.ownedRoomsId.length; i++) {
+        socket.join(infos.ownedRoomsId[i]);
       }
-      // const infos = this.manageSocket.getInfos(uuid);
-      // console.log({ infos: infos?.sockets });
-      const rooms = this.waitGame.isInGame(uuid, socket.id);
-      if (rooms == undefined) {
-        return;
+      for (let i = 0; i < infos.otherRoomsId.length; i++) {
+        socket.join(infos.otherRoomsId[i]);
       }
-      socket.join(rooms);
-      const games = this.waitGame.getGames();
-      const game = games.get(rooms[0]);
-      if (game == undefined) {
-        return;
-      }
-      game.sendCounterToClient();
+      socket.emit('getRooms', {
+        rooms: {
+          ownedRoomsId: infos.ownedRoomsId,
+          otherRoomsId: infos.otherRoomsId,
+        },
+      });
     });
+    // socket.on('isInGame', (data) => {
+    //   const uuid = data.uuid;
+    //   const playerWaits = this.waitGame.getPlayerWaiting();
+    //   if (playerWaits.length != 0) {
+    //     const room = this.waitGame.getRoomName();
+    //     socket.join(room);
+    //   }
+    //   // const infos = this.manageSocket.getInfos(uuid);
+    //   // console.log({ infos: infos?.sockets });
+    //   const rooms = this.waitGame.isInGame(uuid, socket.id);
+    //   if (rooms == undefined) {
+    //     return;
+    //   }
+    //   socket.join(rooms);
+    //   const games = this.waitGame.getGames();
+    //   const game = games.get(rooms[0]);
+    //   if (game == undefined) {
+    //     return;
+    //   }
+    //   game.sendCounterToClient();
+    // });
   }
 
   handleConnection(socket: Socket): void {

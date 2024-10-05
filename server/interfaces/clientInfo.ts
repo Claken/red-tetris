@@ -1,5 +1,6 @@
 export interface ClientInfo {
-  socketId: string[];
-  roomId: string[];
+  socketsId: string[];
+  ownedRoomsId: string[];
+  otherRoomsId: string[];
   name: string;
 }
