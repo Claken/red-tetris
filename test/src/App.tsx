@@ -7,14 +7,20 @@ function App() {
   const [grid, setGrid] = useState([]);
   const [roomId, setRoomId] = useState("");
   const [uuid, setUuid] = useState<string | undefined>(undefined);
+  const [listRoomsAc, setListRoomsAc] = useState([]);
   const [socket, setSocket] = useState<Socket | undefined>(undefined);
   const [formData, setFormData] = useState({
     name: "",
   });
 
-  const handleFormMulti = (e: React.FormEvent) => {
+  // const handleFormMulti = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   socket?.emit("playerPlayMulti", { name: name, uuid: uuid });
+  // };
+
+  const createRoomForm = (e: React.FormEvent) => {
     e.preventDefault();
-    socket?.emit("playerPlayMulti", { name: name, uuid: uuid });
+    socket?.emit("createRoom", { name: name, uuid: uuid });
   };
 
   const handleAlone = (e: React.FormEvent) => {
@@ -24,7 +30,7 @@ function App() {
 
   const handleForm = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted");
+    // console.log("Form submitted");
     setName(formData.name);
     setSocket(
       io("http://localhost:3000", {
@@ -34,7 +40,7 @@ function App() {
   };
 
   const handleKeydown = (e: React.KeyboardEvent) => {
-    console.log(e.key);
+    // console.log(e.key);
     if (e.key === "ArrowRight") {
       socket?.emit("moveRight", { uuid: uuid, roomId: roomId });
     } else if (e.key === "ArrowLeft") {
@@ -48,11 +54,11 @@ function App() {
     }
   };
 
-  const formuMulti = () => {
+  const createRoom = () => {
     if (name && uuid) {
       return (
-        <form onSubmit={handleFormMulti}>
-          <button type="submit">Rejoindre une partie</button>
+        <form onSubmit={createRoomForm}>
+          <button type="submit">creer une room</button>
         </form>
       );
     }
@@ -77,7 +83,10 @@ function App() {
       <form onSubmit={handleForm}>
         <input
           value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          onChange={(e) => {
+            e.preventDefault();
+            setFormData({ ...formData, name: e.target.value });
+          }}
           placeholder="Entrez votre nom"
         />
         <button type="submit">Envoyer</button>
@@ -86,7 +95,33 @@ function App() {
   };
 
   const lala = () => {
-    console.log("lala");
+    // console.log("lala");
+  };
+
+  const listRoomsActive = () => {
+    if (uuid && name) {
+      return (
+        <div>
+          {listRoomsAc.map((room, index) => {
+            return (
+              <div key={index}>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setRoomId((prev) => {
+                      const val = room;
+                      return val;
+                    });
+                  }}
+                >
+                  revennir sur la room {room}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
   };
 
   const gridTetris = () => {
@@ -130,45 +165,6 @@ function App() {
     );
   };
 
-  socket?.on("countdown", (data) => {
-    console.log("countdown");
-    console.log(data);
-  });
-
-  socket?.on("beforeGame", (data) => {
-    console.log("beforeGame");
-    console.log(data);
-    setGrid(data.player.grid);
-  });
-
-  socket?.on("myGame", (data) => {
-    console.log("myGame");
-    console.log(data);
-    setGrid(data.player.grid);
-    setRoomId(data.player.roomId);
-  });
-
-  // socket?.on("waitToPlay", (data) => {
-  //   setRoomId(data.roomId);
-  //   console.log(data);
-  // });
-
-  socket?.on("new-person", (data) => {
-    console.log(data);
-    sessionStorage.setItem("uuid", data.uuid);
-    sessionStorage.setItem("name", data.name);
-    setUuid(data.uuid);
-  });
-
-  socket?.on("endGame", (data) => {
-    console.log(data);
-    setGrid([]);
-  });
-
-  socket?.on("getRooms", (data) => {
-    console.log(data);
-  });
-
   useEffect(() => {
     const uuid = sessionStorage.getItem("uuid");
     const name = sessionStorage.getItem("name");
@@ -182,7 +178,7 @@ function App() {
           })
         );
       } else {
-        console.log(`uuid or name is undefined ${uuid} ${name}`);
+        // console.log(`uuid or name is undefined ${uuid} ${name}`);
       }
     }
   }, []);
@@ -192,14 +188,98 @@ function App() {
     if (uuid && socket) {
       socket.emit("getRooms", { uuid: uuid });
     }
-  }, [socket]);
+    socket?.on("countdown", (data) => {
+      // console.log("countdown");
+      console.log(data);
+    });
+
+    // socket?.on("waitToPlay", (data) => {
+    //   setRoomId(data.roomId);
+    //   console.log(data);
+    // });
+
+    socket?.on("new-person", (data) => {
+      // console.log(data);
+      sessionStorage.setItem("uuid", data.uuid);
+      sessionStorage.setItem("name", data.name);
+      setUuid(data.uuid);
+    });
+
+    socket?.on("getRooms", (data) => {
+      // console.log(data);
+      if (!data.rooms || !data.rooms.otherRoomsId || !data.rooms.ownedRoomsId) {
+        return;
+      }
+      const rooms: any = [
+        ...data.rooms.otherRoomsId,
+        ...data.rooms.ownedRoomsId,
+      ];
+      setListRoomsAc(rooms);
+      // console.log({ rooms: rooms });
+    });
+  }, [socket, roomId]);
+
+  useEffect(() => {
+    socket?.on("beforeGame", (data) => {
+      // console.log("beforeGame");
+      // console.log(data);
+      console.log("lili");
+      // if (data.player.roomId === roomId) {
+      setGrid(data.player.grid);
+      // console.log(data.player.roomId);
+      setRoomId(data.player.roomId);
+      // }
+      // setRoomId(data.player.roomId);
+      // setGrid(data.player.grid);
+    });
+    return () => {
+      socket?.off("beforeGame"); // Nettoyer l'écouteur 'beforeGame'
+    };
+  }, [grid, roomId, socket]);
+
+  useEffect(() => {
+    socket?.on("endGame", (data) => {
+      // console.log(data);
+      if (data.player.roomId == roomId) {
+        setGrid([]);
+        setRoomId("");
+      }
+      // console.log("lala");
+      // socket.emit("getRooms", { uuid: uuid });
+    });
+    return () => {
+      socket?.off("endGame"); // Nettoyer l'écouteur 'endGame'
+    };
+  }, [grid, roomId, socket]);
+
+  useEffect(() => {
+    socket?.on("myGame", (data) => {
+      // console.log("myGame");
+      // console.log(data);
+      console.log("-----------------");
+      console.log({ roomId: roomId });
+      console.log({ player: data.player.roomId });
+      if (data.player.roomId === roomId) {
+        console.log("lala");
+        setGrid(data.player.grid);
+        // console.log(data.player.roomId);
+        // setRoomId(data.player.roomId);
+      }
+      console.log("-----------------");
+    });
+    return () => {
+      socket?.off("myGame"); // Nettoyer l'écouteur 'myGame'
+      // Nettoyer les autres écouteurs d'événements si nécessaire
+    };
+  }, [roomId, socket]);
 
   return (
     <div>
       <h1>Bonjour</h1>
       {formu()}
-      {formuMulti()}
+      {createRoom()}
       {formAlone()}
+      {listRoomsActive()}
       {gridTetris()}
       {/* {gridTetris2()} */}
       <p>{name}</p>

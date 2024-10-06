@@ -117,10 +117,10 @@ export class Game {
   ): Promise<void> {
     const countdownTime = 4;
     let currentTime = countdownTime;
-    return new Promise((resolve) => {
+    return await new Promise((resolve) => {
       const intervalId = setInterval(() => {
         if (currentTime == 4) {
-          if (this._type === SINGLE) {
+          if (this._type !== SINGLE) {
             this._server.to(this._roomId).emit('beforeGame', {
               player: {
                 grid: player.getGrid(),

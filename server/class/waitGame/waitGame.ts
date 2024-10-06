@@ -36,11 +36,11 @@ export class WaitGame {
     });
   }
 
-  public startSingleTetrisGame(
+  public async startSingleTetrisGame(
     uuid: string,
     name: string,
     socketId: string,
-  ): void {
+  ): Promise<void> {
     const socket = this._server.sockets.sockets.get(socketId);
     if (socket === undefined) return;
     if (!this.UUIDMapings.has(uuid)) {
@@ -71,12 +71,14 @@ export class WaitGame {
     player.setIsMaster(true);
     const game = new Game([player], roomName, SINGLE, this._server);
     this.games.set(roomName, game);
-    game.startGame(this.UUIDMapings);
+    await game.startGame(this.UUIDMapings);
     const touch = { touch1: 1 };
+    let gameIsOver = false;
     const intervalId = setInterval(() => {
       const socketsId = this.UUIDMapings.get(uuid)?.socketsId as string[];
       game.gamePlay(player, touch, socketsId);
-      if (game.endGame()) {
+      if (gameIsOver == false) gameIsOver = game.endGame();
+      if (gameIsOver) {
         clearInterval(intervalId);
         for (let i = 0; i < socketsId.length; i++) {
           const socket = this._server.sockets.sockets.get(socketsId[i]);
