@@ -8,6 +8,7 @@ import { WaitGame } from '../../class/waitGame/waitGame';
 import { SocketService } from './socket.service';
 import { ManageSocket } from '../../class/manageSocket/manageSocket';
 import { ClientInfo } from '../../interfaces/clientInfo';
+import { SINGLE, MULTI } from '../../constantes/constantes';
 
 // import { Logger } from '@nestjs/common';
 
@@ -95,24 +96,112 @@ export class SocketGateway implements OnGatewayConnection {
       game.fallDown(data.uuid, infos.socketsId);
     });
 
-    socket.on('getRooms', (data) => {
+    socket.on('getActiveRooms', (data) => {
       if (data == undefined || data.uuid == undefined) return;
       const infos = this.waitGame.getUUIDMapings().get(data.uuid);
       if (infos == undefined) return;
       infos.socketsId.push(socket.id);
+      const activeRooms = [];
       for (let i = 0; i < infos.ownedRoomsId.length; i++) {
         socket.join(infos.ownedRoomsId[i]);
+        if (
+          this.waitGame.getGames().get(infos.ownedRoomsId[i])?.getType() ===
+          SINGLE
+        ) {
+          activeRooms.push(infos.ownedRoomsId[i]);
+        }
       }
       for (let i = 0; i < infos.otherRoomsId.length; i++) {
         socket.join(infos.otherRoomsId[i]);
       }
-      socket.emit('getRooms', {
-        rooms: {
-          ownedRoomsId: infos.ownedRoomsId,
-          otherRoomsId: infos.otherRoomsId,
-        },
+
+      socket.emit('getActiveRooms', {
+        activeRooms: activeRooms,
       });
     });
+
+    socket.on('createRoom', (data) => {
+      console.log(data);
+      const infos = this.manageSocket.getInfos(data.uuid);
+      console.log({ infos: infos });
+      if (infos == undefined) {
+        return;
+      }
+      this.waitGame.createGame(data.uuid, infos.name, socket.id);
+    });
+
+    socket.on('getCreateRooms', (data) => {
+      if (data == undefined || data.uuid == undefined) return;
+      const infos = this.waitGame.getUUIDMapings().get(data.uuid);
+      if (infos == undefined) return;
+      infos.socketsId.push(socket.id);
+      const createRooms = [];
+      for (let i = 0; i < infos.ownedRoomsId.length; i++) {
+        socket.join(infos.ownedRoomsId[i]);
+        if (
+          this.waitGame.getGames().get(infos.ownedRoomsId[i])?.getType() ===
+            MULTI &&
+          !this.waitGame.getGames().get(infos.ownedRoomsId[i])?.getIsStarted()
+        ) {
+          createRooms.push(infos.ownedRoomsId[i]);
+        }
+      }
+      for (let i = 0; i < infos.otherRoomsId.length; i++) {
+        socket.join(infos.otherRoomsId[i]);
+      }
+      socket.emit('getCreateRooms', {
+        createRooms: createRooms,
+      });
+    });
+    socket.on('getOtherRooms', (data) => {
+      if (data == undefined || data.uuid == undefined) return;
+      console.log('je passe ici');
+      const infosPlayer = this.manageSocket.getInfos(data.uuid);
+      console.log({ infos: infosPlayer });
+      if (infosPlayer == undefined) {
+        return;
+      }
+      const games = this.waitGame.getGames();
+      const infos = this.waitGame.getUUIDMapings().get(data.uuid);
+      console.log({ infos: infos });
+      const otherRooms = [];
+      for (const [key, value] of games) {
+        console.log({ key: key });
+        console.log({ value: value.getRoomId() });
+        if (
+          value.getType() === MULTI &&
+          (infos == undefined ||
+            (!infos.ownedRoomsId.some((elem) => elem === value.getRoomId()) &&
+              !infos.otherRoomsId.some((elem) => elem === value.getRoomId())))
+        ) {
+          otherRooms.push(value.getRoomId());
+        }
+      }
+      console.log('lala');
+      socket.emit('getOtherRooms', {
+        otherRooms: otherRooms,
+      });
+    });
+    // const infos = this.waitGame.getUUIDMapings().get(data.uuid);
+    // if (infos == undefined) return;
+    // infos.socketsId.push(socket.id);
+    // const otherRooms = [];
+    // for (let i = 0; i < infos.otherRoomsId.length; i++) {
+    //   socket.join(infos.otherRoomsId[i]);
+    //   if (
+    //     this.waitGame.getGames().get(infos.otherRoomsId[i])?.getType() ===
+    //     MULTI
+    //   ) {
+    //     otherRooms.push(infos.otherRoomsId[i]);
+    //   }
+    // }
+    // for (let i = 0; i < infos.ownedRoomsId.length; i++) {
+    //   socket.join(infos.ownedRoomsId[i]);
+    // }
+    // socket.emit('getOthersRooms', {
+    //   otherRooms: otherRooms,
+    // });
+
     // socket.on('isInGame', (data) => {
     //   const uuid = data.uuid;
     //   const playerWaits = this.waitGame.getPlayerWaiting();

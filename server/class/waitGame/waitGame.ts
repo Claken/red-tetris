@@ -1,7 +1,7 @@
 import { Server } from 'socket.io';
 import { Game } from '../game/game';
 import { ClientInfo } from '../../interfaces/clientInfo';
-import { SINGLE } from '../../constantes/constantes';
+import { SINGLE, MULTI } from '../../constantes/constantes';
 import { Player } from '../player/player';
 // import { ManagePlayerTetromino } from '../managePlayerTetromino/managePlayerTetromino';
 // import { ManageSocket } from '../manageSocket/manageSocket';
@@ -36,6 +36,54 @@ export class WaitGame {
     });
   }
 
+  public createGame(uuid: string, name: string, socketId: string) {
+    const socket = this._server.sockets.sockets.get(socketId);
+    if (socket === undefined) return;
+    if (!this.UUIDMapings.has(uuid)) {
+      this.UUIDMapings.set(uuid, {
+        socketsId: [],
+        ownedRoomsId: [],
+        otherRoomsId: [],
+        name: name,
+      });
+    }
+    const infos: ClientInfo = this.UUIDMapings.get(uuid) as ClientInfo;
+    if (!infos.socketsId.includes(socketId)) {
+      infos.socketsId.push(socketId);
+    }
+    let roomName = name;
+    let i = 0;
+    while (
+      this.games.has(roomName) ||
+      infos.ownedRoomsId.includes(roomName) ||
+      infos.otherRoomsId.includes(roomName)
+    ) {
+      roomName = name + i;
+      i++;
+    }
+    infos.ownedRoomsId.push(roomName);
+    socket.join(roomName);
+    const player = new Player(name, uuid);
+    player.setIsMaster(true);
+    const game = new Game([], roomName, MULTI, this._server);
+    this.games.set(roomName, game);
+    game.addWaitingPlayer(player);
+    //
+    const createRooms = [];
+    for (let i = 0; i < infos.ownedRoomsId.length; i++) {
+      if (
+        this.getGames().get(infos.ownedRoomsId[i])?.getType() === MULTI &&
+        !this.getGames().get(infos.ownedRoomsId[i])?.getIsStarted()
+      ) {
+        createRooms.push(infos.ownedRoomsId[i]);
+      }
+    }
+    //
+    this._server.to(infos.socketsId).emit('getCreateRooms', {
+      createRooms: createRooms,
+    });
+  }
+
   public async startSingleTetrisGame(
     uuid: string,
     name: string,
@@ -62,7 +110,7 @@ export class WaitGame {
       infos.ownedRoomsId.includes(roomName) ||
       infos.otherRoomsId.includes(roomName)
     ) {
-      roomName += i;
+      roomName = name + i;
       i++;
     }
     infos.ownedRoomsId.push(roomName);
