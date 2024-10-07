@@ -9,7 +9,6 @@ export class ManageSocket {
 
   private addNewUser(name: string, socket: Socket): void {
     const uuid = uuidv4();
-    // console.log(uuid);
     const idTosocket: IdentifierToSocket = { name: name, sockets: [socket] };
     try {
       this.userSockets.set(uuid, idTosocket);

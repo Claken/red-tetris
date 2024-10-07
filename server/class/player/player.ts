@@ -72,9 +72,9 @@ export class Player {
       }
     }
     for (let i = 0; i < 3; i++) {
-      console.log('initTetrominoInsideGrid');
       this.moveDownTetromino();
     }
+    console.log('initTetrominoInsideGrid');
   }
 
   action(action: string) {
