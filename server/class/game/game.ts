@@ -8,6 +8,7 @@ export class Game {
   private _players: Player[];
   private _playersLost: Player[] = [];
   private _waitingPlayers: Player[] = [];
+  private _isStarted = false;
   private _roomId: string;
   private _type: number;
   private _server: Server;
@@ -25,6 +26,17 @@ export class Game {
   }
   public getType(): number {
     return this._type;
+  }
+  public getIsStarted(): boolean {
+    return this._isStarted;
+  }
+
+  public setIsStarted(val: boolean): void {
+    this._isStarted = val;
+  }
+
+  public addWaitingPlayer(player: Player): void {
+    this._waitingPlayers.push(player);
   }
 
   public moveRight(playerUuid: string, socketId: string[]): void {
@@ -74,6 +86,7 @@ export class Game {
   }
 
   async startGame(UUIDMapings: Map<string, ClientInfo>): Promise<void> {
+    this.setIsStarted(true);
     for (let i = 0; i < this._players.length; i++) {
       await this.sendCounterToClient(
         this._players[i],
@@ -117,10 +130,10 @@ export class Game {
   ): Promise<void> {
     const countdownTime = 4;
     let currentTime = countdownTime;
-    return new Promise((resolve) => {
+    return await new Promise((resolve) => {
       const intervalId = setInterval(() => {
         if (currentTime == 4) {
-          if (this._type === SINGLE) {
+          if (this._type !== SINGLE) {
             this._server.to(this._roomId).emit('beforeGame', {
               player: {
                 grid: player.getGrid(),
