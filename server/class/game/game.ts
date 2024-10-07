@@ -170,10 +170,10 @@ export class Game {
           currentTime--;
         } else {
           // count down is over we can start the game
-          this._server.to(this._room_id).emit('countdown', {
-            currentTime: currentTime,
-            roomId: this._room_id,
-          });
+          // this._server.to(this._room_id).emit('countdown', {
+          //   currentTime: currentTime,
+          //   roomId: this._room_id,
+          // });
           clearInterval(intervalId);
           resolve();
         }
