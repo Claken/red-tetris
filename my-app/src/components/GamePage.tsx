@@ -84,11 +84,14 @@ function GamePage() {
 
 	useEffect(() => {
 		socket?.on("beforeGame", (data) => {
-			setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
-			setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
-			setOppName(data.player1.uuid === uuid ? data.player2.name : data.player1.name);
-			setRoomId(data.player1.roomId);
-			setTetro(data.player1.uuid === uuid ? data.player1.tetrominos : data.player2.tetrominos);
+			// setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
+			// setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
+			// setOppName(data.player1.uuid === uuid ? data.player2.name : data.player1.name);
+			// setRoomId(data.player1.roomId);
+			// setTetro(data.player1.uuid === uuid ? data.player1.tetrominos : data.player2.tetrominos);
+			setGrid(data.player.grid);
+			setRoomId(data.player.roomId);
+			setTetro(data.player.tetrominos);
 		});
 		return () => {
 			socket?.off("beforeGame");
@@ -97,9 +100,12 @@ function GamePage() {
 
 	useEffect(() => {
 		socket?.on("game", (data) => {
-			setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
-			setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
-			setTetro(data.player1.uuid === uuid ? data.player1.tetrominos : data.player2.tetrominos);
+			// setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
+			// setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
+			// setTetro(data.player1.uuid === uuid ? data.player1.tetrominos : data.player2.tetrominos);
+			setGrid(data.player.grid);
+			setRoomId(data.player.roomId);
+			setTetro(data.player.tetrominos);
 		});
 		return () => {
 			socket?.off("game");
