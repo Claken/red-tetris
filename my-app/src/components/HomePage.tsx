@@ -21,15 +21,13 @@ function HomePage() {
 
 	const { socket, setSocket } = socketContext;
 
-	const goToGameRoom = () => {
-		console.log("go to game")
-		navigate(route);
-	}
 
 	const handleJoinSolo = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
-		socket?.emit("startSingleTetrisGame");
-		goToGameRoom();
+		socket?.emit("startSingleTetrisGame", { name: name, uuid: uuid });
+		const newRoute = "/" + name + "/" + name;
+		setRoute(newRoute);
+		navigate(route);
 	}
 
 	const handleJoinGame = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -48,18 +46,18 @@ function HomePage() {
 		</div>
 	}
 
-	socket?.on("waitToPlay", (data) => {
-		setRoomId(data.roomId);
-		const roomName = roomId === "" ? data.roomId : roomId;
-		const goToRoute = "/" + roomName + "/" + name;
-		setRoute(goToRoute);
-		setWaiting(true);
-	});
+	// socket?.on("waitToPlay", (data) => {
+	// 	setRoomId(data.roomId);
+	// 	const roomName = roomId === "" ? data.roomId : roomId;
+	// 	const goToRoute = "/" + roomName + "/" + name;
+	// 	setRoute(goToRoute);
+	// 	setWaiting(true);
+	// });
 
-	socket?.on("changePage", () => {
-		setWaiting(false);
-		goToGameRoom();
-	});
+	// socket?.on("changePage", () => {
+	// 	setWaiting(false);
+	// 	goToGameRoom();
+	// });
 
 	useEffect(() => {
 		const uuid = sessionStorage.getItem("uuid");

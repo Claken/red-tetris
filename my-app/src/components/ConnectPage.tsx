@@ -2,7 +2,7 @@ import React, { Dispatch, useEffect } from 'react';
 import "../index.css"
 import { io, Socket } from 'socket.io-client'
 
-function ConnectPage({name, setName, uuid, setUuid, socket, setSocket} : {
+function ConnectPage({ name, setName, uuid, setUuid, socket, setSocket }: {
 	name: string,
 	setName: Dispatch<React.SetStateAction<string>>,
 	uuid: string | undefined,
@@ -24,7 +24,8 @@ function ConnectPage({name, setName, uuid, setUuid, socket, setSocket} : {
 			})
 		);
 	}
-	useEffect(() => {
+
+	// useEffect(() => {
 		socket?.on("new-person", (data) => {
 			console.log("new-person");
 			console.log(data);
@@ -32,10 +33,10 @@ function ConnectPage({name, setName, uuid, setUuid, socket, setSocket} : {
 			sessionStorage.setItem("name", data.name);
 			setUuid(data.uuid);
 		});
-		return () => {
-			socket?.off("new-person");
-		}
-	}, [socket]);
+	// 	return () => {
+	// 		socket?.off("new-person");
+	// 	}
+	// }, [socket]);
 
 	return (
 		<div className="flex items-center justify-center h-screen bg-black">

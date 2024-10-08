@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSocket } from "../contexts/socketContext";
+import { useNavigate } from "react-router-dom";
 
 function GamePage() {
 
@@ -13,14 +14,16 @@ function GamePage() {
 	const uuid = sessionStorage.getItem("uuid");
 	const [roomId, setRoomId] = useState<string>("");
 	const [countdown, setCountdown] = useState<number | null>(null);
-	const [oppName, setOppName] = useState<string>("");
+	const navigate = useNavigate();
+
+	// const [oppName, setOppName] = useState<string>("");
 	// const [soloGame, setSoloGame] = useState<boolean>(false);
 	const numRows = 20;
 	const numCols = 10;
 	const emptyGrid = Array.from({ length: numRows }, () => Array(numCols).fill(0));
 
 	const [grid, setGrid] = useState<number[][]>(emptyGrid);
-	const [oppGrid, setOppGrid] = useState<number[][]>(emptyGrid);
+	// const [oppGrid, setOppGrid] = useState<number[][]>(emptyGrid);
 	const [tetrominos, setTetro] = useState();
 
 	const handleKeydown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -50,14 +53,18 @@ function GamePage() {
 		return 'bg-red-900';
 	}
 
-	const cellColorOppGrid = (cell: number) => {
-		if (cell === 1 || cell === 2) {
-			return 'bg-blue-500';
-		}
-		else if (cell === 102) {
-			return 'bg-blue-700'
-		}
-		return 'bg-blue-900';
+	// const cellColorOppGrid = (cell: number) => {
+	// 	if (cell === 1 || cell === 2) {
+	// 		return 'bg-blue-500';
+	// 	}
+	// 	else if (cell === 102) {
+	// 		return 'bg-blue-700'
+	// 	}
+	// 	return 'bg-blue-900';
+	// }
+
+	const goBackToHome = () => {
+		navigate("/");
 	}
 
 	const displayTetromino = (tetromino: any) => {
@@ -75,7 +82,7 @@ function GamePage() {
 
 	useEffect(() => {
 		socket?.on("countdown", (data) => {
-			setCountdown(data.currentTime === 0 ? null : data.currentTime);
+			setCountdown(data.currentTime === 1 ? null : data.currentTime);
 		});
 		return () => {
 			socket?.off("countdown");
@@ -99,7 +106,7 @@ function GamePage() {
 	}, [socket]);
 
 	useEffect(() => {
-		socket?.on("game", (data) => {
+		socket?.on("myGame", (data) => {
 			// setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
 			// setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
 			// setTetro(data.player1.uuid === uuid ? data.player1.tetrominos : data.player2.tetrominos);
@@ -108,14 +115,15 @@ function GamePage() {
 			setTetro(data.player.tetrominos);
 		});
 		return () => {
-			socket?.off("game");
+			socket?.off("myGame");
 		}
 	}, [socket]);
 
 	useEffect(() => {
-		socket?.on("endGame", () => {
+		socket?.on("endGame", (data) => {
 			setGrid(emptyGrid);
-			setOppGrid(emptyGrid);
+			console.log(data);
+			// setOppGrid(emptyGrid);
 		});
 		return () => {
 			socket?.off("endGame");
@@ -124,7 +132,7 @@ function GamePage() {
 
 	return (
 		<div className="bg-black h-screen">
-			<div className="absolute top-1/2 transform -translate-y-1/2">
+			{/* <div className="absolute top-1/2 transform -translate-y-1/2">
 				<div className="text-red-500 text-center">
 					{oppName === "" ? "player2" : oppName}'s grid
 				</div>
@@ -140,7 +148,7 @@ function GamePage() {
 						)}
 					</div>
 				</div>
-			</div>
+			</div> */}
 			<div className="absolute top-1/2 right-5 transform -translate-y-1/2">
 				<div className="text-red-500">
 					TETROMINOS :
