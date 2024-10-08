@@ -27,7 +27,7 @@ function HomePage() {
 		socket?.emit("startSingleTetrisGame", { name: name, uuid: uuid });
 		const newRoute = "/" + name + "/" + name;
 		setRoute(newRoute);
-		navigate(route);
+		navigate(newRoute);
 	}
 
 	const handleJoinGame = (e: React.MouseEvent<HTMLButtonElement>) => {

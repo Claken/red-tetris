@@ -53,6 +53,11 @@ function GamePage() {
 		return 'bg-red-900';
 	}
 
+	const setGridWithRightSize = (grid : number[][]) => {
+		const newGrid = grid.slice(4, 24);
+		setGrid(newGrid);
+	}
+
 	// const cellColorOppGrid = (cell: number) => {
 	// 	if (cell === 1 || cell === 2) {
 	// 		return 'bg-blue-500';
@@ -96,7 +101,7 @@ function GamePage() {
 			// setOppName(data.player1.uuid === uuid ? data.player2.name : data.player1.name);
 			// setRoomId(data.player1.roomId);
 			// setTetro(data.player1.uuid === uuid ? data.player1.tetrominos : data.player2.tetrominos);
-			setGrid(data.player.grid);
+			setGridWithRightSize(data.player.grid);
 			setRoomId(data.player.roomId);
 			setTetro(data.player.tetrominos);
 		});
@@ -110,7 +115,7 @@ function GamePage() {
 			// setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
 			// setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
 			// setTetro(data.player1.uuid === uuid ? data.player1.tetrominos : data.player2.tetrominos);
-			setGrid(data.player.grid);
+			setGridWithRightSize(data.player.grid);
 			setRoomId(data.player.roomId);
 			setTetro(data.player.tetrominos);
 		});
