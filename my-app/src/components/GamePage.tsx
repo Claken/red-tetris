@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSocket } from "../contexts/socketContext";
 
 function GamePage() {
@@ -73,28 +73,48 @@ function GamePage() {
 		));
 	};
 
-	socket?.on("countdown", (data) => {
-		setCountdown(data.currentTime === 0 ? null : data.currentTime);
-	});
+	useEffect(() => {
+		socket?.on("countdown", (data) => {
+			setCountdown(data.currentTime === 0 ? null : data.currentTime);
+		});
+		return () => {
+			socket?.off("countdown");
+		}
+	}, [socket]);
 
-	socket?.on("beforeGame", (data) => {
-		setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
-		setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
-		setOppName(data.player1.uuid === uuid ? data.player2.name: data.player1.name);
-		setRoomId(data.player1.roomId);
-		setTetro(data.player1.uuid === uuid ? data.player1.tetrominos : data.player2.tetrominos);
-	});
+	useEffect(() => {
+		socket?.on("beforeGame", (data) => {
+			setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
+			setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
+			setOppName(data.player1.uuid === uuid ? data.player2.name : data.player1.name);
+			setRoomId(data.player1.roomId);
+			setTetro(data.player1.uuid === uuid ? data.player1.tetrominos : data.player2.tetrominos);
+		});
+		return () => {
+			socket?.off("beforeGame");
+		}
+	}, [socket]);
 
-	socket?.on("game", (data) => {
-		setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
-		setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
-		setTetro(data.player1.uuid === uuid ? data.player1.tetrominos : data.player2.tetrominos);
-	});
+	useEffect(() => {
+		socket?.on("game", (data) => {
+			setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
+			setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
+			setTetro(data.player1.uuid === uuid ? data.player1.tetrominos : data.player2.tetrominos);
+		});
+		return () => {
+			socket?.off("game");
+		}
+	}, [socket]);
 
-	socket?.on("endGame", () => {
-		setGrid(emptyGrid);
-		setOppGrid(emptyGrid);
-	});
+	useEffect(() => {
+		socket?.on("endGame", () => {
+			setGrid(emptyGrid);
+			setOppGrid(emptyGrid);
+		});
+		return () => {
+			socket?.off("endGame");
+		}
+	}, [socket]);
 
 	return (
 		<div className="bg-black h-screen">

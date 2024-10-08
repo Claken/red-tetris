@@ -28,8 +28,8 @@ function HomePage() {
 
 	const handleJoinSolo = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
-		// socket?.emit("StartSingleTetrisGame");
-		// goToGameRoom();
+		socket?.emit("startSingleTetrisGame");
+		goToGameRoom();
 	}
 
 	const handleJoinGame = (e: React.MouseEvent<HTMLButtonElement>) => {
