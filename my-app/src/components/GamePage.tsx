@@ -12,18 +12,17 @@ function GamePage() {
 
 	const { socket } = socketContext;
 	const uuid = sessionStorage.getItem("uuid");
+	const name = sessionStorage.getItem("name");
 	const [roomId, setRoomId] = useState<string>("");
+	const [partyDone, setPartyDone] = useState<boolean>(false);
 	const [countdown, setCountdown] = useState<number | null>(null);
 	const navigate = useNavigate();
 
-	// const [oppName, setOppName] = useState<string>("");
-	// const [soloGame, setSoloGame] = useState<boolean>(false);
 	const numRows = 20;
 	const numCols = 10;
 	const emptyGrid = Array.from({ length: numRows }, () => Array(numCols).fill(0));
 
 	const [grid, setGrid] = useState<number[][]>(emptyGrid);
-	// const [oppGrid, setOppGrid] = useState<number[][]>(emptyGrid);
 	const [tetrominos, setTetro] = useState();
 
 	const handleKeydown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -53,23 +52,19 @@ function GamePage() {
 		return 'bg-red-900';
 	}
 
-	const setGridWithRightSize = (grid : number[][]) => {
+	const setGridWithRightSize = (grid: number[][]) => {
 		const newGrid = grid.slice(4, 24);
 		setGrid(newGrid);
 	}
 
-	// const cellColorOppGrid = (cell: number) => {
-	// 	if (cell === 1 || cell === 2) {
-	// 		return 'bg-blue-500';
-	// 	}
-	// 	else if (cell === 102) {
-	// 		return 'bg-blue-700'
-	// 	}
-	// 	return 'bg-blue-900';
-	// }
-
 	const goBackToHome = () => {
+		setPartyDone(false);
 		navigate("/");
+	}
+
+	const retrySoloGame = () => {
+		setPartyDone(false);
+		socket?.emit("startSingleTetrisGame", { name: name, uuid: uuid });
 	}
 
 	const displayTetromino = (tetromino: any) => {
@@ -96,11 +91,6 @@ function GamePage() {
 
 	useEffect(() => {
 		socket?.on("beforeGame", (data) => {
-			// setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
-			// setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
-			// setOppName(data.player1.uuid === uuid ? data.player2.name : data.player1.name);
-			// setRoomId(data.player1.roomId);
-			// setTetro(data.player1.uuid === uuid ? data.player1.tetrominos : data.player2.tetrominos);
 			setGridWithRightSize(data.player.grid);
 			setRoomId(data.player.roomId);
 			setTetro(data.player.tetrominos);
@@ -112,9 +102,6 @@ function GamePage() {
 
 	useEffect(() => {
 		socket?.on("myGame", (data) => {
-			// setGrid(data.player1.uuid === uuid ? data.player1.grid : data.player2.grid);
-			// setOppGrid(data.player1.uuid === uuid ? data.player2.grid : data.player1.grid);
-			// setTetro(data.player1.uuid === uuid ? data.player1.tetrominos : data.player2.tetrominos);
 			setGridWithRightSize(data.player.grid);
 			setRoomId(data.player.roomId);
 			setTetro(data.player.tetrominos);
@@ -128,7 +115,7 @@ function GamePage() {
 		socket?.on("endGame", (data) => {
 			setGrid(emptyGrid);
 			console.log(data);
-			// setOppGrid(emptyGrid);
+			setPartyDone(true);
 		});
 		return () => {
 			socket?.off("endGame");
@@ -137,26 +124,9 @@ function GamePage() {
 
 	return (
 		<div className="bg-black h-screen">
-			{/* <div className="absolute top-1/2 transform -translate-y-1/2">
-				<div className="text-red-500 text-center">
-					{oppName === "" ? "player2" : oppName}'s grid
-				</div>
-				<div className="border-4 border-blue-500">
-					<div className="grid grid-cols-10 gap-0.5">
-						{oppGrid.map((row, rowIndex) =>
-							row.map((cell, colIndex) => (
-								<div
-									key={`opp-${rowIndex}-${colIndex}`}
-									className={`w-2 h-2 sm:w-2 sm:h-2 md:w-4 md:h-4 lg:w-4 lg:h-4 lx:w-6 lx:h-6 border border-blue-700 ${cellColorOppGrid(cell)}`}
-								></div>
-							))
-						)}
-					</div>
-				</div>
-			</div> */}
 			<div className="absolute top-1/2 right-5 transform -translate-y-1/2">
 				<div className="text-red-500">
-					TETROMINOS :
+					NEXT :
 				</div>
 				{tetrominos && tetrominos.length > 0 && tetrominos.map((tetro, index) => (
 					<div key={index} className="mb-4 items-center">
@@ -185,6 +155,17 @@ function GamePage() {
 								<h1 className="text-white text-6xl font-bold">
 									{countdown}
 								</h1>
+							</div>
+						)}
+						{partyDone === true && (
+							<div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
+								<div className="text-center">
+									<h1 className="text-white text-6xl font-bold">
+										THE GAME IS DONE
+									</h1>
+									<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full" onClick={goBackToHome}>Go to menu</button>
+									<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full" onClick={retrySoloGame}>Retry</button>
+								</div>
 							</div>
 						)}
 					</div>
