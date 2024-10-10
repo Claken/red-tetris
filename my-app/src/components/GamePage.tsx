@@ -159,12 +159,16 @@ function GamePage() {
 						)}
 						{partyDone === true && (
 							<div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
-								<div className="text-center">
-									<h1 className="text-white text-6xl font-bold">
+								<div className="flex flex-col my-1 space-y-5 p-10">
+									<h1 className="text-white text-5xl font-bold">
 										THE GAME IS DONE
 									</h1>
-									<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full" onClick={goBackToHome}>Go to menu</button>
-									<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full" onClick={retrySoloGame}>Retry</button>
+									<div className="text-center">
+										<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={goBackToHome}>Go to menu</button>
+									</div>
+									<div className="text-center">
+										<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={retrySoloGame}>Retry</button>
+									</div>
 								</div>
 							</div>
 						)}
