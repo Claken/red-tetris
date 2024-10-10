@@ -44,12 +44,12 @@ function GamePage() {
 
 	const cellColorMainGrid = (cell: number) => {
 		if (cell === 1 || cell === 2) {
-			return 'bg-red-500';
+			return 'bg-[#7aa2f7]';
 		}
 		else if (cell === 102) {
-			return 'bg-red-700'
+			return 'bg-[#7d0202]'
 		}
-		return 'bg-red-900';
+		return 'bg-[#1a1b26]';
 	}
 
 	const setGridWithRightSize = (grid: number[][]) => {
@@ -67,13 +67,34 @@ function GamePage() {
 		socket?.emit("startSingleTetrisGame", { name: name, uuid: uuid });
 	}
 
+	const getTetroColor = (type: string) => {
+		switch (type) {
+			case ('I'):
+				return 'bg-[#00ffff]'
+			case ('J'):
+				return 'bg-[#0000ff]'
+			case ('L'):
+				return 'bg-[#ff7f00]'
+			case ('O'):
+				return 'bg-[#ffff00]'
+			case ('S'):
+				return 'bg-[#00ff00]'
+			case ('T'):
+				return 'bg-[#800080]'
+			case ('Z'):
+				return 'bg-[#ff0000]'
+		}
+	}
+
 	const displayTetromino = (tetromino: any) => {
+		console.log(tetromino.type)
+		const tetroColor = getTetroColor(tetromino.type);
 		return tetromino.shape.map((row: number[], rowIndex: number) => (
 			<div key={rowIndex} className="flex">
 				{row.map((cell: number, colIndex: number) => (
 					<div
 						key={colIndex}
-						className={`w-4 h-4 border ${cell === 1 ? 'bg-yellow-500' : 'bg-transparent'}`}
+						className={`w-4 h-4 ${cell === 1 ? tetroColor : 'bg-transparent'}`}
 					></div>
 				))}
 			</div>
@@ -123,7 +144,7 @@ function GamePage() {
 	}, [socket]);
 
 	return (
-		<div className="bg-black h-screen">
+		<div className="bg-[#1a1b26] h-screen">
 			<div className="absolute top-1/2 right-5 transform -translate-y-1/2">
 				<div className="text-red-500">
 					NEXT :
@@ -135,7 +156,7 @@ function GamePage() {
 				))}
 			</div>
 			<div className="flex items-center justify-center h-screen">
-				<div className="border-8 border-red-500">
+				<div className="border-8 border-[#414868]">
 					<div className="border-2 border-black">
 						<div className="grid grid-cols-10 gap-0.5"
 							tabIndex={0}
@@ -145,7 +166,7 @@ function GamePage() {
 								row.map((cell, colIndex) => (
 									<div
 										key={`${rowIndex}-${colIndex}`}
-										className={`w-4 h-4 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-6 lg:h-6 lx:w-8 lx:h-8 border border-red-700 ${cellColorMainGrid(cell)}`}
+										className={`w-4 h-4 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-6 lg:h-6 lx:w-8 lx:h-8 border border-[#414868] ${cellColorMainGrid(cell)}`}
 									></div>
 								))
 							)}
@@ -161,7 +182,7 @@ function GamePage() {
 							<div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
 								<div className="flex flex-col my-1 space-y-5 p-10">
 									<h1 className="text-white text-5xl font-bold">
-										THE GAME IS DONE
+										GAME OVER
 									</h1>
 									<div className="text-center">
 										<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={goBackToHome}>Go to menu</button>
