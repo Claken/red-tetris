@@ -87,7 +87,6 @@ function GamePage() {
 	}
 
 	const displayTetromino = (tetromino: any) => {
-		console.log(tetromino.type)
 		const tetroColor = getTetroColor(tetromino.type);
 		return tetromino.shape.map((row: number[], rowIndex: number) => (
 			<div key={rowIndex} className="flex">
@@ -96,7 +95,6 @@ function GamePage() {
 						key={colIndex}
 						className={`w-4 h-4 ${cell === 1 ? tetroColor : 'bg-transparent'}`}
 					>
-
 					</div>
 				))}
 			</div>
@@ -148,7 +146,7 @@ function GamePage() {
 	return (
 		<div className="bg-[#1a1b26] h-screen">
 			<div className="absolute top-1/2 right-5 transform -translate-y-1/2">
-				{tetrominos && tetrominos.length && <div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg">
+				{tetrominos && tetrominos.length && <div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg">
 					<div className="flex flex-col items-center space-y-4">
 						<div className="text-white font-bold">
 							NEXT
