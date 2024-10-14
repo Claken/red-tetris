@@ -53,7 +53,7 @@ function App() {
       socket?.emit("moveRight", { uuid: uuid, roomId: roomId });
     } else if (e.key === "ArrowLeft") {
       socket?.emit("moveLeft", { uuid: uuid, roomId: roomId });
-    } else if (e.key === "ArrowUp" ) {
+    } else if (e.key === "ArrowUp") {
       socket?.emit("rotate", { uuid: uuid, roomId: roomId });
     } else if (e.key === "ArrowDown") {
       socket?.emit("moveDown", { uuid: uuid, roomId: roomId });
@@ -213,10 +213,24 @@ function App() {
                       backgroundColor:
                         cell === 0
                           ? "black"
-                          : cell === 3
-                          ? "red"
-                          : cell === 2
+                          : cell === 1
                           ? "blue"
+                          : cell === 2
+                          ? "green"
+                          : cell === 3
+                          ? "orange"
+                          : cell === 4
+                          ? "yellow"
+                          : cell === 5
+                          ? "red"
+                          : cell === 6
+                          ? "purple"
+                          : cell === 7
+                          ? "cyan"
+                          : cell === 10
+                          ? "brown"
+                          : cell === 20
+                          ? "gray"
                           : cell === 102
                           ? "green"
                           : "white",
@@ -329,6 +343,7 @@ function App() {
       console.log({ player: data.player.roomId });
       if (data.player.roomId === roomId) {
         console.log("lala");
+        console.log(data.player.grid);
         setGrid(data.player.grid);
         // console.log(data.player.roomId);
         // setRoomId(data.player.roomId);
@@ -363,6 +378,15 @@ function App() {
     });
     return () => {
       socket?.off("getOtherRooms");
+    };
+  });
+
+  useEffect(() => {
+    socket?.on("pageToGo", (data) => {
+      console.log(data);
+    });
+    return () => {
+      socket?.off("pageToGo");
     };
   });
 

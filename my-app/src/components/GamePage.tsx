@@ -43,6 +43,7 @@ function GamePage() {
 	};
 
 	const cellColorMainGrid = (cell: number) => {
+		console.log(cell)
 		if (cell === 1 || cell === 2) {
 			return 'bg-[#7aa2f7]';
 		}
@@ -103,6 +104,7 @@ function GamePage() {
 
 	useEffect(() => {
 		socket?.on("countdown", (data) => {
+			console.log(data.currentTime)
 			setCountdown(data.currentTime === 1 ? null : data.currentTime);
 		});
 		return () => {
