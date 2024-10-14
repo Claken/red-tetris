@@ -42,17 +42,6 @@ function GamePage() {
 		}
 	};
 
-	const cellColorMainGrid = (cell: number) => {
-		console.log(cell)
-		if (cell === 1 || cell === 2) {
-			return 'bg-[#7aa2f7]';
-		}
-		else if (cell === 102) {
-			return 'bg-[#7d0202]'
-		}
-		return 'bg-[#1a1b26]';
-	}
-
 	const setGridWithRightSize = (grid: number[][]) => {
 		const newGrid = grid.slice(4, 24);
 		setGrid(newGrid);
@@ -68,7 +57,31 @@ function GamePage() {
 		socket?.emit("startSingleTetrisGame", { name: name, uuid: uuid });
 	}
 
+	const cellColorMainGrid = (cell: number) => {
+		console.log("cell == " + cell)
+		switch (cell) {
+			case (1):
+				return 'bg-[#00ffff]'
+			case (2):
+				return 'bg-[#0000ff]'
+			case (3):
+				return 'bg-[#ff7f00]'
+			case (4):
+				return 'bg-[#ffff00]'
+			case (5):
+				return 'bg-[#00ff00]'
+			case (6):
+				return 'bg-[#800080]'
+			case (7):
+				return 'bg-[#ff0000]'
+			case (0):
+				return 'bg-blue-500'
+			case (102):
+				return 'bg-gray-500'
+	}
+
 	const getTetroColor = (type: string) => {
+		console.log("type == " + type)
 		switch (type) {
 			case ('I'):
 				return 'bg-[#00ffff]'
@@ -94,7 +107,7 @@ function GamePage() {
 				{row.map((cell: number, colIndex: number) => (
 					<div
 						key={colIndex}
-						className={`w-4 h-4 ${cell === 1 ? tetroColor : 'bg-transparent'}`}
+						className={`w-4 h-4 ${cell !== 0 ? tetroColor : 'bg-transparent'}`}
 					>
 					</div>
 				))}
@@ -104,8 +117,7 @@ function GamePage() {
 
 	useEffect(() => {
 		socket?.on("countdown", (data) => {
-			console.log(data.currentTime)
-			setCountdown(data.currentTime === 1 ? null : data.currentTime);
+			setCountdown(data.currentTime === 0 ? null : data.currentTime);
 		});
 		return () => {
 			socket?.off("countdown");
