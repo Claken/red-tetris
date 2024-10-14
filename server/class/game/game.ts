@@ -140,7 +140,7 @@ export class Game {
                 name: player.getPlayerName(),
                 uuid: player.getUuid(),
                 roomId: this._roomId,
-                tetrominos: player.getTetrominos().slice(1, 6),
+                tetrominos: player.getTetrominos().slice(0, 6),
               },
             });
           } else {
@@ -150,12 +150,12 @@ export class Game {
                 name: player.getPlayerName(),
                 uuid: player.getUuid(),
                 roomId: this._roomId,
-                tetrominos: player.getTetrominos().slice(1, 6),
+                tetrominos: player.getTetrominos().slice(0, 6),
               },
             });
           }
           currentTime--;
-        } else if (currentTime > 0) {
+        } else if (currentTime >= 0) {
           if (this._type === SINGLE) {
             this._server.to(this._roomId).emit('countdown', {
               currentTime: currentTime,
@@ -322,7 +322,7 @@ export class Game {
           name: player.getPlayerName(),
           uuid: player.getUuid(),
           roomId: this._roomId,
-          tetrominos: player.getTetrominos().slice(1, 6),
+          tetrominos: player.getTetrominos().slice(0, 6),
         },
       });
       return;
@@ -333,7 +333,7 @@ export class Game {
         name: player.getPlayerName(),
         uuid: player.getUuid(),
         roomId: this._roomId,
-        tetrominos: player.getTetrominos().slice(1, 6),
+        tetrominos: player.getTetrominos().slice(0, 6),
       },
     });
   }
