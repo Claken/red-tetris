@@ -78,6 +78,7 @@ function GamePage() {
 				return 'bg-blue-500'
 			case (102):
 				return 'bg-gray-500'
+		}
 	}
 
 	const getTetroColor = (type: string) => {
