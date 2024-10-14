@@ -119,7 +119,9 @@ export class WaitGame {
     player.setIsMaster(true);
     const game = new Game([player], roomName, SINGLE, this._server);
     this.games.set(roomName, game);
+    await this.pageToGo(uuid, roomName, SINGLE, player.getPlayerName());
     await game.startGame(this.UUIDMapings);
+    console.log('my game');
     const touch = { touch1: 1 };
     let gameIsOver = false;
     const intervalId = setInterval(() => {
@@ -136,6 +138,31 @@ export class WaitGame {
         this.games.delete(roomName);
       }
     }, 1000); // update every second
+  }
+
+  private async pageToGo(
+    uuid: string,
+    roomName: string,
+    type: number,
+    name: string,
+  ): Promise<void> {
+    // const infos: ClientInfo | undefined = this.UUIDMapings.get(uuid);
+    // if (infos === undefined) return;
+    if (type == SINGLE) {
+      this._server.to(roomName).emit('pageToGo', {
+        pageInfos: {
+          path: roomName + '/' + name,
+          name: name,
+          roomName: roomName,
+        },
+      });
+    }
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(1);
+      }, 1000);
+    });
+    return;
   }
 
   // private startGameSolo(): void {

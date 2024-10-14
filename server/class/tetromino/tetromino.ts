@@ -1,3 +1,15 @@
+import {
+  E,
+  I,
+  J,
+  L,
+  O,
+  S,
+  T,
+  Z,
+  UNBREAKABLE_BRICK,
+} from '../../constantes/constantes';
+
 interface InterfaceTetromino {
   rotation: number; // rotate the piece in degrees
   shape: number[][]; // shape of the piece
@@ -9,63 +21,63 @@ export const allTetrominos: InterfaceTetromino[] = [
     type: 'I',
     rotation: 0,
     shape: [
-      [0, 0, 0, 0],
-      [1, 1, 1, 1],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
+      [E, E, E, E],
+      [I, I, I, I],
+      [E, E, E, E],
+      [E, E, E, E],
     ],
   },
   {
     type: 'J',
     rotation: 0,
     shape: [
-      [1, 0, 0],
-      [1, 1, 1],
-      [0, 0, 0],
+      [J, E, E],
+      [J, J, J],
+      [E, E, E],
     ],
   },
   {
     type: 'L',
     rotation: 0,
     shape: [
-      [0, 0, 1],
-      [1, 1, 1],
-      [0, 0, 0],
+      [E, E, L],
+      [L, L, L],
+      [E, E, E],
     ],
   },
   {
     type: 'O',
     rotation: 0,
     shape: [
-      [1, 1],
-      [1, 1],
+      [O, O],
+      [O, O],
     ],
   },
   {
     type: 'S',
     rotation: 0,
     shape: [
-      [0, 1, 1],
-      [1, 1, 0],
-      [0, 0, 0],
+      [E, S, S],
+      [S, S, E],
+      [E, E, E],
     ],
   },
   {
     type: 'T',
     rotation: 0,
     shape: [
-      [0, 1, 0],
-      [1, 1, 1],
-      [0, 0, 0],
+      [E, T, E],
+      [T, T, T],
+      [E, E, E],
     ],
   },
   {
     type: 'Z',
     rotation: 0,
     shape: [
-      [1, 1, 0],
-      [0, 1, 1],
-      [0, 0, 0],
+      [Z, Z, E],
+      [E, Z, Z],
+      [E, E, E],
     ],
   },
 ];
@@ -96,12 +108,24 @@ export class Tetromino {
     }
   }
 
+  private isPartOfTetromino(num: number) {
+    return (
+      num == I ||
+      num == J ||
+      num == L ||
+      num == O ||
+      num == S ||
+      num == T ||
+      num == Z
+    );
+  }
+
   private setLengthTetromino() {
     this.lengthX = this.shape[0].length;
     this.lengthY = this.shape.length;
     for (let y = 0; y < this.lengthY; y++) {
       for (let x = 0; x < this.lengthX; x++) {
-        if (this.shape[y][x] == 1) {
+        if (this.isPartOfTetromino(this.shape[y][x])) {
           this.lengthYBeforeNumber = y;
           this.lengthXBeforeNumber = x;
           x = this.lengthX;
