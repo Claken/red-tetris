@@ -25,9 +25,6 @@ function HomePage() {
 	const handleJoinSolo = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
 		socket?.emit("startSingleTetrisGame", { name: name, uuid: uuid });
-		const newRoute = "/" + name + "/" + name;
-		setRoute(newRoute);
-		navigate(newRoute);
 	}
 
 	const handleJoinGame = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -46,13 +43,16 @@ function HomePage() {
 		</div>
 	}
 
-	// socket?.on("waitToPlay", (data) => {
-	// 	setRoomId(data.roomId);
-	// 	const roomName = roomId === "" ? data.roomId : roomId;
-	// 	const goToRoute = "/" + roomName + "/" + name;
-	// 	setRoute(goToRoute);
-	// 	setWaiting(true);
-	// });
+	useEffect(() => {
+		socket?.on("pageToGo", (data) => {
+			setRoomId(data.pageInfos.roomName);
+			const goToRoute = data.pageInfos.path;
+			navigate(goToRoute);
+		});
+		return () => {
+			socket?.off("pageToGo");
+		};
+	});
 
 	// socket?.on("changePage", () => {
 	// 	setWaiting(false);
