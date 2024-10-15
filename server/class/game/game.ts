@@ -1,7 +1,7 @@
 import { Server } from 'socket.io';
 import { Player } from '../player/player';
 import { ClientInfo } from '../../interfaces/clientInfo';
-import { SINGLE } from '../../constantes/constantes';
+import { MULTI, SINGLE } from '../../constantes/constantes';
 import { ManagePlayerTetromino } from '../managePlayerTetromino/managePlayerTetromino';
 
 export class Game {
@@ -87,12 +87,17 @@ export class Game {
 
   async startGame(UUIDMapings: Map<string, ClientInfo>): Promise<void> {
     this.setIsStarted(true);
-    for (let i = 0; i < this._players.length; i++) {
-      await this.sendCounterToClient(
-        this._players[i],
-        UUIDMapings.get(this._players[i].getUuid())?.socketsId ?? [],
-      );
+    if (this._type === MULTI) {
+      this._players = this._waitingPlayers;
+      this._waitingPlayers = [];
     }
+    const promises = this._players.map((player) => {
+      return this.sendCounterToClient(
+        player,
+        UUIDMapings.get(player.getUuid())?.socketsId ?? [],
+      );
+    });
+    await Promise.all(promises);
     const managePT = new ManagePlayerTetromino();
     managePT.injectmultipleTetrominos(this._players, 100);
     for (let i = 0; i < this._players.length; i++) {
@@ -102,6 +107,20 @@ export class Game {
         UUIDMapings.get(this._players[i].getUuid())?.socketsId ?? [],
       );
     }
+  }
+
+  public async gamePlayMulti(
+    UUIDMapings: Map<string, ClientInfo>,
+  ): Promise<void> {
+    const promises = this._players.map((player) => {
+      player.moveDownTetromino();
+      player.updateGrid(0);
+      return this.sendGameToClient(
+        player,
+        UUIDMapings.get(player.getUuid())?.socketsId ?? [],
+      );
+    });
+    await Promise.all(promises);
   }
 
   public endGame(): boolean {
@@ -116,6 +135,21 @@ export class Game {
             uuid: this._players[0].getUuid(),
             roomId: this._roomId,
             winner: false,
+          },
+        });
+        return true;
+      }
+    } else {
+      if (this._players.length === 1) {
+        console.log('all players lost');
+        console.log({ roomId: this._roomId });
+        this._server.to(this._roomId).emit('endGame', {
+          player: {
+            grid: this._players[0].getGrid(),
+            name: this._players[0].getPlayerName(),
+            uuid: this._players[0].getUuid(),
+            roomId: this._roomId,
+            winner: true,
           },
         });
         return true;
@@ -140,7 +174,7 @@ export class Game {
                 name: player.getPlayerName(),
                 uuid: player.getUuid(),
                 roomId: this._roomId,
-                tetrominos: player.getTetrominos().slice(0, 6),
+                tetrominos: player.getTetrominos().slice(1, 6),
               },
             });
           } else {
@@ -150,7 +184,7 @@ export class Game {
                 name: player.getPlayerName(),
                 uuid: player.getUuid(),
                 roomId: this._roomId,
-                tetrominos: player.getTetrominos().slice(0, 6),
+                tetrominos: player.getTetrominos().slice(1, 6),
               },
             });
           }
@@ -322,7 +356,7 @@ export class Game {
           name: player.getPlayerName(),
           uuid: player.getUuid(),
           roomId: this._roomId,
-          tetrominos: player.getTetrominos().slice(0, 6),
+          tetrominos: player.getTetrominos().slice(1, 6),
         },
       });
       return;
@@ -333,7 +367,7 @@ export class Game {
         name: player.getPlayerName(),
         uuid: player.getUuid(),
         roomId: this._roomId,
-        tetrominos: player.getTetrominos().slice(0, 6),
+        tetrominos: player.getTetrominos().slice(1, 6),
       },
     });
   }
