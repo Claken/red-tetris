@@ -58,7 +58,6 @@ function GamePage() {
 	}
 
 	const cellColorMainGrid = (cell: number) => {
-		console.log("cell == " + cell)
 		switch (cell) {
 			case (1):
 				return 'bg-[#00ffff]'
@@ -74,15 +73,17 @@ function GamePage() {
 				return 'bg-[#800080]'
 			case (7):
 				return 'bg-[#ff0000]'
-			case (0):
-				return 'bg-blue-500'
-			case (102):
-				return 'bg-gray-500'
+			case (0): 	// grid's cell
+				return 'bg-[#1a1b26]'
+			case (102): // tetromino's shadown
+				return 'bg-[#7d0202] opacity-75'
+
 		}
+		// cell 10 == placed tetromino
+		return 'bg-red-400'
 	}
 
 	const getTetroColor = (type: string) => {
-		console.log("type == " + type)
 		switch (type) {
 			case ('I'):
 				return 'bg-[#00ffff]'
