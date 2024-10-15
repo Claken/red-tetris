@@ -50,14 +50,9 @@ function HomePage() {
 			navigate(goToRoute);
 		});
 		return () => {
-			socket?.off("pageToGo");
+			socket?.off("pageToGo"); 
 		};
 	});
-
-	// socket?.on("changePage", () => {
-	// 	setWaiting(false);
-	// 	goToGameRoom();
-	// });
 
 	useEffect(() => {
 		const uuid = sessionStorage.getItem("uuid");
