@@ -161,21 +161,14 @@ function GamePage() {
 
 	return (
 		<div className="bg-[#1a1b26] h-screen">
-			<div className="absolute top-1/2 right-5 transform -translate-y-1/2">
-				{tetrominos && tetrominos.length && <div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg">
-					<div className="flex flex-col items-center space-y-4">
-						<div className="text-white font-bold">
-							NEXT
-						</div>
-						{tetrominos.map((tetro, index) => (
-							<div key={index} className="mb-4 items-center">
-								{displayTetromino(tetro)}
-							</div>
-						))}
-					</div>
-				</div>}
-			</div>
 			<div className="flex items-center justify-center h-screen">
+				<div className="mr-4">
+					{/* <div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg">
+						<div className="flex flex-col items-center space-y-4">
+
+						</div>
+					</div> */}
+				</div>
 				<div className="border-8 border-[#414868]">
 					<div className="border-2 border-black">
 						<div className="grid grid-cols-10 gap-0.5"
@@ -214,6 +207,21 @@ function GamePage() {
 							</div>
 						)}
 					</div>
+				</div>
+				<div className="ml-4">
+					{tetrominos && tetrominos.length &&
+						<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg">
+							<div className="flex flex-col items-center space-y-4">
+								<div className="text-white font-bold">
+									NEXT
+								</div>
+								{tetrominos.map((tetro, index) => (
+									<div key={index} className="mb-4 items-center">
+										{displayTetromino(tetro)}
+									</div>
+								))}
+							</div>
+						</div>}
 				</div>
 			</div>
 		</div>
