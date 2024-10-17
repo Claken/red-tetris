@@ -163,11 +163,14 @@ function GamePage() {
 		<div className="bg-[#1a1b26] h-screen">
 			<div className="flex items-center justify-center h-screen">
 				<div className="mr-4">
-					{/* <div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg">
+					<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg">
 						<div className="flex flex-col items-center space-y-4">
+							<div className="text-center">
+								<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={goBackToHome}>Go to menu</button>
+							</div>
 
 						</div>
-					</div> */}
+					</div>
 				</div>
 				<div className="border-8 border-[#414868]">
 					<div className="border-2 border-black">
