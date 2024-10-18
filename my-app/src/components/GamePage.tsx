@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSocket } from "../contexts/socketContext";
 import { useNavigate } from "react-router-dom";
+import React from "react";
 
 function GamePage() {
 

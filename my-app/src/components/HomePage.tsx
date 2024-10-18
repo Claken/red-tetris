@@ -1,9 +1,11 @@
+import React from "react";
 import { useSocket } from "../contexts/socketContext";
 import "../index.css"
 import ConnectPage from './ConnectPage';
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { io } from 'socket.io-client'
+import activeRoomsList from "./activeRooms";
 
 function HomePage() {
 
@@ -17,13 +19,13 @@ function HomePage() {
 	const [listRoomsAc, setListRoomsAc] = useState([]);
 	const [listRoomsCreate, setListRoomsCreate] = useState([]);
 	const [listOtherRooms, setListOtherRooms] = useState([]);
+	const [listButtonClicked, setListButtonClicked] = useState<boolean>(false);
 
 	if (!socketContext) {
 		throw new Error('ConnectPage must be used within a SocketProvider');
 	}
 
 	const { socket, setSocket } = socketContext;
-
 
 	const handleJoinSolo = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
@@ -35,15 +37,10 @@ function HomePage() {
 		socket?.emit("playerPlayMulti", { name: name, uuid: uuid });
 	}
 
-	const WaitingLogo = (): JSX.Element => {
-		return <div className="flex items-center justify-center h-screen">
-			<div className="text center space-y-4">
-				<div className="text-red-600">
-					WAITING FOR A GAME
-				</div>
-				<div className="mx-auto w-16 h-16 border-4 border-t-4 border-red-200 rounded-full animate-spin border-t-red-500"></div>
-			</div>
-		</div>
+	const displayAList = () => {
+		return activeRoomsList(
+			{ setRoomId, name, uuid, listRoomsAc, setListButtonClicked }
+		)
 	}
 
 	useEffect(() => {
@@ -92,6 +89,8 @@ function HomePage() {
 		sessionStorage.getItem("name") ?
 			<div className="bg-black h-screen">
 				<div className="flex items-center justify-center h-screen">
+					{listButtonClicked ?
+					displayAList() :
 					<div className="text-center">
 						<h1 className="bg-green-500 text-white font-bold text-3xl">RED TETRIS</h1>
 						<div className="relative border-4 border-green-500 w-64 h-100">
@@ -128,7 +127,7 @@ function HomePage() {
 										</svg>
 									</div>
 								</button>
-								<button className="bg-[#3f88c5] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full" onClick={() => { }}>
+								<button className="bg-[#3f88c5] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full" onClick={() => setListButtonClicked(true)}>
 									Go back to a game
 									<div className="flex items-center justify-center">
 										<svg className="h-8 w-8" width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">  <path stroke="none" d="M0 0h24v24H0z" />  <path d="M9 11l-4 4l4 4m-4 -4h11a4 4 0 0 0 0 -8h-1" /></svg>
@@ -137,6 +136,7 @@ function HomePage() {
 							</div>
 						</div>
 					</div>
+					}
 				</div>
 			</div>
 			: ConnectPage({ name: name, setName: setName, uuid: uuid, setUuid: setUuid, socket: socket, setSocket: setSocket })
