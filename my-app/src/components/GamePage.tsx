@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { useSocket } from "../contexts/socketContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import React from "react";
+
+interface RouteParams {
+	roomIdFromUrl: string,
+	nameFromUrl: string,
+}
 
 function GamePage() {
 
@@ -129,6 +134,7 @@ function GamePage() {
 
 	useEffect(() => {
 		socket?.on("beforeGame", (data) => {
+			console.log("beforeGame")
 			setGridWithRightSize(data.player.grid);
 			setRoomId(data.player.roomId);
 			setTetro(data.player.tetrominos);
@@ -140,9 +146,10 @@ function GamePage() {
 
 	useEffect(() => {
 		socket?.on("myGame", (data) => {
-			setGridWithRightSize(data.player.grid);
-			setRoomId(data.player.roomId);
-			setTetro(data.player.tetrominos);
+			if (data.player.roomId === roomId) {
+				setGridWithRightSize(data.player.grid);
+				setTetro(data.player.tetrominos);
+			}
 		});
 		return () => {
 			socket?.off("myGame");
@@ -159,6 +166,12 @@ function GamePage() {
 			socket?.off("endGame");
 		}
 	}, [socket]);
+
+	useEffect(() => {
+		// S’exécute uniquement au montage (apparition du composant)
+		const routeParam = useParams<RouteParams>();
+		setRoomId(routeParam.roomIdFromUrl);
+	}, []);
 
 	return (
 		<div className="bg-[#1a1b26] h-screen">
