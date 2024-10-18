@@ -39,7 +39,7 @@ function HomePage() {
 
 	const displayAList = () => {
 		return activeRoomsList(
-			{ setRoomId, name, uuid, listRoomsAc, setListButtonClicked }
+			{ setRoomId, name, uuid, listRoomsAc, setListButtonClicked, navigate }
 		)
 	}
 
