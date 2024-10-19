@@ -9,13 +9,11 @@ import activeRoomsList from "./activeRooms";
 
 function HomePage() {
 
-	const [isWaiting, setWaiting] = useState<boolean>(false);
 	const navigate = useNavigate();
 	const socketContext = useSocket();
 	const [name, setName] = useState<string>("");
 	const [uuid, setUuid] = useState<string | undefined>(undefined);
 	const [roomId, setRoomId] = useState<string>("");
-	const [route, setRoute] = useState<string>("");
 	const [listRoomsAc, setListRoomsAc] = useState([]);
 	const [listRoomsCreate, setListRoomsCreate] = useState([]);
 	const [listOtherRooms, setListOtherRooms] = useState([]);
@@ -78,10 +76,16 @@ function HomePage() {
 			socket.emit("getCreateRooms", { uuid: uuid });
 			socket.emit("getOtherRooms", { uuid: uuid });
 		}
-
 		socket?.on("getActiveRooms", (data) => {
-			console.log(data);
 			setListRoomsAc(data.activeRooms);
+		});
+		socket?.on("getCreateRooms", (data) => {
+			setListRoomsCreate(data.createRooms);
+			console.log(listRoomsCreate);
+		});
+		socket?.on("getOtherRooms", (data) => {
+			setListOtherRooms(data.otherRooms);
+			console.log(listOtherRooms);
 		});
 	}, [socket, roomId]);
 

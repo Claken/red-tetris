@@ -19,10 +19,11 @@ function GamePage() {
 	const { socket } = socketContext;
 	const uuid = sessionStorage.getItem("uuid");
 	const name = sessionStorage.getItem("name");
-	const [roomId, setRoomId] = useState<string>("");
 	const [partyDone, setPartyDone] = useState<boolean>(false);
 	const [countdown, setCountdown] = useState<number | null>(null);
 	const navigate = useNavigate();
+	const routeParam = useParams();
+	const roomId = routeParam.room;
 
 	const numRows = 20;
 	const numCols = 10;
@@ -134,9 +135,7 @@ function GamePage() {
 
 	useEffect(() => {
 		socket?.on("beforeGame", (data) => {
-			console.log("beforeGame")
 			setGridWithRightSize(data.player.grid);
-			setRoomId(data.player.roomId);
 			setTetro(data.player.tetrominos);
 		});
 		return () => {
@@ -166,12 +165,6 @@ function GamePage() {
 			socket?.off("endGame");
 		}
 	}, [socket]);
-
-	useEffect(() => {
-		// S’exécute uniquement au montage (apparition du composant)
-		const routeParam = useParams<RouteParams>();
-		setRoomId(routeParam.roomIdFromUrl);
-	}, []);
 
 	return (
 		<div className="bg-[#1a1b26] h-screen">
