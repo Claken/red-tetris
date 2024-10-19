@@ -3,11 +3,6 @@ import { useSocket } from "../contexts/socketContext";
 import { useNavigate, useParams } from "react-router-dom";
 import React from "react";
 
-interface RouteParams {
-	roomIdFromUrl: string,
-	nameFromUrl: string,
-}
-
 function GamePage() {
 
 	const socketContext = useSocket();
@@ -33,9 +28,6 @@ function GamePage() {
 	const [tetrominos, setTetro] = useState();
 
 	const handleKeydown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-		console.log(e.key);
-		console.log(uuid)
-		console.log(roomId)
 		if (e.key === "ArrowRight") {
 			socket?.emit("moveRight", { uuid: uuid, roomId: roomId });
 		} else if (e.key === "ArrowLeft") {

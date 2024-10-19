@@ -9,12 +9,14 @@ function activeRoomsList({
 	listRoomsAc,
 	setListButtonClicked,
 	navigate,
+	setListButtonClickedActive,
 }: {
 	setRoomId: Dispatch<React.SetStateAction<string>>,
 	name: string,
 	uuid: string | undefined,
 	listRoomsAc: never[],
 	setListButtonClicked: Dispatch<React.SetStateAction<boolean>>,
+	setListButtonClickedActive: Dispatch<React.SetStateAction<boolean>>,
 	navigate: NavigateFunction,
 }
 
@@ -36,17 +38,23 @@ function activeRoomsList({
 									});
 									const goToRoute = room + '/' + name;
 									navigate(goToRoute);
+									setListButtonClickedActive(false);
 									setListButtonClicked(false);
 								}}
 							>
-								revenir sur la room {room}
+								GO BACK TO {room}
 							</button>
 						</div>
 					);
 				})
 				}
 				<div className="text-center">
-					<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={() => setListButtonClicked(false)}>Go to menu</button>
+					<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={() => 
+						{
+							setListButtonClickedActive(false);
+							setListButtonClicked(false);
+						}
+							}>Go to menu</button>
 				</div>
 			</div>
 		);
