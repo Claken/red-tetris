@@ -36,11 +36,6 @@ function HomePage() {
 		socket?.emit("startSingleTetrisGame", { name: name, uuid: uuid });
 	}
 
-	// const handleJoinGame = (e: React.MouseEvent<HTMLButtonElement>) => {
-	// 	e.preventDefault();
-	// 	socket?.emit("playerPlayMulti", { name: name, uuid: uuid });
-	// }
-
 	const displayAList = () => {
 		if (listButtonClickedActive) {
 			return activeRoomsList(
@@ -110,14 +105,14 @@ function HomePage() {
 	return (
 		sessionStorage.getItem("name") ?
 			<div className="bg-black h-screen">
-				<div className="flex items-center justify-center h-screen">
 					{listButtonClicked ?
 						displayAList() :
+				<div className="flex items-center justify-center h-screen">
 						<div className="text-center">
 							<h1 className="bg-green-500 text-white font-bold text-3xl">RED TETRIS</h1>
 							<div className="relative border-4 border-green-500 w-64 h-100">
 								<div className="flex flex-col my-1 space-y-5 p-10">
-									<button className="bg-[#093824] hover:bg-[#00916E] active:bg-bg-[#00916E] text-white font-bold py-2 px-4 rounded-full"
+									<button className="bg-[#093824] hover:bg-[#00916E] active:bg-bg-[#00916E] text-white font-bold py-2 px-4 rounded-full transition-all duration-200"
 										onClick={handleJoinSolo}>
 										Solo game
 										<div className="flex items-center justify-center">
@@ -126,7 +121,7 @@ function HomePage() {
 											</svg>
 										</div>
 									</button>
-									<button className="bg-[#00F5D4] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full" onClick={
+									<button className="bg-[#00F5D4] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-200" onClick={
 										() => { }}>
 										Create a room
 										<div className="flex items-center justify-center">
@@ -135,7 +130,7 @@ function HomePage() {
 											</svg>
 										</div>
 									</button>
-									<button className="bg-[#433a3f] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full" onClick={
+									<button className="bg-[#433a3f] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-200" onClick={
 										() => {
 											setListButtonClickedRooms(true);
 											setListButtonClicked(true);
@@ -147,7 +142,7 @@ function HomePage() {
 											</svg>
 										</div>
 									</button>
-									<button className="bg-[#330036] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full" onClick={
+									<button className="bg-[#330036] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-200" onClick={
 										() => {
 											setListButtonClickedOthers(true);
 											setListButtonClicked(true)
@@ -160,7 +155,7 @@ function HomePage() {
 											</svg>
 										</div>
 									</button>
-									<button className="bg-[#3f88c5] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full" onClick={
+									<button className="bg-[#3f88c5] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-200" onClick={
 										() => {
 											setListButtonClickedActive(true);
 											setListButtonClicked(true);
@@ -174,8 +169,7 @@ function HomePage() {
 								</div>
 							</div>
 						</div>
-					}
-				</div>
+				</div>}
 			</div>
 			: ConnectPage({ name: name, setName: setName, uuid: uuid, setUuid: setUuid, socket: socket, setSocket: setSocket })
 	);

@@ -25,36 +25,37 @@ function activeRoomsList({
 		return (
 			<div>
 				<p className="text-white text-center">ACTIVE ROOMS</p>
-				{listRoomsAc.map((room, index) => {
-					return (
-						<div key={index}>
-							<button
-								className="text-white"
-								onClick={(e) => {
-									e.preventDefault();
-									setRoomId((prev) => {
-										const val = room;
-										return val;
-									});
-									const goToRoute = room + '/' + name;
-									navigate(goToRoute);
-									setListButtonClickedActive(false);
-									setListButtonClicked(false);
-								}}
-							>
-								GO BACK TO {room}
-							</button>
-						</div>
-					);
-				})
-				}
+				<div className="flex flex-col items-center space-y-2">
+					{listRoomsAc.map((room, index) => {
+						return (
+							<div key={index}>
+								<button
+									className="bg-[#433a3f] hover:bg-[#14C8B2] active:bg-[#0F978B] text-white font-bold py-2 px-4 rounded-full w-full max-w-[300px] transition-all duration-200"
+									onClick={(e) => {
+										e.preventDefault();
+										setRoomId((prev) => {
+											const val = room;
+											return val;
+										});
+										const goToRoute = room + '/' + name;
+										navigate(goToRoute);
+										setListButtonClickedActive(false);
+										setListButtonClicked(false);
+									}}
+								>
+									GO BACK TO {room}
+								</button>
+							</div>
+						);
+					})
+					}
+				</div>
 				<div className="text-center">
-					<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={() => 
-						{
-							setListButtonClickedActive(false);
-							setListButtonClicked(false);
-						}
-							}>Go to menu</button>
+					<button className="bg-[#433a3f] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit transition-all duration-200" onClick={() => {
+						setListButtonClickedActive(false);
+						setListButtonClicked(false);
+					}
+					}>Go to menu</button>
 				</div>
 			</div>
 		);

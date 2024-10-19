@@ -29,7 +29,7 @@ function otherRoomsList ({
 					return (
 						<div key={index}>
 							<button
-								className="text-white"
+								className="bg-[#433a3f] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full"
 								onClick={(e) => {
 									e.preventDefault();
 									// setRoomId((prev) => {

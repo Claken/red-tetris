@@ -118,7 +118,9 @@ function GamePage() {
 
 	useEffect(() => {
 		socket?.on("countdown", (data) => {
-			setCountdown(data.currentTime === 0 ? null : data.currentTime);
+			if (data.roomId === roomId) {
+				setCountdown(data.currentTime === 0 ? null : data.currentTime);
+			}
 		});
 		return () => {
 			socket?.off("countdown");
@@ -211,7 +213,7 @@ function GamePage() {
 					</div>
 				</div>
 				<div className="ml-4">
-					{tetrominos && tetrominos.length &&
+					{tetrominos && tetrominos.length > 0 &&
 						<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg">
 							<div className="flex flex-col items-center space-y-4">
 								<div className="text-white font-bold">
