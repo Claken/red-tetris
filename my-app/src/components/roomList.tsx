@@ -36,8 +36,8 @@ function roomList({
 				<div className="text-white">
 					{title}
 				</div>
-				<div className="w-full max-w-4xl bg-gray-800 p-6 rounded-lg shadow-lg grid grid-cols-4 grid-rows-4 gap-4">
-					<div className="flex flex-row items-center space-x-2">
+				<div className="w-full max-w-4xl bg-gray-800 p-6 rounded-lg shadow-lg">
+					<div className="items-center space-x-2 grid grid-cols-4 grid-rows-4 gap-4">
 						{listRooms.map((room, index) => {
 							return (
 								<div key={index} className="flex bg-gray-900 hover:bg-gray-500 rounded-md transition-all duration-200">
