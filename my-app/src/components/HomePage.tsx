@@ -5,9 +5,7 @@ import ConnectPage from './ConnectPage';
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { io } from 'socket.io-client'
-import activeRoomsList from "./activeRooms";
-import myRoomsList from "./myRooms";
-import otherRoomsList from "./otherRooms";
+import roomList from "./roomList";
 
 function HomePage() {
 
@@ -38,18 +36,45 @@ function HomePage() {
 
 	const displayAList = () => {
 		if (listButtonClickedActive) {
-			return activeRoomsList(
-				{ setRoomId, name, uuid, listRoomsAc, setListButtonClicked, navigate, setListButtonClickedActive }
+			return roomList(
+				{
+					setRoomId: setRoomId,
+					name: name,
+					uuid: uuid,
+					listRooms: listRoomsAc,
+					setListButtonClicked: setListButtonClicked,
+					navigate: navigate,
+					setListButtonClickedSpec: setListButtonClickedActive,
+					title: "ACTIVE ROOMLIST"
+				}
 			)
 		}
 		else if (listButtonClickedRooms) {
-			return myRoomsList(
-				{ setRoomId, name, uuid, listRoomsCreate, setListButtonClicked, navigate, setListButtonClickedRooms }
+			return roomList(
+				{
+					setRoomId: setRoomId,
+					name: name,
+					uuid: uuid,
+					listRooms: listRoomsCreate,
+					setListButtonClicked: setListButtonClicked,
+					navigate: navigate,
+					setListButtonClickedSpec: setListButtonClickedRooms,
+					title: "MY ROOMLIST"
+				}
 			)
 		}
 		else if (listButtonClickedOthers) {
-			return otherRoomsList(
-				{ setRoomId, name, uuid, listOtherRooms, setListButtonClicked, navigate, setListButtonClickedOthers }
+			return roomList(
+				{
+					setRoomId: setRoomId,
+					name: name,
+					uuid: uuid,
+					listRooms: listOtherRooms,
+					setListButtonClicked: setListButtonClicked,
+					navigate: navigate,
+					setListButtonClickedSpec: setListButtonClickedOthers,
+					title: "OTHERS ROOMLIST"
+				}
 			)
 		}
 	}
@@ -105,9 +130,9 @@ function HomePage() {
 	return (
 		sessionStorage.getItem("name") ?
 			<div className="bg-black h-screen">
-					{listButtonClicked ?
-						displayAList() :
-				<div className="flex items-center justify-center h-screen">
+				{listButtonClicked ?
+					displayAList() :
+					<div className="flex items-center justify-center h-screen">
 						<div className="text-center">
 							<h1 className="bg-[#ff0000] text-white font-bold text-3xl border-t-2 border-l-2 border-r-2 border-white">RED TETRIS</h1>
 							<div className="relative border-2 border-white bg-[#ff0000] w-64 h-100">
@@ -134,8 +159,8 @@ function HomePage() {
 										() => {
 											setListButtonClickedRooms(true);
 											setListButtonClicked(true);
-										 }
-										}>
+										}
+									}>
 										ALL MY ROOMS
 										<div className="flex items-center justify-center">
 											<svg className="h-8 w-8" viewBox="0 0 24 24" fill="white" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">  <line x1="8" y1="6" x2="21" y2="6" />  <line x1="8" y1="12" x2="21" y2="12" />  <line x1="8" y1="18" x2="21" y2="18" />  <line x1="3" y1="6" x2="3.01" y2="6" />  <line x1="3" y1="12" x2="3.01" y2="12" />  <line x1="3" y1="18" x2="3.01" y2="18" />
@@ -160,7 +185,7 @@ function HomePage() {
 											setListButtonClickedActive(true);
 											setListButtonClicked(true);
 										}
-										}>
+									}>
 										Go back to a game
 										<div className="flex items-center justify-center">
 											<svg className="h-8 w-8" width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">  <path stroke="none" d="M0 0h24v24H0z" />  <path d="M9 11l-4 4l4 4m-4 -4h11a4 4 0 0 0 0 -8h-1" /></svg>
@@ -169,7 +194,7 @@ function HomePage() {
 								</div>
 							</div>
 						</div>
-				</div>}
+					</div>}
 			</div>
 			: ConnectPage({ name: name, setName: setName, uuid: uuid, setUuid: setUuid, socket: socket, setSocket: setSocket })
 	);
