@@ -25,14 +25,8 @@ function roomList({
 ) {
 	if (uuid && name) {
 		return (
-			<div>
-				<div className="">
-					<button className="bg-[#433a3f] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit transition-all duration-200" onClick={() => {
-						setListButtonClickedSpec(false);
-						setListButtonClicked(false);
-					}
-					}>Go to menu</button>
-				</div>
+			<div className="flex flex-col items-center justify-center h-screen">
+
 				<div className="text-white">
 					{title}
 				</div>
@@ -62,6 +56,13 @@ function roomList({
 						})
 						}
 					</div>
+				</div>
+				<div className="text-center">
+					<button className="bg-[#433a3f] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit transition-all duration-200" onClick={() => {
+						setListButtonClickedSpec(false);
+						setListButtonClicked(false);
+					}
+					}>Go to menu</button>
 				</div>
 			</div>
 		);
