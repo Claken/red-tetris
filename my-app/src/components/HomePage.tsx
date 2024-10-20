@@ -109,10 +109,10 @@ function HomePage() {
 						displayAList() :
 				<div className="flex items-center justify-center h-screen">
 						<div className="text-center">
-							<h1 className="bg-green-500 text-white font-bold text-3xl">RED TETRIS</h1>
-							<div className="relative border-4 border-green-500 w-64 h-100">
+							<h1 className="bg-[#ff0000] text-white font-bold text-3xl border-t-2 border-l-2 border-r-2 border-white">RED TETRIS</h1>
+							<div className="relative border-2 border-white bg-[#ff0000] w-64 h-100">
 								<div className="flex flex-col my-1 space-y-5 p-10">
-									<button className="bg-[#093824] hover:bg-[#00916E] active:bg-bg-[#00916E] text-white font-bold py-2 px-4 rounded-full transition-all duration-200"
+									<button className="bg-[#508fe0] hover:bg-[#00916E] active:bg-bg-[#00916E] text-white font-bold py-2 px-4 rounded-full transition-all duration-200"
 										onClick={handleJoinSolo}>
 										Solo game
 										<div className="flex items-center justify-center">
@@ -121,7 +121,7 @@ function HomePage() {
 											</svg>
 										</div>
 									</button>
-									<button className="bg-[#00F5D4] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-200" onClick={
+									<button className="bg-[#b5651d] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-200" onClick={
 										() => { }}>
 										Create a room
 										<div className="flex items-center justify-center">
@@ -130,7 +130,7 @@ function HomePage() {
 											</svg>
 										</div>
 									</button>
-									<button className="bg-[#433a3f] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-200" onClick={
+									<button className="bg-[#6d6d6d] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-200" onClick={
 										() => {
 											setListButtonClickedRooms(true);
 											setListButtonClicked(true);
@@ -142,7 +142,7 @@ function HomePage() {
 											</svg>
 										</div>
 									</button>
-									<button className="bg-[#330036] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-200" onClick={
+									<button className="bg-[#7851a9] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-200" onClick={
 										() => {
 											setListButtonClickedOthers(true);
 											setListButtonClicked(true)
@@ -155,7 +155,7 @@ function HomePage() {
 											</svg>
 										</div>
 									</button>
-									<button className="bg-[#3f88c5] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-200" onClick={
+									<button className="bg-[#3a7a45] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-200" onClick={
 										() => {
 											setListButtonClickedActive(true);
 											setListButtonClicked(true);

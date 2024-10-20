@@ -21,9 +21,37 @@ function activeRoomsList({
 }
 
 ) {
+	interface SmallBoxProps {
+		content: string;
+	  }
+	
+	const SmallBox: React.FC<SmallBoxProps> = ({ content }) => {
+		return (
+		  <div className="flex items-center justify-center bg-gray-900 text-white rounded-md">
+			<button className="px-4 py-2 text-sm">{content}</button>
+		  </div>
+		);
+	  };
+	
+	const GreatBox: React.FC = () => {
+		return (
+		  <div className="min-h-screen flex items-center justify-center bg-gray-100">
+			{/* Grand Rectangle */}
+			<div className="w-full max-w-4xl bg-gray-800 p-6 rounded-lg shadow-lg grid grid-cols-4 grid-rows-4 gap-4">
+			  {/* Petits Rectangles */}
+			  {[...Array(16)].map((_, index) => (
+				<SmallBox key={index} content={`Content ${index + 1}`} />
+			  ))}
+			</div>
+		  </div>
+		);
+	  };
+	  
+
 	if (uuid && name) {
 		return (
 			<div>
+				{/* <GreatBox/> */}
 				<p className="text-white text-center">ACTIVE ROOMS</p>
 				<div className="flex flex-col items-center space-y-2">
 					{listRoomsAc.map((room, index) => {
