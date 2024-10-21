@@ -26,15 +26,16 @@ function roomList({
 	if (uuid && name) {
 		return (
 			<div className="flex flex-col items-center justify-center h-screen">
-
-				<div className="text-white">
-					{title}
+				<div className="p-4 bg-gray-900 border-4 border-white rounded-full w-fit">
+					<div className="text-white font-bold">
+						{title}
+					</div>
 				</div>
-				<div className="w-full max-w-4xl bg-gray-800 p-6 rounded-lg shadow-lg">
+				<div className="w-full max-w-4xl shadow-lg p-8 bg-gray-900 border-4 border-gray-700 rounded-lg m-4">
 					<div className="items-center space-x-2 grid grid-cols-4 grid-rows-4 gap-4">
 						{listRooms.map((room, index) => {
 							return (
-								<div key={index} className="flex bg-gray-900 hover:bg-gray-500 rounded-md transition-all duration-200">
+								<div key={index} className="flex bg-gray-700 hover:bg-gray-500 rounded-md transition-all duration-200">
 									<button
 										className="text-white font-bold py-2 px-4 rounded-full w-full"
 										onClick={(e) => {
@@ -62,7 +63,7 @@ function roomList({
 						setListButtonClickedSpec(false);
 						setListButtonClicked(false);
 					}
-					}>Go to menu</button>
+					}>Menu</button>
 				</div>
 			</div>
 		);

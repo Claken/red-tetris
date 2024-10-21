@@ -167,7 +167,7 @@ function GamePage() {
 					<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg">
 						<div className="flex flex-col items-center space-y-4">
 							<div className="text-center">
-								<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={goBackToHome}>Go to menu</button>
+								<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={goBackToHome}>Menu</button>
 							</div>
 
 						</div>
@@ -202,7 +202,7 @@ function GamePage() {
 										GAME OVER
 									</h1>
 									<div className="text-center">
-										<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={goBackToHome}>Go to menu</button>
+										<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={goBackToHome}>Menu</button>
 									</div>
 									<div className="text-center">
 										<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={retrySoloGame}>Retry</button>
