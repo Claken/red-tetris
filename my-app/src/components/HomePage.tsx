@@ -34,6 +34,11 @@ function HomePage() {
 		socket?.emit("startSingleTetrisGame", { name: name, uuid: uuid });
 	}
 
+	const handleCreateRoom = (e: React.MouseEvent<HTMLButtonElement>) => {
+		e.preventDefault();
+		socket?.emit("createRoom", { name: name, uuid: uuid });
+	}
+
 	const displayAList = () => {
 		if (listButtonClickedActive) {
 			return roomList(
@@ -146,8 +151,8 @@ function HomePage() {
 											</svg>
 										</div>
 									</button>
-									<button className="bg-[#b5651d] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-200" onClick={
-										() => { }}>
+									<button className="bg-[#b5651d] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-200"
+									onClick={handleCreateRoom}>
 										Create a room
 										<div className="flex items-center justify-center">
 											<svg className="h-8 w-8" fill="white" viewBox="0 0 24 24" stroke="currentColor">
