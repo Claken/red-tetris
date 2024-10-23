@@ -189,6 +189,9 @@ export class WaitGame {
     game.setIsStarted(true);
     await game.startGame(this.UUIDMapings);
     const intervalId = setInterval(() => {
+      if (game.endGame()) {
+        clearInterval(intervalId);
+      }
       game.gamePlayMulti(this.UUIDMapings);
     }, 1000); // update every second
   }

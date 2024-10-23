@@ -140,6 +140,16 @@ export class Game {
         return true;
       }
     } else {
+      for (let i = 0; i < this._players.length; i++) {
+        if (this._players[i].isPlayerLost()) {
+          this._playersLost.push(this._players[i]);
+          this._players.splice(i, 1);
+          // dire que ce joueur a perdu en lui envoyant sa grid
+          //
+          //
+          i = 0;
+        }
+      }
       if (this._players.length === 1) {
         console.log('all players lost');
         console.log({ roomId: this._roomId });
@@ -215,76 +225,6 @@ export class Game {
     });
   }
 
-  // getControlGame(): Player {
-  //   if (this._player2 == undefined) {
-  //     return this._player1;
-  //   }
-  //   return this._player1.getIsMaster() ? this._player1 : this._player2;
-  // }
-  // async sendCounterToClient(): Promise<void> {
-  //   const countdownTime = 4;
-  //   let currentTime = countdownTime;
-  //   return new Promise((resolve) => {
-  //     const intervalId = setInterval(() => {
-  //       if (currentTime == 4) {
-  //         if (this._player2 != undefined) {
-  //           this._server.to(this._room_id).emit('beforeGame', {
-  //             player1: {
-  //               grid: this._player1.getGrid(),
-  //               name: this._player1.getPlayerName(),
-  //               uuid: this._player1.getUuid(),
-  //               roomId: this._room_id,
-  //               tetrominos: this._player1.getTetrominos().slice(0, 5),
-  //             },
-  //             player2: {
-  //               grid: this._player2.getGrid(),
-  //               name: this._player2.getPlayerName(),
-  //               uuid: this._player2.getUuid(),
-  //               roomId: this._room_id,
-  //               tetrominos: this._player2.getTetrominos().slice(0, 5),
-  //             },
-  //           });
-  //         } else {
-  //           this._server.to(this._room_id).emit('beforeGame', {
-  //             player1: {
-  //               grid: this._player1.getGrid(),
-  //               name: this._player1.getPlayerName(),
-  //               uuid: this._player1.getUuid(),
-  //               roomId: this._room_id,
-  //               tetrominos: this._player1.getTetrominos().slice(0, 5),
-  //             },
-  //           });
-  //         }
-  //         currentTime--;
-  //       } else if (currentTime > 0) {
-  //         this._server.to(this._room_id).emit('countdown', {
-  //           currentTime: currentTime,
-  //           roomId: this._room_id,
-  //         });
-  //         currentTime--;
-  //       } else {
-  //         // count down is over we can start the game
-  //         clearInterval(intervalId);
-  //         resolve();
-  //       }
-  //     }, 1000); // update every second
-  //   });
-  // }
-  // gamePlay(touch: any): void {
-  //   const nbrLine = this._player1.updateGrid(touch.touch1);
-  //   if (this._player2 != undefined) {
-  //     const nbrLine2 = this._player2.updateGrid(touch.touch2);
-  //     this._player1.addLine(nbrLine2.nbrLineToAdd);
-  //     this._player2.addLine(nbrLine.nbrLineToAdd);
-  //     this._player2.moveDownTetromino();
-  //     touch.touch2 = nbrLine2.touched;
-  //   }
-  //   this._player1.moveDownTetromino();
-  //   touch.touch1 = nbrLine.touched;
-  //   // console.log({ touch1: touch.touch1, touch2: touch.touch2 });
-  //   this.sendGameToClient();
-  // }
-
   public gamePlay(player: Player, touch: any, socketId: string[]): void {
     if (this._type === SINGLE) {
       if (player.getTetrominos().length < 90) {
@@ -298,56 +238,6 @@ export class Game {
     }
   }
 
-  // actionGame(playerUuid: string, action: string): void {
-  //   if (playerUuid == this._player1.getUuid()) {
-  //     this._player1.action(action);
-  //   } else if (
-  //     this._type == MULTI &&
-  //     this._player2 != undefined &&
-  //     playerUuid == this._player2.getUuid()
-  //   ) {
-  //     this._player2.action(action);
-  //   }
-  //   this.sendGameToClient();
-  // }
-  // endGame(): boolean {
-  //   if (
-  //     this._type == MULTI &&
-  //     this._player2 != undefined &&
-  //     (this._player1.isPlayerLost() || this._player2.isPlayerLost())
-  //   ) {
-  //     this._server.to(this._room_id).emit('endGame', {
-  //       player1: {
-  //         grid: this._player1.getGrid(),
-  //         name: this._player1.getPlayerName(),
-  //         uuid: this._player1.getUuid(),
-  //         winner: this._player2.isPlayerLost(),
-  //       },
-  //       player2: {
-  //         grid: this._player2.getGrid(),
-  //         name: this._player2.getPlayerName(),
-  //         uuid: this._player2.getUuid(),
-  //         winner: this._player1.isPlayerLost(),
-  //       },
-  //     });
-  //     return true;
-  //   } else if (
-  //     this._type == SINGLE &&
-  //     this._player2 == undefined &&
-  //     this._player1.isPlayerLost()
-  //   ) {
-  //     this._server.to(this._room_id).emit('endGame', {
-  //       player1: {
-  //         grid: this._player1.getGrid(),
-  //         name: this._player1.getPlayerName(),
-  //         uuid: this._player1.getUuid(),
-  //         winner: true,
-  //       },
-  //     });
-  //     return true;
-  //   }
-  //   return false;
-  // }
   public sendGameToClient(player: Player, socketId: string[]): void {
     if (this._type == SINGLE) {
       this._server.to(this._roomId).emit('myGame', {
@@ -371,15 +261,4 @@ export class Game {
       },
     });
   }
-
-  // public haveToReloadTetrominos(): boolean {
-  //   if (
-  //     (this._player1 !== undefined &&
-  //       this._player1.getTetrominos().length < 90) ||
-  //     (this._player2 !== undefined && this._player2.getTetrominos().length < 90)
-  //   ) {
-  //     return true;
-  //   }
-  //   return false;
-  // }
 }
