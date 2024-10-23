@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { io } from 'socket.io-client'
 import roomList from "./roomList";
+import Popup from "./popupWIndow";
 
 function HomePage() {
 
@@ -23,11 +24,17 @@ function HomePage() {
 	const [listButtonClickedRooms, setListButtonClickedRooms] = useState<boolean>(false);
 	const [listButtonClickedOthers, setListButtonClickedOthers] = useState<boolean>(false);
 
+	const [showPopup, setShowPopup] = useState(false);
+
 	if (!socketContext) {
 		throw new Error('ConnectPage must be used within a SocketProvider');
 	}
 
 	const { socket, setSocket } = socketContext;
+
+	const togglePopup = () => {
+		setShowPopup(!showPopup);
+	};
 
 	const handleJoinSolo = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
@@ -37,6 +44,7 @@ function HomePage() {
 	const handleCreateRoom = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
 		socket?.emit("createRoom", { name: name, uuid: uuid });
+		togglePopup();
 	}
 
 	const displayAList = () => {
@@ -124,11 +132,9 @@ function HomePage() {
 		});
 		socket?.on("getCreateRooms", (data) => {
 			setListRoomsCreate(data.createRooms);
-			console.log(listRoomsCreate);
 		});
 		socket?.on("getOtherRooms", (data) => {
 			setListOtherRooms(data.otherRooms);
-			console.log(listOtherRooms);
 		});
 	}, [socket, roomId]);
 
@@ -138,6 +144,7 @@ function HomePage() {
 				{listButtonClicked ?
 					displayAList() :
 					<div className="flex items-center justify-center h-screen">
+						{Popup({show: showPopup, title: "CONGRATS !", children: "a new room has been created : " + listRoomsCreate[listRoomsCreate.length-1], onClose: togglePopup})}
 						<div className="text-center">
 							<h1 className="bg-[#ff0000] text-white font-bold text-3xl border-t-2 border-l-2 border-r-2 border-white">RED TETRIS</h1>
 							<div className="relative border-2 border-white bg-[#ff0000] w-64 h-100">
