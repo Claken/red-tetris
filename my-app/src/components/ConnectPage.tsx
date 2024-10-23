@@ -1,4 +1,4 @@
-import React, { Dispatch, useEffect } from 'react';
+import React, { Dispatch } from 'react';
 import "../index.css"
 import { io, Socket } from 'socket.io-client'
 
@@ -25,7 +25,6 @@ function ConnectPage({ name, setName, uuid, setUuid, socket, setSocket }: {
 		);
 	}
 
-	// useEffect(() => {
 	socket?.on("new-person", (data) => {
 		console.log("new-person");
 		console.log(data);
@@ -33,10 +32,6 @@ function ConnectPage({ name, setName, uuid, setUuid, socket, setSocket }: {
 		sessionStorage.setItem("name", data.name);
 		setUuid(data.uuid);
 	});
-	// 	return () => {
-	// 		socket?.off("new-person");
-	// 	}
-	// }, [socket]);
 
 	return (
 		<div className="flex items-center justify-center h-screen bg-black">
