@@ -20,7 +20,7 @@ const Popup: React.FC<PopupProps> = ({ show, title, children, onClose }) => {
         >
           X
         </button>
-        <div className="text-gray-200">{children}</div>
+        <div>{children}</div>
       </div>
     </div>
   );

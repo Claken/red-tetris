@@ -24,7 +24,7 @@ function HomePage() {
 	const [listButtonClickedRooms, setListButtonClickedRooms] = useState<boolean>(false);
 	const [listButtonClickedOthers, setListButtonClickedOthers] = useState<boolean>(false);
 
-	const [showPopup, setShowPopup] = useState(false);
+	const [showPopup, setShowPopup] = useState<boolean>(false);
 
 	if (!socketContext) {
 		throw new Error('ConnectPage must be used within a SocketProvider');
@@ -141,10 +141,17 @@ function HomePage() {
 	return (
 		sessionStorage.getItem("name") ?
 			<div className="bg-black h-screen">
+				{Popup(
+					{
+						show: showPopup,
+						title: "CONGRATS !",
+						children: <div className="text-white">{"a new room has been created : " + listRoomsCreate[listRoomsCreate.length - 1]}</div>,
+						onClose: togglePopup
+					}
+				)}
 				{listButtonClicked ?
 					displayAList() :
 					<div className="flex items-center justify-center h-screen">
-						{Popup({show: showPopup, title: "CONGRATS !", children: "a new room has been created : " + listRoomsCreate[listRoomsCreate.length-1], onClose: togglePopup})}
 						<div className="text-center">
 							<h1 className="bg-[#ff0000] text-white font-bold text-3xl border-t-2 border-l-2 border-r-2 border-white">RED TETRIS</h1>
 							<div className="relative border-2 border-white bg-[#ff0000] w-64 h-100">
