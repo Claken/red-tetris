@@ -84,6 +84,40 @@ export class WaitGame {
     });
   }
 
+  public async joinGame(
+    uuid: string,
+    name: string,
+    socketId: string,
+    roomId: string,
+  ) {
+    const socket = this._server.sockets.sockets.get(socketId);
+    if (socket === undefined) return;
+    if (!this.UUIDMapings.has(uuid)) {
+      this.UUIDMapings.set(uuid, {
+        socketsId: [],
+        ownedRoomsId: [],
+        otherRoomsId: [],
+        name: name,
+      });
+    }
+    const infos: ClientInfo = this.UUIDMapings.get(uuid) as ClientInfo;
+    if (!infos.socketsId.includes(socketId)) {
+      infos.socketsId.push(socketId);
+    }
+    const game = this.games.get(roomId);
+    if (game === undefined) return;
+    game.addWaitingPlayer(new Player(name, uuid));
+    socket.join(roomId);
+    infos.otherRoomsId.push(roomId);
+    socket.emit('pageToGo', {
+      pageInfos: {
+        path: roomId + '/' + name,
+        name: name,
+        roomName: roomId,
+      },
+    });
+  }
+
   public async startSingleTetrisGame(
     uuid: string,
     name: string,
@@ -137,6 +171,28 @@ export class WaitGame {
         infos.ownedRoomsId.splice(infos.ownedRoomsId.indexOf(roomName), 1);
         this.games.delete(roomName);
       }
+    }, 1000); // update every second
+  }
+
+  public async startMultiTetrisGame(
+    uuid: string,
+    name: string,
+    socketId: string,
+    roomId: string,
+  ): Promise<void> {
+    const socket = this._server.sockets.sockets.get(socketId);
+    if (socket === undefined) return;
+    if (!this.UUIDMapings.has(uuid)) return;
+    const infos: ClientInfo = this.UUIDMapings.get(uuid) as ClientInfo;
+    const game = this.games.get(roomId);
+    if (game === undefined) return;
+    game.setIsStarted(true);
+    await game.startGame(this.UUIDMapings);
+    const intervalId = setInterval(() => {
+      if (game.endGame()) {
+        clearInterval(intervalId);
+      }
+      game.gamePlayMulti(this.UUIDMapings);
     }, 1000); // update every second
   }
 
