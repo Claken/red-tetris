@@ -37,14 +37,19 @@ export class SocketGateway implements OnGatewayConnection {
       }
       this.waitGame.startSingleTetrisGame(data.uuid, infos.name, socket.id);
     });
-    // socket.on('playerPlayMulti', (data) => {
-    //   // console.log(data);
-    //   const infos = this.manageSocket.getInfos(data.uuid);
-    //   if (infos == undefined) {
-    //     return;
-    //   }
-    //   this.waitGame.addPlayer(data.uuid, infos.name, socket.id, false);
-    // });
+    socket.on('startMultiGame', (data) => {
+      // console.log(data);
+      const infos = this.manageSocket.getInfos(data.uuid);
+      if (infos == undefined) {
+        return;
+      }
+      this.waitGame.startMultiTetrisGame(
+        data.uuid,
+        infos.name,
+        socket.id,
+        data.roomId,
+      );
+    });
     socket.on('moveRight', (data) => {
       const infos: ClientInfo | undefined = this.waitGame
         .getUUIDMapings()
@@ -100,18 +105,23 @@ export class SocketGateway implements OnGatewayConnection {
       if (data == undefined || data.uuid == undefined) return;
       const infos = this.waitGame.getUUIDMapings().get(data.uuid);
       if (infos == undefined) return;
-      infos.socketsId.push(socket.id);
+      if (!infos.socketsId.some((elem) => elem === socket.id)) {
+        infos.socketsId.push(socket.id);
+      }
       const activeRooms = [];
       for (let i = 0; i < infos.ownedRoomsId.length; i++) {
         socket.join(infos.ownedRoomsId[i]);
         if (
           this.waitGame.getGames().get(infos.ownedRoomsId[i])?.getType() ===
-          SINGLE
+            SINGLE ||
+          this.waitGame.getGames().get(infos.ownedRoomsId[i])?.getIsStarted()
         ) {
           activeRooms.push(infos.ownedRoomsId[i]);
         }
       }
       for (let i = 0; i < infos.otherRoomsId.length; i++) {
+        if (this.waitGame.getGames().get(infos.ownedRoomsId[i])?.getIsStarted())
+          activeRooms.push(infos.otherRoomsId[i]);
         socket.join(infos.otherRoomsId[i]);
       }
 
@@ -130,11 +140,22 @@ export class SocketGateway implements OnGatewayConnection {
       this.waitGame.createGame(data.uuid, infos.name, socket.id);
     });
 
+    socket.on('joinGame', (data) => {
+      const infos = this.manageSocket.getInfos(data.uuid);
+      if (infos == undefined) {
+        return;
+      }
+      console.log({ infosJoinGame: infos });
+      this.waitGame.joinGame(data.uuid, infos.name, socket.id, data.roomId);
+    });
+
     socket.on('getCreateRooms', (data) => {
       if (data == undefined || data.uuid == undefined) return;
       const infos = this.waitGame.getUUIDMapings().get(data.uuid);
       if (infos == undefined) return;
-      infos.socketsId.push(socket.id);
+      if (!infos.socketsId.some((elem) => elem === socket.id)) {
+        infos.socketsId.push(socket.id);
+      }
       const createRooms = [];
       for (let i = 0; i < infos.ownedRoomsId.length; i++) {
         socket.join(infos.ownedRoomsId[i]);
@@ -180,6 +201,31 @@ export class SocketGateway implements OnGatewayConnection {
       console.log('lala');
       socket.emit('getOtherRooms', {
         otherRooms: otherRooms,
+      });
+    });
+    socket.on('getOthersRoomsJoined', (data) => {
+      if (data == undefined || data.uuid == undefined) return;
+      const infos = this.waitGame.getUUIDMapings().get(data.uuid);
+      if (infos == undefined) return;
+      if (!infos.socketsId.some((elem) => elem === socket.id)) {
+        infos.socketsId.push(socket.id);
+      }
+      const roomsJoined = [];
+      for (let i = 0; i < infos.otherRoomsId.length; i++) {
+        socket.join(infos.otherRoomsId[i]);
+        if (
+          this.waitGame.getGames().get(infos.otherRoomsId[i])?.getType() ===
+            MULTI &&
+          !this.waitGame.getGames().get(infos.otherRoomsId[i])?.getIsStarted()
+        ) {
+          roomsJoined.push(infos.otherRoomsId[i]);
+        }
+      }
+      for (let i = 0; i < infos.ownedRoomsId.length; i++) {
+        socket.join(infos.ownedRoomsId[i]);
+      }
+      socket.emit('getOthersRoomsJoined', {
+        roomsJoined: roomsJoined,
       });
     });
     // const infos = this.waitGame.getUUIDMapings().get(data.uuid);

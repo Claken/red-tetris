@@ -11,6 +11,7 @@ function App() {
   const [listRoomsAc, setListRoomsAc] = useState([]);
   const [listRoomsCreate, setListRoomsCreate] = useState([]);
   const [listOtherRooms, setListOtherRooms] = useState([]);
+  const [listOthersRoomsJoined, setListOthersRoomsJoined] = useState([]);
   const [socket, setSocket] = useState<Socket | undefined>(undefined);
   const [formData, setFormData] = useState({
     name: "",
@@ -44,7 +45,12 @@ function App() {
 
   const startMultiGame = (room: string) => {
     console.log(room);
-    // socket?.emit("startMultiGame", { name: name, uuid: uuid, roomId: roomId });
+    socket?.emit("startMultiGame", { name: name, uuid: uuid, roomId: room });
+  };
+
+  const joinGame = (room: string) => {
+    console.log(room);
+    socket?.emit("joinGame", { name: name, uuid: uuid, roomId: room });
   };
 
   const handleKeydown = (e: React.KeyboardEvent) => {
@@ -123,7 +129,34 @@ function App() {
                     });
                   }}
                 >
-                  revennir sur la room {room}
+                  revenir sur la room {room}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+  };
+
+  const fListOthersRoomsJoined = () => {
+    if (uuid && name) {
+      return (
+        <div>
+          <p>Lists rooms joined</p>
+          {listOthersRoomsJoined.map((room, index) => {
+            return (
+              <div key={index}>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setRoomId((prev) => {
+                      const val = room;
+                      return val;
+                    });
+                  }}
+                >
+                  revenir sur la room {room}
                 </button>
               </div>
             );
@@ -174,13 +207,14 @@ function App() {
                 <button
                   onClick={(e) => {
                     e.preventDefault();
+                    joinGame(room);
                     // setRoomId((prev) => {
                     //   const val = room;
                     //   return val;
                     // });
                   }}
                 >
-                  demarrer la game sur la room {room}
+                  rejoindre la room {room}
                 </button>
               </div>
             );
@@ -269,6 +303,7 @@ function App() {
       socket.emit("getActiveRooms", { uuid: uuid });
       socket.emit("getCreateRooms", { uuid: uuid });
       socket.emit("getOtherRooms", { uuid: uuid });
+      socket.emit("getOthersRoomsJoined", { uuid: uuid });
     }
     socket?.on("countdown", (data) => {
       // console.log("countdown");
@@ -342,8 +377,8 @@ function App() {
       console.log({ roomId: roomId });
       console.log({ player: data.player.roomId });
       if (data.player.roomId === roomId) {
-        console.log("lala");
-        console.log(data.player.grid);
+        // console.log("lala");
+        // console.log(data.player.grid);
         setGrid(data.player.grid);
         // console.log(data.player.roomId);
         // setRoomId(data.player.roomId);
@@ -382,6 +417,16 @@ function App() {
   });
 
   useEffect(() => {
+    socket?.on("getOthersRoomsJoined", (data) => {
+      console.log(data);
+      setListOthersRoomsJoined(data.roomsJoined);
+    });
+    return () => {
+      socket?.off("getOthersRoomsJoined");
+    };
+  });
+
+  useEffect(() => {
     socket?.on("pageToGo", (data) => {
       console.log(data);
     });
@@ -398,8 +443,10 @@ function App() {
       {listRoomsCreated()}
       {formAlone()}
       {listRoomsActive()}
+      {fListOthersRoomsJoined()}
       {listOtherRoomsCreated()}
       {gridTetris()}
+
       {/* {gridTetris2()} */}
       <p>{name}</p>
       <p>{uuid}</p>
