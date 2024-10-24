@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { useSocket } from "../contexts/socketContext";
 import "../index.css"
 import ConnectPage from './ConnectPage';
@@ -25,6 +25,8 @@ function HomePage() {
 	const [listButtonClickedOthers, setListButtonClickedOthers] = useState<boolean>(false);
 
 	const [showPopup, setShowPopup] = useState<boolean>(false);
+	const [popupTitle, setPopupTitle] = useState<string>("");
+	const [popupChild, setPopupChild] = useState<ReactNode>(<div></div>);
 
 	if (!socketContext) {
 		throw new Error('ConnectPage must be used within a SocketProvider');
@@ -44,6 +46,8 @@ function HomePage() {
 	const handleCreateRoom = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
 		socket?.emit("createRoom", { name: name, uuid: uuid });
+		setPopupTitle("CONGRATS !");
+		setPopupChild(<div className="text-white">{"a new room has been created : " + listRoomsCreate[listRoomsCreate.length - 1]}</div>);
 		togglePopup();
 	}
 
@@ -58,7 +62,8 @@ function HomePage() {
 					setListButtonClicked: setListButtonClicked,
 					navigate: navigate,
 					setListButtonClickedSpec: setListButtonClickedActive,
-					title: "ACTIVE ROOMLIST"
+					title: "ACTIVE ROOMLIST",
+					togglePopup: togglePopup,
 				}
 			)
 		}
@@ -72,7 +77,8 @@ function HomePage() {
 					setListButtonClicked: setListButtonClicked,
 					navigate: navigate,
 					setListButtonClickedSpec: setListButtonClickedRooms,
-					title: "MY ROOMLIST"
+					title: "MY ROOMLIST",
+					togglePopup: togglePopup,
 				}
 			)
 		}
@@ -86,7 +92,8 @@ function HomePage() {
 					setListButtonClicked: setListButtonClicked,
 					navigate: navigate,
 					setListButtonClickedSpec: setListButtonClickedOthers,
-					title: "OTHERS ROOMLIST"
+					title: "OTHERS ROOMLIST",
+					togglePopup: togglePopup,
 				}
 			)
 		}
@@ -144,8 +151,8 @@ function HomePage() {
 				{Popup(
 					{
 						show: showPopup,
-						title: "CONGRATS !",
-						children: <div className="text-white">{"a new room has been created : " + listRoomsCreate[listRoomsCreate.length - 1]}</div>,
+						title: popupTitle,
+						children: popupChild,
 						onClose: togglePopup
 					}
 				)}

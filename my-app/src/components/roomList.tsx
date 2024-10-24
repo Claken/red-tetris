@@ -11,6 +11,8 @@ function roomList({
 	navigate,
 	setListButtonClickedSpec,
 	title,
+	togglePopup,
+	
 }: {
 	setRoomId: Dispatch<React.SetStateAction<string>>,
 	name: string,
@@ -20,6 +22,7 @@ function roomList({
 	setListButtonClickedSpec: Dispatch<React.SetStateAction<boolean>>,
 	navigate: NavigateFunction,
 	title: string,
+	togglePopup: () => void,
 }
 
 ) {
@@ -44,10 +47,16 @@ function roomList({
 												const val = room;
 												return val;
 											});
-											const goToRoute = room + '/' + name;
-											navigate(goToRoute);
-											setListButtonClickedSpec(false);
-											setListButtonClicked(false);
+											if (title === "ACTIVE ROOMLIST") {
+												const goToRoute = room + '/' + name;
+												navigate(goToRoute);
+												setListButtonClickedSpec(false);
+												setListButtonClicked(false);
+											}
+											else {
+												togglePopup();
+											}
+
 										}}
 									>
 										{room}
