@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { Dispatch } from "react";
 import { NavigateFunction } from "react-router-dom";
 
@@ -12,7 +12,8 @@ function roomList({
 	setListButtonClickedSpec,
 	title,
 	togglePopup,
-	
+	setPopupTitle = undefined,
+	setPopupChild = undefined,
 }: {
 	setRoomId: Dispatch<React.SetStateAction<string>>,
 	name: string,
@@ -23,6 +24,8 @@ function roomList({
 	navigate: NavigateFunction,
 	title: string,
 	togglePopup: () => void,
+	setPopupTitle?: Dispatch<React.SetStateAction<string>>,
+	setPopupChild?: Dispatch<React.SetStateAction< ReactNode>>,
 }
 
 ) {

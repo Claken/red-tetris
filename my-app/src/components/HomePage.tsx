@@ -78,6 +78,8 @@ function HomePage() {
 					setListButtonClickedSpec: setListButtonClickedRooms,
 					title: "MY ROOMLIST",
 					togglePopup: togglePopup,
+					setPopupTitle: setPopupTitle,
+					setPopupChild: setPopupChild,
 				}
 			)
 		}
@@ -93,6 +95,8 @@ function HomePage() {
 					setListButtonClickedSpec: setListButtonClickedOthers,
 					title: "OTHERS ROOMLIST",
 					togglePopup: togglePopup,
+					setPopupTitle: setPopupTitle,
+					setPopupChild: setPopupChild,
 				}
 			)
 		}
