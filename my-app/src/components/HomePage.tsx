@@ -27,6 +27,7 @@ function HomePage() {
 	const [showPopup, setShowPopup] = useState<boolean>(false);
 	const [popupTitle, setPopupTitle] = useState<string>("");
 	const [popupChild, setPopupChild] = useState<ReactNode>(<div></div>);
+	const titleRoomCreated = "CONGRATS !";
 
 	if (!socketContext) {
 		throw new Error('ConnectPage must be used within a SocketProvider');
@@ -46,9 +47,7 @@ function HomePage() {
 	const handleCreateRoom = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
 		socket?.emit("createRoom", { name: name, uuid: uuid });
-		setPopupTitle("CONGRATS !");
-		setPopupChild(<div className="text-white">{"a new room has been created : " + listRoomsCreate[listRoomsCreate.length - 1]}</div>);
-		togglePopup();
+		setPopupTitle(titleRoomCreated);
 	}
 
 	const displayAList = () => {
@@ -144,6 +143,17 @@ function HomePage() {
 			setListOtherRooms(data.otherRooms);
 		});
 	}, [socket, roomId]);
+
+	useEffect(() => {
+		socket?.on("getCreateRooms", (data) => {
+			setPopupChild(<div className="text-white">
+				{"a new room has been created : " + data.createRooms[data.createRooms.length - 1]}
+			</div>);
+			if (popupTitle === titleRoomCreated) {
+				togglePopup();
+			}
+		});
+	}, [socket, popupTitle])
 
 	return (
 		sessionStorage.getItem("name") ?
