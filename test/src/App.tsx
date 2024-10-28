@@ -6,6 +6,8 @@ function App() {
   const [name, setName] = useState("");
   const [grid, setGrid] = useState([]);
   const [roomId, setRoomId] = useState("");
+  const [retry, setReTry] = useState(false);
+  const dataRef = React.useRef({ uuid: "", roomId: "" });
 
   const [uuid, setUuid] = useState<string | undefined>(undefined);
   const [listRoomsAc, setListRoomsAc] = useState([]);
@@ -123,7 +125,7 @@ function App() {
                 <button
                   onClick={(e) => {
                     e.preventDefault();
-                    setRoomId((prev) => {
+                    setRoomId(() => {
                       const val = room;
                       return val;
                     });
@@ -150,7 +152,7 @@ function App() {
                 <button
                   onClick={(e) => {
                     e.preventDefault();
-                    setRoomId((prev) => {
+                    setRoomId(() => {
                       const val = room;
                       return val;
                     });
@@ -279,6 +281,37 @@ function App() {
     );
   };
 
+  const retryGame = () => {
+    if (!retry) {
+      return null;
+    }
+    return (
+      <div>
+        <h2>Voulez vous rejouer</h2>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            socket?.emit("retryGame", {
+              uuid: dataRef.current.uuid,
+              roomId: dataRef.current.roomId,
+            });
+            setReTry(false);
+          }}
+        >
+          oui
+        </button>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            setReTry(false);
+          }}
+        >
+          non
+        </button>
+      </div>
+    );
+  };
+
   useEffect(() => {
     const uuid = sessionStorage.getItem("uuid");
     const name = sessionStorage.getItem("name");
@@ -361,7 +394,9 @@ function App() {
         setGrid([]);
         setRoomId("");
       }
-      // console.log("lala");
+      dataRef.current = { uuid: uuid as string, roomId: data.player.roomId };
+      setReTry(true);
+      // demander pour un retry de la partie.
       socket.emit("getActiveRooms", { uuid: uuid });
     });
     return () => {
@@ -446,6 +481,7 @@ function App() {
       {fListOthersRoomsJoined()}
       {listOtherRoomsCreated()}
       {gridTetris()}
+      {retryGame()}
 
       {/* {gridTetris2()} */}
       <p>{name}</p>
