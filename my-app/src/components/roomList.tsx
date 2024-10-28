@@ -25,10 +25,31 @@ function roomList({
 	title: string,
 	togglePopup: () => void,
 	setPopupTitle?: Dispatch<React.SetStateAction<string>>,
-	setPopupChild?: Dispatch<React.SetStateAction< ReactNode>>,
+	setPopupChild?: Dispatch<React.SetStateAction<ReactNode>>,
 }
 
 ) {
+	const childForMyRooms = (): ReactNode => {
+		return (
+			<div>
+				<div className="flex flex-col my-1 space-y-5 p-10">
+					<button className="bg-[#508fe0] hover:bg-[#00916E] active:bg-bg-[#00916E] text-white font-bold py-2 px-4 rounded-full transition-all duration-200"
+						onClick={() => {console.log("launch a game")}}>
+						Launch a game
+					</button>
+				</div>
+			</div>
+		);
+	}
+
+	const childForOtherRooms = (): ReactNode => {
+		return (
+			<div>
+
+			</div>
+		);
+	}
+
 	if (uuid && name) {
 		return (
 			<div className="flex flex-col items-center justify-center h-screen">
@@ -57,7 +78,18 @@ function roomList({
 												setListButtonClicked(false);
 											}
 											else {
+												if (setPopupTitle != undefined) {
+													const newTitle = room;
+													setPopupTitle(newTitle);
+												}
+												if (setPopupChild != undefined && title === "MY ROOMLIST") {
+													setPopupChild(childForMyRooms);
+												}
+												else if (setPopupChild != undefined && title === "OTHERS ROOMLIST") {
+
+												}
 												togglePopup();
+
 											}
 
 										}}

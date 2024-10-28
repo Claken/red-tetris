@@ -150,14 +150,14 @@ function HomePage() {
 
 	useEffect(() => {
 		socket?.on("getCreateRooms", (data) => {
-			setPopupChild(<div className="text-white">
-				{"a new room has been created : " + data.createRooms[data.createRooms.length - 1]}
-			</div>);
 			if (popupTitle === titleRoomCreated) {
+				setPopupChild(<div className="text-white">
+					{"a new room has been created : " + data.createRooms[data.createRooms.length - 1]}
+				</div>);
 				togglePopup();
 			}
 		});
-	}, [socket, popupTitle])
+	}, [socket])
 
 	return (
 		sessionStorage.getItem("name") ?
