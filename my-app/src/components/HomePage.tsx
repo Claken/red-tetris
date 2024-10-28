@@ -69,7 +69,6 @@ function HomePage() {
 			)
 		}
 		else if (listButtonClickedRooms) {
-			socket?.emit("getCreateRooms", { uuid: uuid });
 			return roomList(
 				{
 					setRoomId: setRoomId,
