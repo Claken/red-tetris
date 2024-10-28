@@ -5,6 +5,7 @@ import { SINGLE, MULTI } from '../../constantes/constantes';
 import { Player } from '../player/player';
 // import { ManagePlayerTetromino } from '../managePlayerTetromino/managePlayerTetromino';
 // import { ManageSocket } from '../manageSocket/manageSocket';
+// gfg
 
 export class WaitGame {
   private static _instance: WaitGame;
