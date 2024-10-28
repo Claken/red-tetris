@@ -34,7 +34,7 @@ function roomList({
 			<div>
 				<div className="flex flex-col my-1 space-y-5 p-10">
 					<button className="bg-[#508fe0] hover:bg-[#00916E] active:bg-bg-[#00916E] text-white font-bold py-2 px-4 rounded-full transition-all duration-200"
-						onClick={() => {console.log("launch a game")}}>
+						onClick={() => { console.log("launch a game") }}>
 						Launch a game
 					</button>
 				</div>
@@ -45,7 +45,12 @@ function roomList({
 	const childForOtherRooms = (): ReactNode => {
 		return (
 			<div>
-
+				<div className="flex flex-col my-1 space-y-5 p-10">
+					<button className="bg-[#508fe0] hover:bg-[#00916E] active:bg-bg-[#00916E] text-white font-bold py-2 px-4 rounded-full transition-all duration-200"
+						onClick={() => { console.log("join this game") }}>
+						Join this game
+					</button>
+				</div>
 			</div>
 		);
 	}
@@ -86,7 +91,7 @@ function roomList({
 													setPopupChild(childForMyRooms);
 												}
 												else if (setPopupChild != undefined && title === "OTHERS ROOMLIST") {
-
+													setPopupChild(childForOtherRooms);
 												}
 												togglePopup();
 
