@@ -71,6 +71,13 @@ export class Player {
     this._tetrominos.push(tetromino);
   }
 
+  setGridToZero(): void {
+    this._grid = new Array(24).fill(null).map(() => new Array(10).fill(E));
+  }
+  setTetrominosToZero(): void {
+    this._tetrominos = [];
+  }
+
   // print2DArray = (arr: any) => {
   //   console.log('[');
   //   for (let i = 0; i < arr.length; i++) {

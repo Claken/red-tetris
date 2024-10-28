@@ -38,6 +38,27 @@ export class Game {
   public addWaitingPlayer(player: Player): void {
     this._waitingPlayers.push(player);
   }
+  public changePlayerToWaiting(playerUuid: string): void {
+    const player = this._players.find(
+      (player) => player.getUuid() == playerUuid,
+    );
+    if (player != undefined) {
+      this._waitingPlayers.push(player);
+      this._players = this._players.filter(
+        (player) => player.getUuid() != playerUuid,
+      );
+    } else if (player == undefined) {
+      const playerLost = this._playersLost.find(
+        (player) => player.getUuid() == playerUuid,
+      );
+      if (playerLost != undefined) {
+        this._waitingPlayers.push(playerLost);
+        this._playersLost = this._playersLost.filter(
+          (player) => player.getUuid() != playerUuid,
+        );
+      }
+    }
+  }
 
   public moveRight(playerUuid: string, socketId: string[]): void {
     const player: Player | undefined = this._players.find(
@@ -123,7 +144,7 @@ export class Game {
     await Promise.all(promises);
   }
 
-  public endGame(): boolean {
+  public endGame(UUIDMapings: Map<string, ClientInfo>): boolean {
     if (this._type === SINGLE) {
       if (this._players[0].isPlayerLost()) {
         console.log('player lost');
@@ -142,17 +163,35 @@ export class Game {
     } else {
       for (let i = 0; i < this._players.length; i++) {
         if (this._players[i].isPlayerLost()) {
+          this._players[i].setGridToZero();
+          this._players[i].setTetrominosToZero();
           this._playersLost.push(this._players[i]);
+          const socketIds =
+            UUIDMapings.get(this._players[i].getUuid())?.socketsId ?? [];
           this._players.splice(i, 1);
-          // dire que ce joueur a perdu en lui envoyant sa grid
-          //
-          //
+          this._server.to(socketIds).emit('endGame', {
+            player: {
+              grid: this._playersLost[this._playersLost.length - 1].getGrid(),
+              name: this._playersLost[
+                this._playersLost.length - 1
+              ].getPlayerName(),
+              uuid: this._playersLost[this._playersLost.length - 1].getUuid(),
+              roomId: this._roomId,
+              winner: false,
+            },
+          });
+          // faire un setTimout pour demander a l'utilisateur si il veut etre remis dans la partie suivante
+          // vérifier si c'est le owner de la room ou non
+          // envoyer une une requete pour savoir si il veut continuer
+          // si oui on attend que la partie se finisse pour qu'elle se relance.
           i = 0;
         }
       }
       if (this._players.length === 1) {
         console.log('all players lost');
         console.log({ roomId: this._roomId });
+        this._players[0].setGridToZero();
+        this._players[0].setTetrominosToZero();
         this._server.to(this._roomId).emit('endGame', {
           player: {
             grid: this._players[0].getGrid(),
@@ -162,6 +201,7 @@ export class Game {
             winner: true,
           },
         });
+        this.setIsStarted(false);
         return true;
       }
     }

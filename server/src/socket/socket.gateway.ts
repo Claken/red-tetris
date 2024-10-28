@@ -29,6 +29,16 @@ export class SocketGateway implements OnGatewayConnection {
 
   private listenToEmmitter(socket: Socket) {
     console.log(socket.id);
+
+    socket.on('retryGame', (data) => {
+      console.log(data);
+      const infos = this.manageSocket.getInfos(data.uuid);
+      if (infos == undefined) {
+        return;
+      }
+      this.waitGame.retryGame(data.uuid, infos.name, socket.id, data.roomId);
+    });
+
     socket.on('startSingleTetrisGame', (data) => {
       // console.log(data);
       const infos = this.manageSocket.getInfos(data.uuid);
@@ -150,6 +160,7 @@ export class SocketGateway implements OnGatewayConnection {
     });
 
     socket.on('getCreateRooms', (data) => {
+      console.log('je passe par getCreateRooms');
       if (data == undefined || data.uuid == undefined) return;
       const infos = this.waitGame.getUUIDMapings().get(data.uuid);
       if (infos == undefined) return;
