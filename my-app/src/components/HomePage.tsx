@@ -47,7 +47,8 @@ function HomePage() {
 	const handleCreateRoom = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
 		socket?.emit("createRoom", { name: name, uuid: uuid });
-		setPopupTitle(titleRoomCreated);
+		const newTitle = titleRoomCreated;
+		setPopupTitle(newTitle);
 	}
 
 	const displayAList = () => {
@@ -146,18 +147,20 @@ function HomePage() {
 		socket?.on("getOtherRooms", (data) => {
 			setListOtherRooms(data.otherRooms);
 		});
-	}, [socket, roomId]);
+	}, [socket]);
 
 	useEffect(() => {
 		socket?.on("getCreateRooms", (data) => {
+			console.log("getCreateRooms")
 			if (popupTitle === titleRoomCreated) {
+				console.log(popupTitle);
 				setPopupChild(<div className="text-white">
 					{"a new room has been created : " + data.createRooms[data.createRooms.length - 1]}
 				</div>);
 				togglePopup();
 			}
 		});
-	}, [socket])
+	}, [socket, popupTitle])
 
 	return (
 		sessionStorage.getItem("name") ?
