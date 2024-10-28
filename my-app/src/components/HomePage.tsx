@@ -53,6 +53,7 @@ function HomePage() {
 
 	const displayAList = () => {
 		if (listButtonClickedActive) {
+			socket?.emit("getActiveRooms", { uuid: uuid });
 			return roomList(
 				{
 					setRoomId: setRoomId,
@@ -68,6 +69,7 @@ function HomePage() {
 			)
 		}
 		else if (listButtonClickedRooms) {
+			socket?.emit("getCreateRooms", { uuid: uuid });
 			return roomList(
 				{
 					setRoomId: setRoomId,
@@ -85,6 +87,7 @@ function HomePage() {
 			)
 		}
 		else if (listButtonClickedOthers) {
+			socket?.emit("getOtherRooms", { uuid: uuid });
 			return roomList(
 				{
 					setRoomId: setRoomId,
