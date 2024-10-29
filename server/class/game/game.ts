@@ -3,6 +3,7 @@ import { Player } from '../player/player';
 import { ClientInfo } from '../../interfaces/clientInfo';
 import { MULTI, SINGLE } from '../../constantes/constantes';
 import { ManagePlayerTetromino } from '../managePlayerTetromino/managePlayerTetromino';
+import { B, UNBREAKABLE_BRICK } from '../../constantes/constantes';
 
 export class Game {
   private _players: Player[];
@@ -101,8 +102,19 @@ export class Game {
       (player) => player.getUuid() == playerUuid,
     );
     if (player != undefined) {
-      player.fallTetromino();
-      this.sendGameToClient(player, socketId);
+      const nbLine = player.fallTetromino();
+      if (nbLine != undefined && nbLine > 0) {
+        for (let i = 0; i < this._players.length; i++) {
+          if (this._players[i].getUuid() != player.getUuid()) {
+            this._players[i].addLine(nbLine);
+          }
+        }
+      }
+      player.updateSpectrum();
+      const listSpectrum: any = this._players
+        .filter((elem) => elem.getUuid() != player.getUuid())
+        .map((elem) => elem.getSpectrum());
+      this.sendGameToClient(player, socketId, listSpectrum);
     }
   }
 
@@ -130,25 +142,60 @@ export class Game {
     }
   }
 
-  public async gamePlayMulti(
-    UUIDMapings: Map<string, ClientInfo>,
-  ): Promise<void> {
-    const promises = this._players.map((player) => {
-      player.moveDownTetromino();
-      player.updateGrid(0);
-      return this.sendGameToClient(
-        player,
-        UUIDMapings.get(player.getUuid())?.socketsId ?? [],
+  public async gamePlayMulti(UUIDMapings: Map<string, ClientInfo>) {
+    for (let i = 0; i < this._players.length; i++) {
+      this._players[i].moveDownTetromino();
+      const nbLine = this._players[i].updateGrid(0);
+      if (nbLine.nbrLineToAdd > 0) {
+        for (let j = 0; j < this._players.length; j++) {
+          if (this._players[j].getUuid() != this._players[i].getUuid()) {
+            this._players[j].addLine(nbLine.nbrLineToAdd);
+          }
+        }
+      }
+      this._players[i].updateSpectrum();
+      const listSpectrum: any = this._players
+        .filter((elem) => elem.getUuid() != this._players[i].getUuid())
+        .map((elem) => elem.getSpectrum());
+      this.sendGameToClient(
+        this._players[i],
+        UUIDMapings.get(this._players[i].getUuid())?.socketsId ?? [],
+        listSpectrum,
       );
-    });
-    await Promise.all(promises);
+    }
+    // const promises = this._players.map((player) => {
+    //   player.moveDownTetromino();
+    //   console.log('tour de player 1' + player.getPlayerName());
+    //   const nbLine = player.updateGrid(0);
+    //   console.log({ nbLine });
+    //   console.log('tour de player 2' + player.getPlayerName());
+    //   // for (let i = 0; i < this._players.length; i++) {
+    //   //   // if (
+    //   //   //   nbLine.nbrLineToAdd > 0 &&
+    //   //   //   this._players[i].getUuid() != player.getUuid()
+    //   //   // ) {
+    //   //   if (nbLine.nbrLineToAdd > 0) {
+    //   //     console.log('add line');
+    //   //     this._players[i].addLine(nbLine.nbrLineToAdd);
+    //   //   }
+    //   //   // }
+    //   // }
+    //   player.updateSpectrum();
+    //   const listSpectrum: any = this._players
+    //     .filter((elem) => elem != player)
+    //     .map((elem) => elem.getSpectrum());
+    //   return this.sendGameToClient(
+    //     player,
+    //     UUIDMapings.get(player.getUuid())?.socketsId ?? [],
+    //     listSpectrum,
+    //   );
+    // });
+    // await Promise.all(promises);
   }
 
   public endGame(UUIDMapings: Map<string, ClientInfo>): boolean {
     if (this._type === SINGLE) {
       if (this._players[0].isPlayerLost()) {
-        console.log('player lost');
-        console.log({ roomId: this._roomId });
         this._server.to(this._roomId).emit('endGame', {
           player: {
             grid: this._players[0].getGrid(),
@@ -188,8 +235,6 @@ export class Game {
         }
       }
       if (this._players.length === 1) {
-        console.log('all players lost');
-        console.log({ roomId: this._roomId });
         this._players[0].setGridToZero();
         this._players[0].setTetrominosToZero();
         this._server.to(this._roomId).emit('endGame', {
@@ -278,7 +323,11 @@ export class Game {
     }
   }
 
-  public sendGameToClient(player: Player, socketId: string[]): void {
+  public sendGameToClient(
+    player: Player,
+    socketId: string[],
+    listSpectrum?: number[][],
+  ): void {
     if (this._type == SINGLE) {
       this._server.to(this._roomId).emit('myGame', {
         player: {
@@ -292,6 +341,7 @@ export class Game {
       return;
     }
     this._server.to(socketId).emit('myGame', {
+      listSpectrum: listSpectrum,
       player: {
         grid: player.getGrid(),
         name: player.getPlayerName(),
