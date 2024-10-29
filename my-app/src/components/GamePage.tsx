@@ -76,9 +76,10 @@ function GamePage() {
 				return 'bg-[#1a1b26]'
 			case (102): // tetromino's shadown
 				return 'bg-[#7d0202] opacity-75'
+			case (20):
+				return 'bg-gray-500'
 
 		}
-		// cell 10 == placed tetromino
 		return 'bg-red-400'
 	}
 
@@ -151,6 +152,7 @@ function GamePage() {
 
 	useEffect(() => {
 		socket?.on("endGame", (data) => {
+			console.log("endGame");
 			setGrid(emptyGrid);
 			console.log(data);
 			setPartyDone(true);

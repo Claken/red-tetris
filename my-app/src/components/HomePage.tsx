@@ -65,6 +65,7 @@ function HomePage() {
 					setListButtonClickedSpec: setListButtonClickedActive,
 					title: "ACTIVE ROOMLIST",
 					togglePopup: togglePopup,
+					socket: socket
 				}
 			)
 		}
@@ -82,6 +83,7 @@ function HomePage() {
 					togglePopup: togglePopup,
 					setPopupTitle: setPopupTitle,
 					setPopupChild: setPopupChild,
+					socket: socket
 				}
 			)
 		}
@@ -100,6 +102,7 @@ function HomePage() {
 					togglePopup: togglePopup,
 					setPopupTitle: setPopupTitle,
 					setPopupChild: setPopupChild,
+					socket: socket
 				}
 			)
 		}

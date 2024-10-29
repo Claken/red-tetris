@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
 import { Dispatch } from "react";
 import { NavigateFunction } from "react-router-dom";
+import { Socket } from "socket.io-client";
 
 function roomList({
 	setRoomId,
@@ -14,6 +15,7 @@ function roomList({
 	togglePopup,
 	setPopupTitle = undefined,
 	setPopupChild = undefined,
+	socket,
 }: {
 	setRoomId: Dispatch<React.SetStateAction<string>>,
 	name: string,
@@ -26,15 +28,30 @@ function roomList({
 	togglePopup: () => void,
 	setPopupTitle?: Dispatch<React.SetStateAction<string>>,
 	setPopupChild?: Dispatch<React.SetStateAction<ReactNode>>,
+	socket: Socket | undefined
 }
 
 ) {
-	const childForMyRooms = (): ReactNode => {
+	const startMultiGame = (room: string) => {
+		socket?.emit("startMultiGame", { name: name, uuid: uuid, roomId: room });
+		const goToRoute = room + '/' + name;
+		navigate(goToRoute);
+		setListButtonClickedSpec(false);
+		setListButtonClicked(false);
+	};
+
+	const joinGame = (room: string) => {
+		socket?.emit("joinGame", { name: name, uuid: uuid, roomId: room });
+		setListButtonClickedSpec(false);
+		setListButtonClicked(false);
+	};
+
+	const childForMyRooms = (room: string): ReactNode => {
 		return (
 			<div>
 				<div className="flex flex-col my-1 space-y-5 p-10">
 					<button className="bg-[#508fe0] hover:bg-[#00916E] active:bg-bg-[#00916E] text-white font-bold py-2 px-4 rounded-full transition-all duration-200"
-						onClick={() => { console.log("launch a game") }}>
+						onClick={() => startMultiGame(room)}>
 						Launch a game
 					</button>
 				</div>
@@ -42,12 +59,12 @@ function roomList({
 		);
 	}
 
-	const childForOtherRooms = (): ReactNode => {
+	const childForOtherRooms = (room: string): ReactNode => {
 		return (
 			<div>
 				<div className="flex flex-col my-1 space-y-5 p-10">
 					<button className="bg-[#508fe0] hover:bg-[#00916E] active:bg-bg-[#00916E] text-white font-bold py-2 px-4 rounded-full transition-all duration-200"
-						onClick={() => { console.log("join this game") }}>
+						onClick={() => {joinGame(room)}}>
 						Join this game
 					</button>
 				</div>
@@ -88,10 +105,10 @@ function roomList({
 													setPopupTitle(newTitle);
 												}
 												if (setPopupChild != undefined && title === "MY ROOMLIST") {
-													setPopupChild(childForMyRooms);
+													setPopupChild(childForMyRooms(room));
 												}
 												else if (setPopupChild != undefined && title === "OTHERS ROOMLIST") {
-													setPopupChild(childForOtherRooms);
+													setPopupChild(childForOtherRooms(room));
 												}
 												togglePopup();
 
