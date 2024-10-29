@@ -15,6 +15,7 @@ function GamePage() {
 	const uuid = sessionStorage.getItem("uuid");
 	const name = sessionStorage.getItem("name");
 	const [partyDone, setPartyDone] = useState<boolean>(false);
+	const [winner, setWinner] = useState<boolean>(false);
 	const [countdown, setCountdown] = useState<number | null>(null);
 	const navigate = useNavigate();
 	const routeParam = useParams();
@@ -76,7 +77,7 @@ function GamePage() {
 				return 'bg-[#1a1b26]'
 			case (102): // tetromino's shadown
 				return 'bg-[#7d0202] opacity-75'
-			case (20):
+			case (20): // indestructible line
 				return 'bg-gray-500'
 
 		}
@@ -152,9 +153,10 @@ function GamePage() {
 
 	useEffect(() => {
 		socket?.on("endGame", (data) => {
-			console.log("endGame");
+			if (data.player.uuid === uuid) {
+				setWinner(data.player.winner);
+			}
 			setGrid(emptyGrid);
-			console.log(data);
 			setPartyDone(true);
 		});
 		return () => {
@@ -201,7 +203,7 @@ function GamePage() {
 							<div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
 								<div className="flex flex-col my-1 space-y-5 p-10">
 									<h1 className="text-white text-5xl font-bold">
-										GAME OVER
+										{winner ? "YOU WON": "GAME OVER"}
 									</h1>
 									<div className="text-center">
 										<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={goBackToHome}>Menu</button>
@@ -215,19 +217,18 @@ function GamePage() {
 					</div>
 				</div>
 				<div className="ml-4">
-					{tetrominos && tetrominos.length > 0 &&
-						<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg">
+					<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg">
 							<div className="flex flex-col items-center space-y-4">
 								<div className="text-white font-bold">
-									NEXT
+									NEXT :
 								</div>
-								{tetrominos.map((tetro, index) => (
+								{tetrominos && tetrominos.length > 0 && tetrominos.map((tetro, index) => (
 									<div key={index} className="mb-4 items-center">
 										{displayTetromino(tetro)}
 									</div>
 								))}
 							</div>
-						</div>}
+						</div>
 				</div>
 			</div>
 		</div>

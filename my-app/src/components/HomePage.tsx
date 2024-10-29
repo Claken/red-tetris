@@ -88,6 +88,7 @@ function HomePage() {
 			)
 		}
 		else if (listButtonClickedOthers) {
+
 			socket?.emit("getOtherRooms", { uuid: uuid });
 			return roomList(
 				{
