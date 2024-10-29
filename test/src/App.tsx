@@ -185,7 +185,7 @@ function App() {
                     // setRoomId((prev) => {
                     //   const val = room;
                     //   return val;
-                    // });
+                    // });/
                   }
                 >
                   demarrer la game sur la room {room}
@@ -342,7 +342,6 @@ function App() {
       // console.log("countdown");
       console.log(data);
     });
-
     // socket?.on("waitToPlay", (data) => {
     //   setRoomId(data.roomId);
     //   console.log(data);
@@ -408,6 +407,7 @@ function App() {
     socket?.on("myGame", (data) => {
       // console.log("myGame");
       // console.log(data);
+      console.log(data.listSpectrum);
       console.log("-----------------");
       console.log({ roomId: roomId });
       console.log({ player: data.player.roomId });

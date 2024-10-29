@@ -28,10 +28,7 @@ export class SocketGateway implements OnGatewayConnection {
   }
 
   private listenToEmmitter(socket: Socket) {
-    console.log(socket.id);
-
     socket.on('retryGame', (data) => {
-      console.log(data);
       const infos = this.manageSocket.getInfos(data.uuid);
       if (infos == undefined) {
         return;
@@ -141,9 +138,7 @@ export class SocketGateway implements OnGatewayConnection {
     });
 
     socket.on('createRoom', (data) => {
-      console.log(data);
       const infos = this.manageSocket.getInfos(data.uuid);
-      console.log({ infos: infos });
       if (infos == undefined) {
         return;
       }
@@ -155,12 +150,10 @@ export class SocketGateway implements OnGatewayConnection {
       if (infos == undefined) {
         return;
       }
-      console.log({ infosJoinGame: infos });
       this.waitGame.joinGame(data.uuid, infos.name, socket.id, data.roomId);
     });
 
     socket.on('getCreateRooms', (data) => {
-      console.log('je passe par getCreateRooms');
       if (data == undefined || data.uuid == undefined) return;
       const infos = this.waitGame.getUUIDMapings().get(data.uuid);
       if (infos == undefined) return;
@@ -187,19 +180,14 @@ export class SocketGateway implements OnGatewayConnection {
     });
     socket.on('getOtherRooms', (data) => {
       if (data == undefined || data.uuid == undefined) return;
-      console.log('je passe ici');
       const infosPlayer = this.manageSocket.getInfos(data.uuid);
-      console.log({ infos: infosPlayer });
       if (infosPlayer == undefined) {
         return;
       }
       const games = this.waitGame.getGames();
       const infos = this.waitGame.getUUIDMapings().get(data.uuid);
-      console.log({ infos: infos });
       const otherRooms = [];
       for (const [key, value] of games) {
-        console.log({ key: key });
-        console.log({ value: value.getRoomId() });
         if (
           value.getType() === MULTI &&
           (infos == undefined ||
@@ -209,7 +197,6 @@ export class SocketGateway implements OnGatewayConnection {
           otherRooms.push(value.getRoomId());
         }
       }
-      console.log('lala');
       socket.emit('getOtherRooms', {
         otherRooms: otherRooms,
       });
@@ -239,47 +226,6 @@ export class SocketGateway implements OnGatewayConnection {
         roomsJoined: roomsJoined,
       });
     });
-    // const infos = this.waitGame.getUUIDMapings().get(data.uuid);
-    // if (infos == undefined) return;
-    // infos.socketsId.push(socket.id);
-    // const otherRooms = [];
-    // for (let i = 0; i < infos.otherRoomsId.length; i++) {
-    //   socket.join(infos.otherRoomsId[i]);
-    //   if (
-    //     this.waitGame.getGames().get(infos.otherRoomsId[i])?.getType() ===
-    //     MULTI
-    //   ) {
-    //     otherRooms.push(infos.otherRoomsId[i]);
-    //   }
-    // }
-    // for (let i = 0; i < infos.ownedRoomsId.length; i++) {
-    //   socket.join(infos.ownedRoomsId[i]);
-    // }
-    // socket.emit('getOthersRooms', {
-    //   otherRooms: otherRooms,
-    // });
-
-    // socket.on('isInGame', (data) => {
-    //   const uuid = data.uuid;
-    //   const playerWaits = this.waitGame.getPlayerWaiting();
-    //   if (playerWaits.length != 0) {
-    //     const room = this.waitGame.getRoomName();
-    //     socket.join(room);
-    //   }
-    //   // const infos = this.manageSocket.getInfos(uuid);
-    //   // console.log({ infos: infos?.sockets });
-    //   const rooms = this.waitGame.isInGame(uuid, socket.id);
-    //   if (rooms == undefined) {
-    //     return;
-    //   }
-    //   socket.join(rooms);
-    //   const games = this.waitGame.getGames();
-    //   const game = games.get(rooms[0]);
-    //   if (game == undefined) {
-    //     return;
-    //   }
-    //   game.sendCounterToClient();
-    // });
   }
 
   handleConnection(socket: Socket): void {

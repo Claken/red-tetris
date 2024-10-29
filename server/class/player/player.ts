@@ -17,12 +17,14 @@ export class Player {
   private _player_name: string;
   private _uuid: string;
   private _grid: number[][];
+  private _spectrum: number[][];
   private _tetrominos: Tetromino[];
   private _isMaster: boolean;
   constructor(player_name: string, uuid: string) {
     this._uuid = uuid;
     this._player_name = player_name;
     this._grid = new Array(24).fill(null).map(() => new Array(10).fill(E));
+    this._spectrum = new Array(24).fill(null).map(() => new Array(10).fill(E));
     this._tetrominos = [];
     this._isMaster = false;
   }
@@ -53,6 +55,9 @@ export class Player {
   }
   getGrid(): number[][] {
     return this._grid;
+  }
+  getSpectrum(): number[][] {
+    return this._spectrum;
   }
 
   getTetrominos(): Tetromino[] {
@@ -227,7 +232,13 @@ export class Player {
     while (this.isCollisionMove(1, 0) == false) {
       this.moveDownTetromino(1);
     }
-    if (num == undefined) this.updateGrid(0);
+    if (num == undefined) {
+      const nbrLine = this.updateGrid(0);
+      if (nbrLine.nbrLineToAdd > 0) {
+        return nbrLine.nbrLineToAdd;
+      }
+    }
+    return undefined;
   }
   moveDownTetromino(num?: number): void {
     if (this.isCollisionMove(1, 0)) return;
@@ -412,9 +423,9 @@ export class Player {
     if (transform) {
       this.initTetrominoInsideGrid();
     }
-    if (transform && nbrLineToAdd > 0) {
-      console.log({ nbrLineToAdd: nbrLineToAdd });
-    }
+    // if (transform && nbrLineToAdd > 0) {
+    //   console.log({ nbrLineToAdd: nbrLineToAdd });
+    // }
     return { nbrLineToAdd: nbrLineToAdd - 1, touched: touched };
   }
 
@@ -422,6 +433,22 @@ export class Player {
     for (let i = 0; i < nbrLine; i++) {
       this._grid.shift();
       this._grid.push(new Array(10).fill(UNBREAKABLE_BRICK));
+    }
+  }
+
+  updateSpectrum(): void {
+    for (let i = 0; i < this._spectrum.length; i++) {
+      for (let j = 0; j < this._spectrum[i].length; j++) {
+        this._spectrum[i][j] = E;
+      }
+    }
+    for (let i = 0; i < this._grid.length; i++) {
+      for (let j = 0; j < 24; j++) {
+        if (this._grid[j][i] == B || this._grid[j][i] == UNBREAKABLE_BRICK) {
+          this._spectrum[j][i] = B;
+          j = 23;
+        }
+      }
     }
   }
 }

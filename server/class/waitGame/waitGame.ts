@@ -156,7 +156,6 @@ export class WaitGame {
     this.games.set(roomName, game);
     await this.pageToGo(uuid, roomName, SINGLE, player.getPlayerName());
     await game.startGame(this.UUIDMapings);
-    console.log('my game');
     const touch = { touch1: 1 };
     let gameIsOver = false;
     const intervalId = setInterval(() => {
