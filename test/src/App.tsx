@@ -185,7 +185,7 @@ function App() {
                     // setRoomId((prev) => {
                     //   const val = room;
                     //   return val;
-                    // });
+                    // });/
                   }
                 >
                   demarrer la game sur la room {room}
