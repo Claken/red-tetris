@@ -16,6 +16,8 @@ function GamePage() {
 	const name = sessionStorage.getItem("name");
 	const [partyDone, setPartyDone] = useState<boolean>(false);
 	const [winner, setWinner] = useState<boolean>(false);
+	const [multiGame, setMultiGame] = useState<boolean>(false);
+	const [isWaiting, setWaiting] = useState<boolean>(true);
 	const [countdown, setCountdown] = useState<number | null>(null);
 	const navigate = useNavigate();
 	const routeParam = useParams();
@@ -59,10 +61,10 @@ function GamePage() {
 
 	const cellColorMainGrid = (cell: number) => {
 		switch (cell) {
-			case (1):
+			case (1): // turquoise
 				return 'bg-[#00ffff]'
 			case (2):
-				return 'bg-[#0000ff]'
+				return 'bg-[#0077ff]'
 			case (3):
 				return 'bg-[#ff7f00]'
 			case (4):
@@ -79,7 +81,6 @@ function GamePage() {
 				return 'bg-[#7d0202] opacity-75'
 			case (20): // indestructible line
 				return 'bg-gray-500'
-
 		}
 		return 'bg-red-400'
 	}
@@ -89,7 +90,7 @@ function GamePage() {
 			case ('I'):
 				return 'bg-[#00ffff]'
 			case ('J'):
-				return 'bg-[#0000ff]'
+				return 'bg-[#0077ff]'
 			case ('L'):
 				return 'bg-[#ff7f00]'
 			case ('O'):
@@ -118,6 +119,17 @@ function GamePage() {
 		));
 	};
 
+	const WaitingLogo = () => {
+		return 	<div className="flex items-center justify-center h-screen">
+					<div className="flex flex-col">
+						<div className="text-red-600 text-center">
+							WAITING FOR THE GAME TO START
+						</div>
+							<div className="w-16 h-16 border-4 border-t-4 border-red-200 rounded-full animate-spin border-t-red-500"></div>
+					</div>
+				</div>
+	}
+
 	useEffect(() => {
 		socket?.on("countdown", (data) => {
 			if (data.roomId === roomId) {
@@ -131,8 +143,10 @@ function GamePage() {
 
 	useEffect(() => {
 		socket?.on("beforeGame", (data) => {
+			setWaiting(false);
 			setGridWithRightSize(data.player.grid);
 			setTetro(data.player.tetrominos);
+			setMultiGame(data.player.type === 100 ? true : false);
 		});
 		return () => {
 			socket?.off("beforeGame");
@@ -166,58 +180,59 @@ function GamePage() {
 
 	return (
 		<div className="bg-[#1a1b26] h-screen">
-			<div className="flex items-center justify-center h-screen">
-				<div className="mr-4">
-					<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg">
-						<div className="flex flex-col items-center space-y-4">
-							<div className="text-center">
-								<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={goBackToHome}>Menu</button>
-							</div>
+			{isWaiting ? WaitingLogo() :
+				<div className="flex items-center justify-center h-screen">
+					<div className="mr-4">
+						<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg">
+							<div className="flex flex-col items-center space-y-4">
+								<div className="text-center">
+									<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={goBackToHome}>Menu</button>
+								</div>
 
+							</div>
 						</div>
 					</div>
-				</div>
-				<div className="border-8 border-[#414868]">
-					<div className="border-2 border-black">
-						<div className="grid grid-cols-10 gap-0.5"
-							tabIndex={0}
-							onKeyDown={handleKeydown}
-						>
-							{grid.map((row, rowIndex) =>
-								row.map((cell, colIndex) => (
-									<div
-										key={`${rowIndex}-${colIndex}`}
-										className={`w-4 h-4 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-6 lg:h-6 lx:w-8 lx:h-8 border border-[#414868] ${cellColorMainGrid(cell)}`}
-									></div>
-								))
-							)}
-						</div>
-						{countdown !== null && (
-							<div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
-								<h1 className="text-white text-6xl font-bold">
-									{countdown}
-								</h1>
+					<div className="border-8 border-[#414868]">
+						<div className="border-2 border-black">
+							<div className="grid grid-cols-10 gap-0.5"
+								tabIndex={0}
+								onKeyDown={handleKeydown}
+							>
+								{grid.map((row, rowIndex) =>
+									row.map((cell, colIndex) => (
+										<div
+											key={`${rowIndex}-${colIndex}`}
+											className={`w-4 h-4 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-6 lg:h-6 lx:w-8 lx:h-8 border border-[#414868] ${cellColorMainGrid(cell)}`}
+										></div>
+									))
+								)}
 							</div>
-						)}
-						{partyDone === true && (
-							<div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
-								<div className="flex flex-col my-1 space-y-5 p-10">
-									<h1 className="text-white text-5xl font-bold">
-										{winner ? "YOU WON": "GAME OVER"}
+							{countdown !== null && (
+								<div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
+									<h1 className="text-white text-6xl font-bold">
+										{countdown}
 									</h1>
-									<div className="text-center">
-										<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={goBackToHome}>Menu</button>
-									</div>
-									<div className="text-center">
-										<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={retrySoloGame}>Retry</button>
+								</div>
+							)}
+							{partyDone === true && (
+								<div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
+									<div className="flex flex-col my-1 space-y-5 p-10">
+										<h1 className="text-white text-5xl font-bold">
+											{winner ? "YOU WON" : "GAME OVER"}
+										</h1>
+										<div className="text-center">
+											<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={goBackToHome}>Menu</button>
+										</div>
+										{multiGame === false && <div className="text-center">
+											<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={retrySoloGame}>Retry</button>
+										</div>}
 									</div>
 								</div>
-							</div>
-						)}
+							)}
+						</div>
 					</div>
-				</div>
-				<div className="ml-4">
-					<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg">
+					<div className="ml-4">
+						<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg">
 							<div className="flex flex-col items-center space-y-4">
 								<div className="text-white font-bold">
 									NEXT :
@@ -229,8 +244,9 @@ function GamePage() {
 								))}
 							</div>
 						</div>
+					</div>
 				</div>
-			</div>
+			}
 		</div>
 	);
 }
