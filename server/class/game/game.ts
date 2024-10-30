@@ -270,6 +270,7 @@ export class Game {
                 uuid: player.getUuid(),
                 roomId: this._roomId,
                 tetrominos: player.getTetrominos().slice(1, 6),
+                type: this._type,
               },
             });
           } else {
@@ -280,6 +281,7 @@ export class Game {
                 uuid: player.getUuid(),
                 roomId: this._roomId,
                 tetrominos: player.getTetrominos().slice(1, 6),
+                type: this._type,
               },
             });
           }
@@ -336,6 +338,7 @@ export class Game {
           uuid: player.getUuid(),
           roomId: this._roomId,
           tetrominos: player.getTetrominos().slice(1, 6),
+          type: this._type,
         },
       });
       return;
@@ -348,6 +351,7 @@ export class Game {
         uuid: player.getUuid(),
         roomId: this._roomId,
         tetrominos: player.getTetrominos().slice(1, 6),
+        type: this._type,
       },
     });
   }
