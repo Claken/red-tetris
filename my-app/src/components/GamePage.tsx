@@ -118,7 +118,7 @@ function GamePage() {
 				{row.map((cell: number, colIndex: number) => (
 					<div
 						key={colIndex}
-						className={`w-4 h-4 ${cell !== 0 ? tetroColor : 'bg-transparent'}`}
+						className={`w-3 h-3 ${cell !== 0 ? tetroColor : 'bg-transparent'}`}
 					>
 					</div>
 				))}
@@ -129,25 +129,24 @@ function GamePage() {
 	const displaySpectrums = (specList: any) => {
 		return (
 			<div className="flex flex-col items-center">
-			  {specList.map((spectrum, index) => (
-				<div key={index}>
-				  <h3 className="text-lg text-white text-center font-semibold mb-2">{spectrum.name}</h3>
-				  <div
-					className="grid grid-cols-10 gap-0"
-				  >
-					{spectrum.spectrum.flat().map((value, idx) => (
-					  <div
-						key={idx}
-						className={`w-2 h-2 border border-gray-700 ${
-						  value > 0 ? (value === 1 ? 'bg-cyan-500' : 'bg-red-800') : 'bg-transparent'
-						}`}
-					  ></div>
-					))}
-				  </div>
-				</div>
-			  ))}
+				{specList.map((spectrum, index) => (
+					<div key={index}>
+						<h3 className="text-lg text-white text-center font-semibold mb-2">{spectrum.name}</h3>
+						<div
+							className="grid grid-cols-10 gap-0"
+						>
+							{spectrum.spectrum.flat().map((value, idx) => (
+								<div
+									key={idx}
+									className={`w-2 h-2 border border-gray-700 ${value > 0 ? (value === 1 ? 'bg-cyan-500' : 'bg-red-800') : 'bg-transparent'
+										}`}
+								></div>
+							))}
+						</div>
+					</div>
+				))}
 			</div>
-		  );
+		);
 	}
 
 	const WaitingLogo = () => {
@@ -192,11 +191,11 @@ function GamePage() {
 				if (isWaiting === true) setWaiting(false);
 				setMultiGame(data.player.type === 100 ? true : false);
 				// if (multiGame === true) {
-					const caca = data.listSpectrum;
-					setSpecList(caca);
+				const caca = data.listSpectrum;
+				setSpecList(caca);
 
-					console.log(caca);
-					console.log(specList);
+				console.log(caca);
+				console.log(specList);
 				// }
 			}
 		});
@@ -223,11 +222,12 @@ function GamePage() {
 			{isWaiting ? WaitingLogo() :
 				<div className="flex items-center justify-center h-screen">
 					<div className="mr-4">
-						<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg h-100">
+						<div className="text-white font-bold text-center">
+							OPPONENTS
+						</div>
+						<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg h-96 w-32 overflow-auto">
 							<div className="flex flex-col items-center space-y-4">
-								<div className="text-white font-bold">
-									OPPONENTS :
-								</div>
+
 								{specList && specList.length > 0 && displaySpectrums(specList)}
 							</div>
 						</div>
@@ -272,11 +272,11 @@ function GamePage() {
 						</div>
 					</div>
 					<div className="ml-4">
-						<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg">
+						<div className="text-white font-bold text-center">
+							NEXT
+						</div>
+						<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg w-32">
 							<div className="flex flex-col items-center space-y-4">
-								<div className="text-white font-bold">
-									NEXT :
-								</div>
 								{tetrominos && tetrominos.length > 0 && tetrominos.map((tetro, index) => (
 									<div key={index} className="mb-4 items-center">
 										{displayTetromino(tetro)}
