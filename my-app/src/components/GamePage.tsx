@@ -29,6 +29,7 @@ function GamePage() {
 
 	const [grid, setGrid] = useState<number[][]>(emptyGrid);
 	const [tetrominos, setTetro] = useState();
+	const [specList, setSpecList] = useState<Array>();
 
 	const handleKeydown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 		if (e.key === "ArrowRight") {
@@ -166,6 +167,12 @@ function GamePage() {
 				setTetro(data.player.tetrominos);
 				if (isWaiting === true) setWaiting(false);
 				setMultiGame(data.player.type === 100 ? true : false);
+				// if (multiGame === true) {
+					const caca = data.listSpectrum;
+					setSpecList(caca);
+					console.log(data.listSpectrum);
+					console.log(specList);
+				// }
 			}
 		});
 		return () => {
