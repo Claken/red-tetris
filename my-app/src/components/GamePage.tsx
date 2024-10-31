@@ -29,7 +29,7 @@ function GamePage() {
 
 	const [grid, setGrid] = useState<number[][]>(emptyGrid);
 	const [tetrominos, setTetro] = useState();
-	const [specList, setSpecList] = useState<Array>();
+	const [specList, setSpecList] = useState();
 
 	const handleKeydown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 		if (e.key === "ArrowRight") {
@@ -126,6 +126,10 @@ function GamePage() {
 		));
 	};
 
+	const displaySpectrums = (specList: any) => {
+		
+	}
+
 	const WaitingLogo = () => {
 		return <div className="flex items-center justify-center h-screen">
 			<div className="flex flex-col items-center">
@@ -170,7 +174,8 @@ function GamePage() {
 				// if (multiGame === true) {
 					const caca = data.listSpectrum;
 					setSpecList(caca);
-					console.log(data.listSpectrum);
+
+					console.log(caca);
 					console.log(specList);
 				// }
 			}
