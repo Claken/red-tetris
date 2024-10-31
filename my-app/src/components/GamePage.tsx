@@ -128,12 +128,12 @@ function GamePage() {
 
 	const displaySpectrums = (specList: any) => {
 		return (
-			<div className="flex flex-col">
+			<div className="flex flex-col items-center">
 			  {specList.map((spectrum, index) => (
 				<div key={index}>
-				  <h3 className="text-lg text-white font-semibold mb-2">{spectrum.name}</h3>
+				  <h3 className="text-lg text-white text-center font-semibold mb-2">{spectrum.name}</h3>
 				  <div
-					className={`grid grid-cols-10 gap-0`}
+					className="grid grid-cols-10 gap-0"
 				  >
 					{spectrum.spectrum.flat().map((value, idx) => (
 					  <div
@@ -222,21 +222,11 @@ function GamePage() {
 		<div className="bg-[#1a1b26] h-screen">
 			{isWaiting ? WaitingLogo() :
 				<div className="flex items-center justify-center h-screen">
-					{/* <div className="mr-4">
-						<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg">
-							<div className="flex flex-col items-center space-y-4">
-								<div className="text-center">
-									<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={goBackToHome}>Menu</button>
-								</div>
-
-							</div>
-						</div>
-					</div> */}
 					<div className="mr-4">
-						<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg">
+						<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg h-100">
 							<div className="flex flex-col items-center space-y-4">
 								<div className="text-white font-bold">
-									OPPS :
+									OPPONENTS :
 								</div>
 								{specList && specList.length > 0 && displaySpectrums(specList)}
 							</div>
