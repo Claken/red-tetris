@@ -54,9 +54,15 @@ function GamePage() {
 		navigate("/");
 	}
 
-	const retrySoloGame = () => {
+	const retryGame = () => {
 		setPartyDone(false);
-		socket?.emit("startSingleTetrisGame", { name: name, uuid: uuid });
+		if (multiGame) {
+			socket?.emit("retryGame", { uuid: uuid, roomId: roomId });
+		}
+		else {
+			socket?.emit("startSingleTetrisGame", { name: name, uuid: uuid });
+			setWaiting(true);
+		}
 	}
 
 	const cellColorMainGrid = (cell: number) => {
@@ -120,14 +126,14 @@ function GamePage() {
 	};
 
 	const WaitingLogo = () => {
-		return 	<div className="flex items-center justify-center h-screen">
-					<div className="flex flex-col">
-						<div className="text-red-600 text-center">
-							WAITING FOR THE GAME TO START
-						</div>
-							<div className="w-16 h-16 border-4 border-t-4 border-red-200 rounded-full animate-spin border-t-red-500"></div>
-					</div>
+		return <div className="flex items-center justify-center h-screen">
+			<div className="flex flex-col items-center">
+				<div className="text-red-600 text-center font-bold mb-4">
+					PLEASE WAIT
 				</div>
+				<div className="w-16 h-16 border-4 border-t-4 border-red-200 rounded-full animate-spin border-t-red-500"></div>
+			</div>
+		</div>
 	}
 
 	useEffect(() => {
@@ -158,6 +164,8 @@ function GamePage() {
 			if (data.player.roomId === roomId) {
 				setGridWithRightSize(data.player.grid);
 				setTetro(data.player.tetrominos);
+				if (isWaiting === true) setWaiting(false);
+				setMultiGame(data.player.type === 100 ? true : false);
 			}
 		});
 		return () => {
@@ -223,9 +231,9 @@ function GamePage() {
 										<div className="text-center">
 											<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={goBackToHome}>Menu</button>
 										</div>
-										{multiGame === false && <div className="text-center">
-											<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={retrySoloGame}>Retry</button>
-										</div>}
+										<div className="text-center">
+											<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={retryGame}>Retry</button>
+										</div>
 									</div>
 								</div>
 							)}
