@@ -113,7 +113,9 @@ export class Game {
       player.updateSpectrum();
       const listSpectrum: any = this._players
         .filter((elem) => elem.getUuid() != player.getUuid())
-        .map((elem) => elem.getSpectrum());
+        .map((elem) => {
+          return { name: elem.getPlayerName(), spectrum: elem.getSpectrum() };
+        });
       this.sendGameToClient(player, socketId, listSpectrum);
     }
   }
@@ -156,7 +158,9 @@ export class Game {
       this._players[i].updateSpectrum();
       const listSpectrum: any = this._players
         .filter((elem) => elem.getUuid() != this._players[i].getUuid())
-        .map((elem) => elem.getSpectrum());
+        .map((elem) => {
+          return { name: elem.getPlayerName(), spectrum: elem.getSpectrum() };
+        });
       this.sendGameToClient(
         this._players[i],
         UUIDMapings.get(this._players[i].getUuid())?.socketsId ?? [],
