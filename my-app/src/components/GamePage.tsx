@@ -241,7 +241,6 @@ function GamePage() {
 							</div>
 						</div>
 					}
-
 					<div className="border-8 border-[#414868]">
 						<div className="border-2 border-black">
 							<div className="grid grid-cols-10 gap-0.5"
