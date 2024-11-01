@@ -118,7 +118,7 @@ function GamePage() {
 				{row.map((cell: number, colIndex: number) => (
 					<div
 						key={colIndex}
-						className={`w-3 h-3 ${cell !== 0 ? tetroColor : 'bg-transparent'}`}
+						className={`w-4 h-4 border border-gray-900 ${cell !== 0 ? tetroColor : 'bg-transparent'}`}
 					>
 					</div>
 				))}
@@ -287,7 +287,7 @@ function GamePage() {
 						<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg w-32">
 							<div className="flex flex-col items-center space-y-4">
 								{tetrominos && tetrominos.length > 0 && tetrominos.map((tetro, index) => (
-									<div key={index} className="mb-4 items-center">
+									<div key={index} className="items-center">
 										{displayTetromino(tetro)}
 									</div>
 								))}
