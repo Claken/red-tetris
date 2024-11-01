@@ -128,7 +128,7 @@ function GamePage() {
 
 	const displaySpectrums = (specList: any) => {
 		return (
-			<div className="flex flex-col items-center">
+			<div className="flex flex-row space-x-4">
 				{specList.map((spectrum, index) => (
 					<div key={index}>
 						<h3 className="text-lg text-white text-center font-semibold mb-2">{spectrum.name}</h3>
@@ -220,19 +220,19 @@ function GamePage() {
 	return (
 		<div className="bg-[#1a1b26] h-screen">
 			{isWaiting ? WaitingLogo() :
-				<div className="flex items-center justify-center h-screen">
-					{multiGame ?
-						<div className="mr-4">
-							<div className="text-white font-bold text-center">
-								OPPONENTS
-							</div>
-							<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg h-96 w-32 overflow-auto">
-								<div className="flex flex-col items-center space-y-4">
+				<div>
+					{multiGame && <div className="absolute">
+						<div className="text-white font-bold text-center">
+							OPPONENTS
+						</div>
+						<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg">
+							<div className="flex flex-col items-center space-y-4">
 
-									{specList && specList.length > 0 && displaySpectrums(specList)}
-								</div>
+								{specList && specList.length > 0 && displaySpectrums(specList)}
 							</div>
-						</div> :
+						</div>
+					</div>}
+					<div className="flex items-center justify-center h-screen">
 						<div className="mr-4">
 							<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg">
 								<div className="flex flex-col items-center space-y-4">
@@ -240,57 +240,57 @@ function GamePage() {
 								</div>
 							</div>
 						</div>
-					}
-					<div className="border-8 border-[#414868]">
-						<div className="border-2 border-black">
-							<div className="grid grid-cols-10 gap-0.5"
-								tabIndex={0}
-								onKeyDown={handleKeydown}
-							>
-								{grid.map((row, rowIndex) =>
-									row.map((cell, colIndex) => (
-										<div
-											key={`${rowIndex}-${colIndex}`}
-											className={`w-4 h-4 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-6 lg:h-6 lx:w-8 lx:h-8 border border-[#414868] ${cellColorMainGrid(cell)}`}
-										></div>
-									))
+						<div className="border-8 border-[#414868]">
+							<div className="border-2 border-black">
+								<div className="grid grid-cols-10 gap-0.5"
+									tabIndex={0}
+									onKeyDown={handleKeydown}
+								>
+									{grid.map((row, rowIndex) =>
+										row.map((cell, colIndex) => (
+											<div
+												key={`${rowIndex}-${colIndex}`}
+												className={`w-4 h-4 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-6 lg:h-6 lx:w-8 lx:h-8 border border-[#414868] ${cellColorMainGrid(cell)}`}
+											></div>
+										))
+									)}
+								</div>
+								{countdown !== null && (
+									<div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
+										<h1 className="text-white text-6xl font-bold">
+											{countdown}
+										</h1>
+									</div>
+								)}
+								{partyDone === true && (
+									<div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
+										<div className="flex flex-col my-1 space-y-5 p-10">
+											<h1 className="text-white text-5xl font-bold">
+												{winner ? "YOU WON" : "GAME OVER"}
+											</h1>
+											<div className="text-center">
+												<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={goBackToHome}>Menu</button>
+											</div>
+											<div className="text-center">
+												<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={retryGame}>Retry</button>
+											</div>
+										</div>
+									</div>
 								)}
 							</div>
-							{countdown !== null && (
-								<div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
-									<h1 className="text-white text-6xl font-bold">
-										{countdown}
-									</h1>
-								</div>
-							)}
-							{partyDone === true && (
-								<div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
-									<div className="flex flex-col my-1 space-y-5 p-10">
-										<h1 className="text-white text-5xl font-bold">
-											{winner ? "YOU WON" : "GAME OVER"}
-										</h1>
-										<div className="text-center">
-											<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={goBackToHome}>Menu</button>
-										</div>
-										<div className="text-center">
-											<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={retryGame}>Retry</button>
-										</div>
-									</div>
-								</div>
-							)}
 						</div>
-					</div>
-					<div className="ml-4">
-						<div className="text-white font-bold text-center">
-							NEXT
-						</div>
-						<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg w-32">
-							<div className="flex flex-col items-center space-y-4">
-								{tetrominos && tetrominos.length > 0 && tetrominos.map((tetro, index) => (
-									<div key={index} className="items-center">
-										{displayTetromino(tetro)}
-									</div>
-								))}
+						<div className="ml-4">
+							<div className="text-white font-bold text-center">
+								NEXT
+							</div>
+							<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg w-32">
+								<div className="flex flex-col items-center space-y-4">
+									{tetrominos && tetrominos.length > 0 && tetrominos.map((tetro, index) => (
+										<div key={index} className="items-center">
+											{displayTetromino(tetro)}
+										</div>
+									))}
+								</div>
 							</div>
 						</div>
 					</div>
