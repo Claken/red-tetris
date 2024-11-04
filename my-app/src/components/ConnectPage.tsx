@@ -45,7 +45,7 @@ function ConnectPage({ name, setName, uuid, setUuid, socket, setSocket }: {
 						onChange={handleChange}
 					/>
 				</div>
-					<button className="bg-red-900 rounded-b-md hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 w-full" onClick={handleSubmit}>Confirm</button>
+					<button className="bg-red-900 rounded-b-md hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 w-full" onClick={handleSubmit}>CONFIRM</button>
 			</div>
 		</div>
 	);
