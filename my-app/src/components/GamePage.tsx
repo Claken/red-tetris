@@ -128,7 +128,7 @@ function GamePage() {
 
 	const displaySpectrums = (specList: any) => {
 		return (
-			<div className="flex flex-row space-x-4">
+			<div className="grid grid-cols-2 space-x-4">
 				{specList.map((spectrum, index) => (
 					<div key={index}>
 						<h3 className="text-lg text-white text-center font-semibold mb-2">{spectrum.name}</h3>
