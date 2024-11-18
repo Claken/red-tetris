@@ -126,23 +126,33 @@ function GamePage() {
 		));
 	};
 
-	const displaySpectrums = (specList: any) => {
+	const displaySpectrums = (specList: any, left: boolean) => {
+
+		const rightOrLeft = (index: any) => {
+			if (left) {
+				return index < 6;
+			}
+			return index > 6;
+		}
+
 		return (
 			<div className="grid grid-cols-2 space-x-4">
 				{specList.map((spectrum, index) => (
 					<div key={index}>
-						<h3 className="text-lg text-white text-center font-semibold mb-2">{spectrum.name}</h3>
-						<div
-							className="grid grid-cols-10 gap-0"
-						>
-							{spectrum.spectrum.flat().map((value, idx) => (
-								<div
-									key={idx}
-									className={`w-2 h-2 border border-gray-700 ${value > 0 ? (value === 1 ? 'bg-cyan-500' : 'bg-red-800') : 'bg-transparent'
-										}`}
-								></div>
-							))}
-						</div>
+						{rightOrLeft(index) && <div>
+							<h3 className="text-lg text-white text-center font-semibold mb-2">{spectrum.name}</h3>
+							<div
+								className="grid grid-cols-10 gap-0"
+							>
+								{spectrum.spectrum.flat().map((value, idx) => (
+									<div
+										key={idx}
+										className={`w-2 h-2 border border-gray-700 ${value > 0 ? (value === 1 ? 'bg-cyan-500' : 'bg-red-800') : 'bg-transparent'
+											}`}
+									></div>
+								))}
+							</div>
+						</div>}
 					</div>
 				))}
 			</div>
@@ -228,7 +238,7 @@ function GamePage() {
 						<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg">
 							<div className="flex flex-col items-center space-y-4">
 
-								{specList && specList.length > 0 && displaySpectrums(specList)}
+								{specList && specList.length > 0 && displaySpectrums(specList, true)}
 							</div>
 						</div>
 					</div>}
