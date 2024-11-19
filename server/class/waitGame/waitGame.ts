@@ -174,7 +174,7 @@ export class WaitGame {
     }, 1000); // update every second
   }
 
-  public retryGame(
+  public async retryGame(
     uuid: string,
     name: string,
     socketId: string,
@@ -187,6 +187,15 @@ export class WaitGame {
     const game = this.games.get(roomId);
     if (game === undefined) return;
     game.changePlayerToWaiting(uuid);
+    console.log(uuid);
+    const player = game
+      .get_waitingPlayers()
+      .find((player) => player.getUuid() === uuid);
+    console.log(player?.getIsMaster());
+    console.log(player?.getPlayerName());
+    if (player?.getIsMaster() === true) {
+      this.startMultiTetrisGame(uuid, name, socketId, roomId);
+    }
   }
 
   public async startMultiTetrisGame(
@@ -201,7 +210,9 @@ export class WaitGame {
     const infos: ClientInfo = this.UUIDMapings.get(uuid) as ClientInfo;
     const game = this.games.get(roomId);
     if (game === undefined) return;
-    game.setIsStarted(true);
+    // game.setIsStarted(true);
+    if (game.get_waitingPlayers().length <= 1) return;
+
     await game.startGame(this.UUIDMapings);
     const intervalId = setInterval(() => {
       if (game.endGame(this.UUIDMapings)) {
