@@ -20,6 +20,7 @@ export class Player {
   private _spectrum: number[][];
   private _tetrominos: Tetromino[];
   private _isMaster: boolean;
+  private _token: number;
   constructor(player_name: string, uuid: string) {
     this._uuid = uuid;
     this._player_name = player_name;
@@ -27,6 +28,7 @@ export class Player {
     this._spectrum = new Array(24).fill(null).map(() => new Array(10).fill(E));
     this._tetrominos = [];
     this._isMaster = false;
+    this._token = 0;
   }
 
   testgrid(num1: number): void {
@@ -44,6 +46,10 @@ export class Player {
         }
       }
     }
+  }
+
+  getToken(): number {
+    return this._token;
   }
 
   getPlayerName(): string {
@@ -81,6 +87,10 @@ export class Player {
   }
   setTetrominosToZero(): void {
     this._tetrominos = [];
+  }
+
+  setToken(num: number): void {
+    this._token = num;
   }
 
   // print2DArray = (arr: any) => {
@@ -250,6 +260,7 @@ export class Player {
         }
       }
     }
+    if (this.isCollisionMove(1, 0)) this._token = 1;
     if (num == undefined) this.fallSpectrum();
   }
   moveLeftTetromino(): void {
