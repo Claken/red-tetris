@@ -187,18 +187,14 @@ export class WaitGame {
     const game = this.games.get(roomId);
     if (game === undefined) return;
     game.changePlayerToWaiting(uuid);
+    console.log(uuid);
     const player = game
-      .getPlayers()
+      .get_waitingPlayers()
       .find((player) => player.getUuid() === uuid);
+    console.log(player?.getIsMaster());
+    console.log(player?.getPlayerName());
     if (player?.getIsMaster() === true) {
-      game.setIsStarted(true);
-      await game.startGame(this.UUIDMapings);
-      const intervalId = setInterval(() => {
-        if (game.endGame(this.UUIDMapings)) {
-          clearInterval(intervalId);
-        }
-        game.gamePlayMulti(this.UUIDMapings);
-      }, 1000);
+      this.startMultiTetrisGame(uuid, name, socketId, roomId);
     }
   }
 
@@ -214,7 +210,9 @@ export class WaitGame {
     const infos: ClientInfo = this.UUIDMapings.get(uuid) as ClientInfo;
     const game = this.games.get(roomId);
     if (game === undefined) return;
-    game.setIsStarted(true);
+    // game.setIsStarted(true);
+    if (game.get_waitingPlayers().length <= 1) return;
+
     await game.startGame(this.UUIDMapings);
     const intervalId = setInterval(() => {
       if (game.endGame(this.UUIDMapings)) {

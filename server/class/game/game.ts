@@ -19,6 +19,11 @@ export class Game {
     this._type = type;
     this._server = server;
   }
+
+  public get_waitingPlayers(): Player[] {
+    return this._waitingPlayers;
+  }
+
   public getPlayers(): Player[] {
     return this._players;
   }
