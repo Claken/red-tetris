@@ -67,7 +67,12 @@ export class Game {
     );
     if (player != undefined) {
       player.moveRightTetromino();
-      this.sendGameToClient(player, socketId);
+      const listSpectrum: any = this._players
+        .filter((elem) => elem.getUuid() != player.getUuid())
+        .map((elem) => {
+          return { name: elem.getPlayerName(), spectrum: elem.getSpectrum() };
+        });
+      this.sendGameToClient(player, socketId, listSpectrum);
     }
   }
   public moveLeft(playerUuid: string, socketId: string[]): void {
@@ -76,7 +81,12 @@ export class Game {
     );
     if (player != undefined) {
       player.moveLeftTetromino();
-      this.sendGameToClient(player, socketId);
+      const listSpectrum: any = this._players
+        .filter((elem) => elem.getUuid() != player.getUuid())
+        .map((elem) => {
+          return { name: elem.getPlayerName(), spectrum: elem.getSpectrum() };
+        });
+      this.sendGameToClient(player, socketId, listSpectrum);
     }
   }
   public rotate(playerUuid: string, socketId: string[]): void {
@@ -85,7 +95,12 @@ export class Game {
     );
     if (player != undefined) {
       player.rotateTetromino();
-      this.sendGameToClient(player, socketId);
+      const listSpectrum: any = this._players
+        .filter((elem) => elem.getUuid() != player.getUuid())
+        .map((elem) => {
+          return { name: elem.getPlayerName(), spectrum: elem.getSpectrum() };
+        });
+      this.sendGameToClient(player, socketId, listSpectrum);
     }
   }
   public moveDown(playerUuid: string, socketId: string[]): void {
@@ -94,7 +109,12 @@ export class Game {
     );
     if (player != undefined) {
       player.moveDownTetromino();
-      this.sendGameToClient(player, socketId);
+      const listSpectrum: any = this._players
+        .filter((elem) => elem.getUuid() != player.getUuid())
+        .map((elem) => {
+          return { name: elem.getPlayerName(), spectrum: elem.getSpectrum() };
+        });
+      this.sendGameToClient(player, socketId, listSpectrum);
     }
   }
   public fallDown(playerUuid: string, socketId: string[]): void {
