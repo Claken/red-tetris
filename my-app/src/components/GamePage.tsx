@@ -128,11 +128,12 @@ function GamePage() {
 
 	const displaySpectrums = (specList: any, left: boolean) => {
 
-		const rightOrLeft = (index: any) => {
+		const idx = 6;
+		const rightOrLeft = (index: any): boolean => {
 			if (left) {
-				return index < 6;
+				return index < idx;
 			}
-			return index > 6;
+			return index >= idx;
 		}
 
 		return (
@@ -231,7 +232,7 @@ function GamePage() {
 		<div className="bg-[#1a1b26] h-screen">
 			{isWaiting ? WaitingLogo() :
 				<div>
-					{multiGame && <div className="absolute">
+					{multiGame && <div className="absolute top-0 left-0">
 						<div className="text-white font-bold text-center">
 							OPPONENTS
 						</div>
@@ -239,6 +240,17 @@ function GamePage() {
 							<div className="flex flex-col items-center space-y-4">
 
 								{specList && specList.length > 0 && displaySpectrums(specList, true)}
+							</div>
+						</div>
+					</div>}
+					{multiGame && <div className="absolute top-0 right-0">
+						<div className="text-white font-bold text-center">
+							OPPONENTS
+						</div>
+						<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg">
+							<div className="flex flex-col items-center space-y-4">
+
+								{specList && specList.length > 0 && displaySpectrums(specList, false)}
 							</div>
 						</div>
 					</div>}
