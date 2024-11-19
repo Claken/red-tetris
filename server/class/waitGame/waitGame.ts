@@ -186,15 +186,19 @@ export class WaitGame {
     if (infos === undefined) return;
     const game = this.games.get(roomId);
     if (game === undefined) return;
+
+    // attendre 5 secondes avant de relancer la partie
     game.changePlayerToWaiting(uuid);
-    console.log(uuid);
     const player = game
       .get_waitingPlayers()
       .find((player) => player.getUuid() === uuid);
-    console.log(player?.getIsMaster());
-    console.log(player?.getPlayerName());
     if (player?.getIsMaster() === true) {
-      this.startMultiTetrisGame(uuid, name, socketId, roomId);
+      await new Promise((resolve) => {
+        setTimeout(() => {
+          this.startMultiTetrisGame(uuid, name, socketId, roomId);
+          resolve(1);
+        }, 5000);
+      });
     }
   }
 
@@ -211,7 +215,12 @@ export class WaitGame {
     const game = this.games.get(roomId);
     if (game === undefined) return;
     // game.setIsStarted(true);
-    if (game.get_waitingPlayers().length <= 1) return;
+    if (game.get_waitingPlayers().length <= 1) {
+      this._server.emit('not_enough_person', {
+        message: 'Not enough person to start the game',
+      });
+      return;
+    }
 
     await game.startGame(this.UUIDMapings);
     const intervalId = setInterval(() => {
