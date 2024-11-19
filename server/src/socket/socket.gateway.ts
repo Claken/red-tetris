@@ -3,12 +3,14 @@ import {
   OnGatewayConnection,
   WebSocketServer,
 } from '@nestjs/websockets';
+import { Game } from '../../class/game/game';
 import { Socket, Server } from 'socket.io';
 import { WaitGame } from '../../class/waitGame/waitGame';
 import { SocketService } from './socket.service';
 import { ManageSocket } from '../../class/manageSocket/manageSocket';
 import { ClientInfo } from '../../interfaces/clientInfo';
 import { SINGLE, MULTI } from '../../constantes/constantes';
+import { Player } from 'class/player/player';
 
 // import { Logger } from '@nestjs/common';
 
@@ -28,6 +30,18 @@ export class SocketGateway implements OnGatewayConnection {
   }
 
   private listenToEmmitter(socket: Socket) {
+    socket.on('getWaitingList', (data) => {
+      const infos = this.manageSocket.getInfos(data.uuid);
+      if (infos == undefined) {
+        return;
+      }
+      const game: Game | undefined = this.waitGame.getGames().get(data.roomId);
+      const name = game
+        ?.get_waitingPlayers()
+        .map((elem) => elem.getPlayerName());
+      socket.emit('list_players_room', { players: name });
+    });
+
     socket.on('retryGame', (data) => {
       const infos = this.manageSocket.getInfos(data.uuid);
       if (infos == undefined) {
