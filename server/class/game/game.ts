@@ -147,13 +147,18 @@ export class Game {
   public async gamePlayMulti(UUIDMapings: Map<string, ClientInfo>) {
     for (let i = 0; i < this._players.length; i++) {
       this._players[i].moveDownTetromino();
-      const nbLine = this._players[i].updateGrid(0);
-      if (nbLine.nbrLineToAdd > 0) {
-        for (let j = 0; j < this._players.length; j++) {
-          if (this._players[j].getUuid() != this._players[i].getUuid()) {
-            this._players[j].addLine(nbLine.nbrLineToAdd);
+      if (this._players[i].getToken() == 0) {
+        const nbLine = this._players[i].updateGrid(0);
+        if (nbLine.nbrLineToAdd > 0) {
+          for (let j = 0; j < this._players.length; j++) {
+            if (this._players[j].getUuid() != this._players[i].getUuid()) {
+              this._players[j].addLine(nbLine.nbrLineToAdd);
+            }
           }
         }
+      }
+      if (this._players[i].getToken() == 1) {
+        this._players[i].setToken(0);
       }
       this._players[i].updateSpectrum();
       const listSpectrum: any = this._players
@@ -332,7 +337,7 @@ export class Game {
   public sendGameToClient(
     player: Player,
     socketId: string[],
-    listSpectrum?: number[][],
+    listSpectrum?: any,
   ): void {
     if (this._type == SINGLE) {
       this._server.to(this._roomId).emit('myGame', {
