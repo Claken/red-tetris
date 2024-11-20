@@ -15,6 +15,7 @@ function roomList({
 	togglePopup,
 	setPopupTitle = undefined,
 	setPopupChild = undefined,
+	waitingList = undefined,
 	socket,
 }: {
 	setRoomId: Dispatch<React.SetStateAction<string>>,
@@ -28,6 +29,7 @@ function roomList({
 	togglePopup: () => void,
 	setPopupTitle?: Dispatch<React.SetStateAction<string>>,
 	setPopupChild?: Dispatch<React.SetStateAction<ReactNode>>,
+	waitingList?: string[] | undefined,
 	socket: Socket | undefined
 }
 
@@ -49,11 +51,24 @@ function roomList({
 	const childForMyRooms = (room: string): ReactNode => {
 		return (
 			<div>
-				<div className="flex flex-col my-1 space-y-5 p-10">
-					<button className="bg-[#508fe0] hover:bg-[#00916E] active:bg-bg-[#00916E] text-white font-bold py-2 px-4 rounded-full transition-all duration-200"
+				<div className="flex flex-col my-1 space-y-5 p-10 ">
+					<div className="bg-gray-700 rounded-lg">
+						<h1 className="text-white text-xl font-semibold text-center mt-4">WAITING LIST</h1>
+						<div className="flex flex-col space-y-3 p-4 max-h-48 overflow-y-auto">
+							{waitingList && waitingList.map((player, index) => {
+								return (
+									<div key={index} className="text-white text-center py-2 px-4 bg-gray-600 rounded-lg shadow-md">
+										{player}
+									</div>
+								);
+							})}
+						</div>
+					</div>
+					<button className="bg-[#508fe0] hover:bg-[#00916E] active:bg-[#007b5f] text-white font-bold py-2 px-6 rounded-full transition-all duration-200 mb-4"
 						onClick={() => startMultiGame(room)}>
 						Launch a game
 					</button>
+
 				</div>
 			</div>
 		);
@@ -64,7 +79,7 @@ function roomList({
 			<div>
 				<div className="flex flex-col my-1 space-y-5 p-10">
 					<button className="bg-[#508fe0] hover:bg-[#00916E] active:bg-bg-[#00916E] text-white font-bold py-2 px-4 rounded-full transition-all duration-200"
-						onClick={() => {joinGame(room)}}>
+						onClick={() => { joinGame(room) }}>
 						Join this game
 					</button>
 				</div>
@@ -89,6 +104,7 @@ function roomList({
 										className="text-white font-bold py-2 px-4 rounded-full w-full"
 										onClick={(e) => {
 											e.preventDefault();
+											socket?.emit("getWaitingList", { uuid: uuid, roomId: room });
 											setRoomId((prev) => {
 												const val = room;
 												return val;
@@ -105,10 +121,12 @@ function roomList({
 													setPopupTitle(newTitle);
 												}
 												if (setPopupChild != undefined && title === "MY ROOMLIST") {
-													setPopupChild(childForMyRooms(room));
+													const newPopupChild0 = childForMyRooms(room);
+													setPopupChild(newPopupChild0);
 												}
 												else if (setPopupChild != undefined && title === "OTHERS ROOMLIST") {
-													setPopupChild(childForOtherRooms(room));
+													const newPopupChild1 = childForOtherRooms(room);
+													setPopupChild(newPopupChild1);
 												}
 												togglePopup();
 

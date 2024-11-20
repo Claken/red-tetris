@@ -18,6 +18,7 @@ function HomePage() {
 	const [listRoomsAc, setListRoomsAc] = useState([]);
 	const [listRoomsCreate, setListRoomsCreate] = useState([]);
 	const [listOtherRooms, setListOtherRooms] = useState([]);
+	const [waitingList, setWaitingList] = useState<string[]>([]);
 
 	const [listButtonClicked, setListButtonClicked] = useState<boolean>(false);
 	const [listButtonClickedActive, setListButtonClickedActive] = useState<boolean>(false);
@@ -83,6 +84,7 @@ function HomePage() {
 					togglePopup: togglePopup,
 					setPopupTitle: setPopupTitle,
 					setPopupChild: setPopupChild,
+					waitingList: waitingList,
 					socket: socket
 				}
 			)
@@ -166,7 +168,29 @@ function HomePage() {
 				togglePopup();
 			}
 		});
-	}, [socket, popupTitle])
+		return () => {
+			socket?.off("getCreateRooms");
+		};
+	}, [socket, popupTitle]);
+
+	// useEffect(() => {
+	// 	if (roomId) {
+	// 		socket?.emit("getWaitingList", { uuid: uuid, roomId: roomId });
+	// 	}
+	// }, [popupTitle, popupChild, roomId]);
+
+	useEffect(() => {
+		socket?.on("list_players_room", (data) => {
+			setWaitingList((prev) => {
+				const val = data.players;
+				console.log(val);
+				return val;
+			});
+		});
+		return () => {
+			socket?.off("list_players_room");
+		};
+	}, [socket]);
 
 	return (
 		sessionStorage.getItem("name") ?
