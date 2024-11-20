@@ -174,6 +174,46 @@ export class WaitGame {
     }, 1000); // update every second
   }
 
+  public notRetryGame(
+    uuid: string,
+    name: string,
+    socketId: string,
+    roomId: string,
+  ) {
+    const sockets = this._server.sockets.sockets.get(socketId);
+    if (sockets === undefined) return;
+    const infos: ClientInfo = this.UUIDMapings.get(uuid) as ClientInfo;
+    if (infos === undefined) return;
+    const game = this.games.get(roomId);
+    if (game === undefined) return;
+    // le joueur ne fait plus partie de la room
+    const player_lost = game
+      .get_lostPlayers()
+      .find((player) => player.getUuid() === uuid);
+
+    const player = game
+      .getPlayers()
+      .find((player) => player.getUuid() === uuid);
+
+    if (player === undefined && player_lost === undefined) {
+      return;
+    }
+    if (
+      (player != undefined && player.getIsMaster()) ||
+      (player_lost != undefined && player_lost.getIsMaster())
+    ) {
+      game.changePlayerToWaiting(uuid);
+      return;
+    }
+    const socketsId = this.UUIDMapings.get(uuid)?.socketsId as string[];
+    for (let i = 0; i < socketsId.length; i++) {
+      const socket = this._server.sockets.sockets.get(socketsId[i]);
+      if (socket !== undefined) socket.leave(roomId);
+    }
+    infos.otherRoomsId.splice(infos.otherRoomsId.indexOf(roomId), 1);
+    game.removeLostPlayer(uuid);
+  }
+
   public async retryGame(
     uuid: string,
     name: string,

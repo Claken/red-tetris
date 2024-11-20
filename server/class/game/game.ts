@@ -20,6 +20,10 @@ export class Game {
     this._server = server;
   }
 
+  public get_lostPlayers(): Player[] {
+    return this._playersLost;
+  }
+
   public get_waitingPlayers(): Player[] {
     return this._waitingPlayers;
   }
@@ -39,6 +43,12 @@ export class Game {
 
   public setIsStarted(val: boolean): void {
     this._isStarted = val;
+  }
+
+  public removeLostPlayer(playerUuid: string): void {
+    this._playersLost = this._playersLost.filter(
+      (player) => player.getUuid() != playerUuid,
+    );
   }
 
   public addWaitingPlayer(player: Player): void {
