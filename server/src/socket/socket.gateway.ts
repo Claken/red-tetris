@@ -42,6 +42,14 @@ export class SocketGateway implements OnGatewayConnection {
       socket.emit('list_players_room', { players: name });
     });
 
+    socket.on('notRetryGame', (data) => {
+      const infos = this.manageSocket.getInfos(data.uuid);
+      if (infos == undefined) {
+        return;
+      }
+      this.waitGame.notRetryGame(data.uuid, infos.name, socket.id, data.roomId);
+    });
+
     socket.on('retryGame', (data) => {
       const infos = this.manageSocket.getInfos(data.uuid);
       if (infos == undefined) {
