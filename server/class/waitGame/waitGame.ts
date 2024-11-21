@@ -226,20 +226,41 @@ export class WaitGame {
     if (infos === undefined) return;
     const game = this.games.get(roomId);
     if (game === undefined) return;
+    const intervalId = setInterval(async () => {
+      if (game.getIsStarted() == false) {
+        clearInterval(intervalId);
+        game.changePlayerToWaiting(uuid);
+        const player = game
+          .get_waitingPlayers()
+          .find((player) => player.getUuid() === uuid);
+        if (player?.getIsMaster() === true) {
+          await new Promise((resolve) => {
+            setTimeout(() => {
+              this.startMultiTetrisGame(uuid, name, socketId, roomId);
+              resolve(1);
+            }, 5000);
+          });
+        }
+      }
+    }, 1000);
 
-    // attendre 5 secondes avant de relancer la partie
-    game.changePlayerToWaiting(uuid);
-    const player = game
-      .get_waitingPlayers()
-      .find((player) => player.getUuid() === uuid);
-    if (player?.getIsMaster() === true) {
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          this.startMultiTetrisGame(uuid, name, socketId, roomId);
-          resolve(1);
-        }, 5000);
-      });
-    }
+    // console.log(game.getIsStarted());
+    // if (game.getIsStarted()) {
+    //   return;
+    // }
+    // // attendre 5 secondes avant de relancer la partie
+    // game.changePlayerToWaiting(uuid);
+    // const player = game
+    //   .get_waitingPlayers()
+    //   .find((player) => player.getUuid() === uuid);
+    // if (player?.getIsMaster() === true) {
+    //   await new Promise((resolve) => {
+    //     setTimeout(() => {
+    //       this.startMultiTetrisGame(uuid, name, socketId, roomId);
+    //       resolve(1);
+    //     }, 5000);
+    //   });
+    // }
   }
 
   public async startMultiTetrisGame(
