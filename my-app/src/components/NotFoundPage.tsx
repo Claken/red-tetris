@@ -1,5 +1,3 @@
-import React from "react";
-
 function NotFoundPage() {
   return (
 	<div className="bg-black h-screen">
