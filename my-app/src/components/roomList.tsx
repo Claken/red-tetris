@@ -73,8 +73,9 @@ function roomList({
 										onClick={(e) => {
 											e.preventDefault();
 											setRoomId((prev) => {
-												const val = room;
-												return val;
+												const newRoom = room;
+												console.log(prev);
+												return newRoom
 											});
 											if (title === "ACTIVE ROOMLIST") {
 												const goToRoute = room + '/' + name;

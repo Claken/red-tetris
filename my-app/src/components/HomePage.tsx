@@ -68,7 +68,7 @@ function HomePage() {
 					<div className="bg-gray-700 rounded-lg">
 						<h1 className="text-white text-xl font-semibold text-center mt-4">WAITING LIST</h1>
 						<div className="flex flex-col space-y-3 p-4 max-h-48 overflow-y-auto">
-							{waitList.length > 0 && waitList.map((player, index) => {
+							{waitList.map((player, index) => {
 								return (
 									<div key={index} className="text-white text-center py-2 px-4 bg-gray-600 rounded-lg shadow-md">
 										{player}
