@@ -4,6 +4,7 @@ import { ClientInfo } from '../../interfaces/clientInfo';
 import { MULTI, SINGLE } from '../../constantes/constantes';
 import { ManagePlayerTetromino } from '../managePlayerTetromino/managePlayerTetromino';
 import { B, UNBREAKABLE_BRICK } from '../../constantes/constantes';
+import { map } from 'rxjs';
 
 export class Game {
   private _players: Player[];
@@ -287,7 +288,9 @@ export class Game {
       if (this._players.length === 1) {
         this._players[0].setGridToZero();
         this._players[0].setTetrominosToZero();
-        this._server.to(this._roomId).emit('endGame', {
+        const socketIds =
+          UUIDMapings.get(this._players[0].getUuid())?.socketsId ?? [];
+        this._server.to(socketIds).emit('endGame', {
           player: {
             grid: this._players[0].getGrid(),
             name: this._players[0].getPlayerName(),
