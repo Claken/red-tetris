@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { io } from 'socket.io-client'
 import roomList from "./roomList";
-import Popup from "./popupWIndow";
+import Popup from "./popupWindow";
 
 function HomePage() {
 
@@ -52,41 +52,6 @@ function HomePage() {
 		setPopupTitle(newTitle);
 	}
 
-	const startMultiGame = (room: string) => {
-		socket?.emit("startMultiGame", { name: name, uuid: uuid, roomId: room });
-		console.log(room);
-		const goToRoute = room + '/' + name;
-		navigate(goToRoute);
-		setListButtonClickedRooms(false);
-		setListButtonClicked(false);
-	};
-
-	const childForMyRooms = (room: string, waitList: string[]): ReactNode => {
-		return (
-			<div>
-				<div className="flex flex-col my-1 space-y-5 p-10 ">
-					<div className="bg-gray-700 rounded-lg">
-						<h1 className="text-white text-xl font-semibold text-center mt-4">WAITING LIST</h1>
-						<div className="flex flex-col space-y-3 p-4 max-h-48 overflow-y-auto">
-							{waitList.map((player, index) => {
-								return (
-									<div key={index} className="text-white text-center py-2 px-4 bg-gray-600 rounded-lg shadow-md">
-										{player}
-									</div>
-								);
-							})}
-						</div>
-					</div>
-					<button className="bg-[#508fe0] hover:bg-[#00916E] active:bg-[#007b5f] text-white font-bold py-2 px-6 rounded-full transition-all duration-200 mb-4"
-						onClick={() => startMultiGame(room)}>
-						Launch a game
-					</button>
-
-				</div>
-			</div>
-		);
-	}
-
 	const displayAList = () => {
 		if (listButtonClickedActive) {
 			socket?.emit("getActiveRooms", { uuid: uuid });
@@ -119,7 +84,6 @@ function HomePage() {
 					togglePopup: togglePopup,
 					setPopupTitle: setPopupTitle,
 					setPopupChild: setPopupChild,
-					childForMyRooms: childForMyRooms,
 					waitingList: waitingList,
 					socket: socket
 				}
@@ -212,9 +176,9 @@ function HomePage() {
 
 	useEffect(() => {
 		socket?.on("list_players_room", (data) => {
+			console.log("list_players_room = " + data.players);
 			const newWaitingList = data.players;
 			setWaitingList(newWaitingList);
-			setPopupChild(childForMyRooms(roomId, newWaitingList));
 		});
 		return () => {
 			socket?.off("list_players_room");
