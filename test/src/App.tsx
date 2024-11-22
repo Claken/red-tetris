@@ -47,6 +47,7 @@ function App() {
 
   const startMultiGame = (room: string) => {
     console.log(room);
+    socket?.emit("getWaitingList", { uuid: uuid, roomId: room });
     socket?.emit("startMultiGame", { name: name, uuid: uuid, roomId: room });
   };
 
@@ -303,6 +304,10 @@ function App() {
         <button
           onClick={(e) => {
             e.preventDefault();
+            socket?.emit("notRetryGame", {
+              uuid: dataRef.current.uuid,
+              roomId: dataRef.current.roomId,
+            });
             setReTry(false);
           }}
         >
@@ -469,6 +474,24 @@ function App() {
       socket?.off("pageToGo");
     };
   });
+
+  useEffect(() => {
+    socket?.on("not_enough_person", (data) => {
+      console.log(data);
+    });
+    return () => {
+      socket?.off("not_enough_person");
+    };
+  }, [socket]);
+
+  useEffect(() => {
+    socket?.on("list_players_room", (data) => {
+      console.log(data);
+    });
+    return () => {
+      socket?.off("list_players_room");
+    };
+  }, [socket]);
 
   return (
     <div>

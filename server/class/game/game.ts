@@ -51,6 +51,12 @@ export class Game {
     );
   }
 
+  public removePlayer(playerUuid: string): void {
+    this._players = this._players.filter(
+      (player) => player.getUuid() != playerUuid,
+    );
+  }
+
   public addWaitingPlayer(player: Player): void {
     this._waitingPlayers.push(player);
   }
