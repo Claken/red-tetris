@@ -1,11 +1,10 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, Dispatch } from "react";
 import { useSocket } from "../contexts/socketContext";
 import "../index.css"
 import ConnectPage from './ConnectPage';
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { io } from 'socket.io-client'
-import roomList from "./roomList";
 import Popup from "./popupWindow";
 
 function HomePage() {
@@ -52,60 +51,166 @@ function HomePage() {
 		setPopupTitle(newTitle);
 	}
 
+	const childForMyRooms = (room: string, waitList: string[], setListButtonClickedSpec: React.Dispatch<React.SetStateAction<boolean>>): ReactNode => {
+	
+		const startMultiGame = (room: string) => {
+			socket?.emit("startMultiGame", { name: name, uuid: uuid, roomId: room });
+			console.log(room);
+			const goToRoute = room + '/' + name;
+			navigate(goToRoute);
+			setListButtonClickedSpec(false);
+			setListButtonClicked(false);
+		};
+
+		return (
+			<div>
+				<div className="flex flex-col my-1 space-y-5 p-10 ">
+					<div className="bg-gray-700 rounded-lg">
+						<h1 className="text-white text-xl font-semibold text-center mt-4">WAITING LIST</h1>
+						<div className="flex flex-col space-y-3 p-4 max-h-48 overflow-y-auto">
+							{waitList?.map((player, index) => {
+								return (
+									<div key={index} className="text-white text-center py-2 px-4 bg-gray-600 rounded-lg shadow-md">
+										{player}
+									</div>
+								);
+							})}
+						</div>
+					</div>
+					<button className="bg-[#508fe0] hover:bg-[#00916E] active:bg-[#007b5f] text-white font-bold py-2 px-6 rounded-full transition-all duration-200 mb-4"
+						onClick={() => startMultiGame(room)}>
+						Launch a game
+					</button>
+
+				</div>
+			</div>
+		);
+	}
+
+	const childForOtherRooms = (room: string, setListButtonClickedSpec: React.Dispatch<React.SetStateAction<boolean>>): ReactNode => {
+	
+		const joinGame = (room: string) => {
+			socket?.emit("joinGame", { name: name, uuid: uuid, roomId: room });
+			setListButtonClickedSpec(false);
+			setListButtonClicked(false);
+		};
+
+		return (
+			<div>
+				<div className="flex flex-col my-1 space-y-5 p-10">
+					<button className="bg-[#508fe0] hover:bg-[#00916E] active:bg-bg-[#00916E] text-white font-bold py-2 px-4 rounded-full transition-all duration-200"
+						onClick={() => { joinGame(room) }}>
+						Join this game
+					</button>
+				</div>
+			</div>
+		);
+	}
+
+	const theRoomList = ({
+		listRooms,
+		setListButtonClickedSpec,
+		title,
+	}: {
+		listRooms: never[],
+		setListButtonClickedSpec: Dispatch<React.SetStateAction<boolean>>,
+		title: string,
+	}
+	) => {
+	
+		if (uuid && name) {
+			return (
+				<div className="flex flex-col items-center justify-center h-screen">
+					<div className="p-4 bg-gray-900 border-4 border-white rounded-full w-fit">
+						<div className="text-white font-bold">
+							{title}
+						</div>
+					</div>
+					<div className="w-full max-w-4xl shadow-lg p-8 bg-gray-900 border-4 border-gray-700 rounded-lg m-4">
+						<div className="items-center space-x-2 grid grid-cols-4 grid-rows-4 gap-4">
+							{listRooms.map((room: string, index: number) => {
+								return (
+									<div key={index} className="flex bg-gray-700 hover:bg-gray-500 rounded-md transition-all duration-200">
+										<button
+											className="text-white font-bold py-2 px-4 rounded-full w-full"
+											onClick={(e) => {
+												e.preventDefault();
+												setRoomId((prev) => {
+													const newRoom = room;
+													console.log(prev);
+													return newRoom
+												});
+												if (title === "ACTIVE ROOMLIST") {
+													const goToRoute = room + '/' + name;
+													navigate(goToRoute);
+													setListButtonClickedSpec(false);
+													setListButtonClicked(false);
+												}
+												else {
+													if (setPopupTitle != undefined) {
+														const newTitle = room;
+														setPopupTitle(newTitle);
+													}
+													if (setPopupChild != undefined && title === "MY ROOMLIST" && childForMyRooms != undefined) {
+														socket?.emit("getWaitingList", { uuid: uuid, roomId: room });
+														setPopupChild(childForMyRooms(room, waitingList, setListButtonClickedSpec));
+														return;
+													}
+													else if (setPopupChild != undefined && title === "OTHERS ROOMLIST") {
+														setPopupChild(childForOtherRooms(room, setListButtonClickedSpec));
+													}
+													togglePopup();
+												}
+											}}
+										>
+											{room}
+										</button>
+									</div>
+								);
+							})
+							}
+						</div>
+					</div>
+					<div className="text-center">
+						<button className="bg-[#433a3f] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit transition-all duration-200" onClick={() => {
+							setListButtonClickedSpec(false);
+							setListButtonClicked(false);
+						}
+						}>Menu</button>
+					</div>
+				</div>
+			);
+		}
+	}
+
 	const displayAList = () => {
 		if (listButtonClickedActive) {
 			socket?.emit("getActiveRooms", { uuid: uuid });
-			return roomList(
+			return theRoomList(
 				{
-					setRoomId: setRoomId,
-					name: name,
-					uuid: uuid,
 					listRooms: listRoomsAc,
-					setListButtonClicked: setListButtonClicked,
-					navigate: navigate,
 					setListButtonClickedSpec: setListButtonClickedActive,
 					title: "ACTIVE ROOMLIST",
-					togglePopup: togglePopup,
-					socket: socket
 				}
 			)
 		}
 		else if (listButtonClickedRooms) {
-			return roomList(
+			return theRoomList(
 				{
-					setRoomId: setRoomId,
-					name: name,
-					uuid: uuid,
 					listRooms: listRoomsCreate,
-					setListButtonClicked: setListButtonClicked,
-					navigate: navigate,
 					setListButtonClickedSpec: setListButtonClickedRooms,
 					title: "MY ROOMLIST",
-					togglePopup: togglePopup,
-					setPopupTitle: setPopupTitle,
-					setPopupChild: setPopupChild,
-					waitingList: waitingList,
-					socket: socket
 				}
 			)
 		}
 		else if (listButtonClickedOthers) {
 
 			socket?.emit("getOtherRooms", { uuid: uuid });
-			return roomList(
+			return theRoomList(
 				{
-					setRoomId: setRoomId,
-					name: name,
-					uuid: uuid,
 					listRooms: listOtherRooms,
-					setListButtonClicked: setListButtonClicked,
-					navigate: navigate,
 					setListButtonClickedSpec: setListButtonClickedOthers,
 					title: "OTHERS ROOMLIST",
-					togglePopup: togglePopup,
-					setPopupTitle: setPopupTitle,
-					setPopupChild: setPopupChild,
-					socket: socket
 				}
 			)
 		}
@@ -179,6 +284,8 @@ function HomePage() {
 			console.log("list_players_room = " + data.players);
 			const newWaitingList = data.players;
 			setWaitingList(newWaitingList);
+			setPopupChild(childForMyRooms(roomId, data.players, setListButtonClickedRooms));
+			togglePopup();
 		});
 		return () => {
 			socket?.off("list_players_room");
@@ -193,7 +300,7 @@ function HomePage() {
 						show: showPopup,
 						title: popupTitle,
 						children: popupChild,
-						onClose: togglePopup
+						onClose: togglePopup,
 					}
 				)}
 				{listButtonClicked ?
