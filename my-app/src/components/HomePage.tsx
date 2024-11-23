@@ -147,19 +147,15 @@ function HomePage() {
 													setListButtonClicked(false);
 												}
 												else {
-													if (setPopupTitle != undefined) {
-														const newTitle = room;
-														setPopupTitle(newTitle);
-													}
-													if (setPopupChild != undefined && title === "MY ROOMLIST" && childForMyRooms != undefined) {
+													const newTitle = room;
+													setPopupTitle(newTitle);
+													if (title === "MY ROOMLIST") {
 														socket?.emit("getWaitingList", { uuid: uuid, roomId: room });
-														setPopupChild(childForMyRooms(room, waitingList, setListButtonClickedSpec));
-														return;
 													}
-													else if (setPopupChild != undefined && title === "OTHERS ROOMLIST") {
+													else if (title === "OTHERS ROOMLIST") {
 														setPopupChild(childForOtherRooms(room, setListButtonClickedSpec));
+														togglePopup();
 													}
-													togglePopup();
 												}
 											}}
 										>
