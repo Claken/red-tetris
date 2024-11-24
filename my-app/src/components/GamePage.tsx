@@ -55,6 +55,13 @@ function GamePage() {
 		navigate("/");
 	}
 
+	const notRetryingGame = () => {
+		if (multiGame) {
+			socket?.emit("notRetryGame", { uuid: uuid, roomId: roomId });
+		}
+		goBackToHome();
+	}
+
 	const retryGame = () => {
 		setPartyDone(false);
 		if (multiGame) {
@@ -130,10 +137,12 @@ function GamePage() {
 
 		const idx = 6;
 		const rightOrLeft = (index: any): boolean => {
+			console.log("index == " + index);
 			if (left) {
 				return index < idx;
 			}
-			return index >= idx;
+			// return index >= idx;
+			return true;
 		}
 
 		return (
@@ -204,7 +213,6 @@ function GamePage() {
 				// if (multiGame === true) {
 				const caca = data.listSpectrum;
 				setSpecList(caca);
-
 				console.log(caca);
 				console.log(specList);
 				// }
@@ -290,11 +298,12 @@ function GamePage() {
 											<h1 className="text-white text-5xl font-bold">
 												{winner ? "YOU WON" : "GAME OVER"}
 											</h1>
-											<div className="text-center">
-												<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={goBackToHome}>Menu</button>
-											</div>
-											<div className="text-center">
-												<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={retryGame}>Retry</button>
+											<h1 className="text-white text-3xl font-bold text-center">
+												{" " + "Retry ?"}
+											</h1>
+											<div className="flex flex-row justify-center items-center space-x-5">
+												<button className="bg-green-500 hover:bg-green-700 active:bg-green-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={retryGame}>YES</button>
+												<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={notRetryingGame}>NO</button>
 											</div>
 										</div>
 									</div>

@@ -31,7 +31,7 @@ function HomePage() {
 	const [popupChild, setPopupChild] = useState<ReactNode>(<div></div>);
 	const titleRoomCreated = "CONGRATS !";
 	const notEnoughPerson = Toastify({
-		text: "You need at least one more player to start a game !",
+		text: "Not enough players to launch a game !",
 		duration: 3000,
 		close: true,
 	});
