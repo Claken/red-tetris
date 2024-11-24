@@ -280,7 +280,7 @@ function HomePage() {
 			console.log("list_players_room = " + data.players);
 			const newWaitingList = data.players;
 			setWaitingList(newWaitingList);
-			setPopupChild(childForMyRooms(roomId, data.players, setListButtonClickedRooms));
+			setPopupChild(childForMyRooms(data.roomId, data.players, setListButtonClickedRooms));
 			togglePopup();
 		});
 		return () => {
