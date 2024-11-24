@@ -39,7 +39,7 @@ export class SocketGateway implements OnGatewayConnection {
       const name = game
         ?.get_waitingPlayers()
         .map((elem) => elem.getPlayerName());
-      socket.emit('list_players_room', { players: name });
+      socket.emit('list_players_room', { roomId: data.roomId, players: name });
     });
 
     socket.on('notRetryGame', (data) => {
