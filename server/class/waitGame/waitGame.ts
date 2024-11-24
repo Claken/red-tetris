@@ -296,7 +296,7 @@ export class WaitGame {
     if (game === undefined) return;
     // game.setIsStarted(true);
     if (game.get_waitingPlayers().length <= 1) {
-      this._server.emit('not_enough_person', {
+      this._server.to(socketId).emit('not_enough_person', {
         message: 'Not enough person to start the game',
       });
       return;
