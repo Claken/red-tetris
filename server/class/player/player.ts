@@ -31,67 +31,73 @@ export class Player {
     this._token = 0;
   }
 
-  testgrid(num1: number): void {
-    if (num1 == 1) {
-      for (let y = 0; y < this._grid.length; y++) {
-        for (let x = 0; x < this._grid[y].length; x++) {
-          if (y == 23) this._grid[y][x] = B;
-        }
-      }
-    } else if (num1 == 2) {
-      for (let y = 0; y < this._grid.length; y++) {
-        for (let x = 0; x < this._grid[y].length; x++) {
-          if (y == 23) this._grid[y][x] = B;
-          if (y == 22 && x % 2 == 0) this._grid[y][x] = B;
-        }
-      }
-    }
-  }
+  // testgrid(num1: number): void {
+  //   if (num1 == 1) {
+  //     for (let y = 0; y < this._grid.length; y++) {
+  //       for (let x = 0; x < this._grid[y].length; x++) {
+  //         if (y == 23) this._grid[y][x] = B;
+  //       }
+  //     }
+  //   } else if (num1 == 2) {
+  //     for (let y = 0; y < this._grid.length; y++) {
+  //       for (let x = 0; x < this._grid[y].length; x++) {
+  //         if (y == 23) this._grid[y][x] = B;
+  //         if (y == 22 && x % 2 == 0) this._grid[y][x] = B;
+  //       }
+  //     }
+  //   }
+  // }
 
   getToken(): number {
     return this._token;
   }
+  // test fait
 
   getPlayerName(): string {
     return this._player_name;
   }
-
+  // test fait
   getUuid(): string {
     return this._uuid;
   }
+  // test fait
   getGrid(): number[][] {
     return this._grid;
   }
+  // test fait
   getSpectrum(): number[][] {
     return this._spectrum;
   }
-
+  // test fait
   getTetrominos(): Tetromino[] {
     return this._tetrominos;
   }
-
+  // test fait
   getIsMaster(): boolean {
     return this._isMaster;
   }
-
+  // test fait
   setIsMaster(right: boolean): void {
     this._isMaster = right;
   }
-
+  // test fait
   addTeromino(tetromino: Tetromino): void {
     this._tetrominos.push(tetromino);
   }
-
+  // test fait
   setGridToZero(): void {
     this._grid = new Array(24).fill(null).map(() => new Array(10).fill(E));
   }
+  // test fait
   setTetrominosToZero(): void {
     this._tetrominos = [];
   }
+  // test fait
 
   setToken(num: number): void {
     this._token = num;
   }
+  // test fait
 
   // print2DArray = (arr: any) => {
   //   console.log('[');
@@ -118,6 +124,7 @@ export class Player {
       this.moveDownTetromino();
     }
   }
+  //test fait
 
   action(action: string) {
     if (action == 'left') {
