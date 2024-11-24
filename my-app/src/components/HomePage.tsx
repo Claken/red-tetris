@@ -30,6 +30,11 @@ function HomePage() {
 	const [popupTitle, setPopupTitle] = useState<string>("");
 	const [popupChild, setPopupChild] = useState<ReactNode>(<div></div>);
 	const titleRoomCreated = "CONGRATS !";
+	const notEnoughPerson = Toastify({
+		text: "You need at least one more player to start a game !",
+		duration: 3000,
+		close: true,
+	});
 
 	if (!socketContext) {
 		throw new Error('ConnectPage must be used within a SocketProvider');
@@ -294,11 +299,7 @@ function HomePage() {
 	useEffect(() => {
 		socket?.on("not_enough_person", (data) => {
 			console.log(data.message);
-			Toastify({
-				text: data.message,
-				duration: 3000,
-				close: true,
-			}).showToast();
+			notEnoughPerson.showToast();
 		});
 		return () => {
 			socket?.off("not_enough_person");
