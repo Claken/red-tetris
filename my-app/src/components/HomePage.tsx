@@ -251,7 +251,7 @@ function HomePage() {
 				console.log(`uuid or name is undefined ${uuid} ${name}`);
 			}
 		}
-	}, []);
+	}, [uuid]);
 
 	useEffect(() => {
 		if (uuid && socket) {
