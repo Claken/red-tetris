@@ -61,6 +61,10 @@ function HomePage() {
 	const childForMyRooms = (room: string, waitList: string[], setListButtonClickedSpec: React.Dispatch<React.SetStateAction<boolean>>): ReactNode => {
 
 		const startMultiGame = (room: string) => {
+			console.log("startMultiGame");
+			console.log(room);
+			console.log(name);
+			console.log(uuid);
 			socket?.emit("startMultiGame", { name: name, uuid: uuid, roomId: room });
 			const goToRoute = room + '/' + name;
 			if (waitList.length > 1) {

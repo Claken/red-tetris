@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useSocket } from "../contexts/socketContext";
 import { useNavigate, useParams } from "react-router-dom";
 import React from "react";
+import Toastify from 'toastify-js'
+import "toastify-js/src/toastify.css"
 
 function GamePage() {
 
@@ -30,6 +32,12 @@ function GamePage() {
 	const [grid, setGrid] = useState<number[][]>(emptyGrid);
 	const [tetrominos, setTetro] = useState();
 	const [specList, setSpecList] = useState();
+
+	const CannotRestart = Toastify({
+		text: "Cannot restart the game : not enough players",
+		duration: 3000,
+		close: true,
+	});
 
 	const handleKeydown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 		if (e.key === "ArrowRight") {
@@ -63,13 +71,13 @@ function GamePage() {
 	}
 
 	const retryGame = () => {
-		setPartyDone(false);
 		if (multiGame) {
 			socket?.emit("retryGame", { uuid: uuid, roomId: roomId });
 		}
 		else {
 			socket?.emit("startSingleTetrisGame", { name: name, uuid: uuid });
 		}
+		setPartyDone(false);
 		setWaiting(true);
 	}
 
@@ -234,6 +242,16 @@ function GamePage() {
 		return () => {
 			socket?.off("endGame");
 		}
+	}, [socket]);
+
+	useEffect(() => {
+		socket?.on("not_enough_person", () => {
+			CannotRestart.showToast();
+			goBackToHome();
+		});
+		return () => {
+			socket?.off("not_enough_person");
+		};
 	}, [socket]);
 
 	return (
