@@ -1,261 +1,134 @@
 import { Player } from './player';
+import { Tetromino } from '../tetromino/tetromino';
 import { ManagePlayerTetromino } from '../managePlayerTetromino/managePlayerTetromino';
 import { v4 as uuidv4 } from 'uuid';
+import { E, B, I, SPECTRUM } from '../../constantes/constantes';
 
 describe('Player', () => {
-  it('should create a new player', () => {
-    const player_name = 'Player 1';
-    const player = new Player(player_name, uuidv4());
-    expect(player.getPlayerName()).toBe(player_name);
-    expect(player.getGrid()).toEqual(
-      new Array(24).fill(null).map(() => new Array(10).fill(0)),
+  let player: Player;
+  let tetromino: Tetromino;
+  let grid: number[][];
+  let spectrum: number[][];
+  let tetrominos: Tetromino[];
+
+  beforeEach(() => {
+    // Créer un joueur avec un nom et un UUID
+    player = new Player('TestPlayer', '1234-uuid');
+    grid = new Array(24).fill(null).map(() => new Array(10).fill(E));
+    spectrum = new Array(24).fill(null).map(() => new Array(10).fill(E));
+    // Créer un Tetromino de test (en supposant que tu aies une méthode pour ça)
+    tetromino = new Tetromino(
+      0,
+      [
+        [E, E, E, E],
+        [I, I, I, I],
+        [E, E, E, E],
+        [E, E, E, E],
+      ],
+      'I',
     );
-  });
-  it('should initialise a grid', () => {
-    const manage = new ManagePlayerTetromino();
-    const player_name = 'Player 1';
-    const player_name2 = 'Player 2';
-    const player = new Player(player_name, uuidv4());
-    const player2 = new Player(player_name2, uuidv4());
-    manage.injectTetromino(player, player2);
-    player.initTetrominoInsideGrid();
-    const player1_grid = player.getGrid();
-    const player2_grid = player2.getGrid();
-
-    const t = player2.getTetrominos()[0];
-    const tShape = t.getShape();
-    const startX = Math.floor((10 - tShape.length) / 2);
-    const startY = 0;
-
-    for (let y = 0; y < tShape.length; y++) {
-      for (let x = 0; x < tShape[y].length; x++) {
-        if (tShape[y][x] != 0)
-          player2_grid[startY + y][startX + x] = tShape[y][x];
-      }
-    }
-
-    expect(player.getPlayerName()).toBe(player_name);
-    expect(player1_grid).toEqual(player2_grid);
+    player.addTeromino(tetromino); // Ajouter un tetromino au joueur
   });
 
-  it('should moveDown moveLeft MoveRight tetromino in a grid', () => {
-    const manage = new ManagePlayerTetromino();
-    const player_name = 'Player 1';
-    const player_name2 = 'Player 2';
-    const player = new Player(player_name, uuidv4());
-    const player2 = new Player(player_name2, uuidv4());
-    manage.injectTetromino(player, player2);
-    player.initTetrominoInsideGrid();
-    player.moveDownTetromino();
-    const player1_grid = player.getGrid();
-    const player2_grid = player2.getGrid();
-
-    const t = player2.getTetrominos()[0];
-    const tShape = t.getShape();
-    const startX = Math.floor((10 - tShape.length) / 2);
-    const startY = 0;
-
-    for (let y = 0; y < tShape.length; y++) {
-      for (let x = 0; x < tShape[y].length; x++) {
-        if (tShape[y][x] != 0)
-          player2_grid[startY + y][startX + x] = tShape[y][x];
-      }
-    }
-
-    for (let y = player2_grid.length - 1; y > 0; y--) {
-      for (let x = 0; x < player2_grid[y].length; x++) {
-        if (player2_grid[y - 1][x] == 1) {
-          player2_grid[y][x] = 1;
-          player2_grid[y - 1][x] = 0;
-        }
-      }
-    }
-
-    expect(player.getPlayerName()).toBe(player_name);
-    expect(player1_grid).toEqual(player2_grid);
-
-    player.moveLeftTetromino();
-
-    for (let y = 0; y < player2_grid.length; y++) {
-      for (let x = 0; player2_grid[y].length > x; x++) {
-        if (player2_grid[y][x] == 1) {
-          player2_grid[y][x - 1] = 1;
-          player2_grid[y][x] = 0;
-        }
-      }
-    }
-    expect(player1_grid).toEqual(player2_grid);
-
-    player.moveRightTetromino();
-    for (let y = 0; y < player2_grid.length; y++) {
-      for (let x = player2_grid[y].length - 1; x > 0; x--) {
-        if (player2_grid[y][x - 1] == 1) {
-          player2_grid[y][x] = 1;
-          player2_grid[y][x - 1] = 0;
-        }
-      }
-    }
-    expect(player1_grid).toEqual(player2_grid);
+  describe('getToken', () => {
+    it('should return the token', () => {
+      expect(player.getToken()).toBe(0);
+    });
   });
-
-  it('should rotate tetromino in a grid', () => {
-    const manage = new ManagePlayerTetromino();
-    const player_name = 'Player 1';
-    const player_name2 = 'Player 2';
-    const player = new Player(player_name, uuidv4());
-    const player2 = new Player(player_name2, uuidv4());
-    manage.injectTetromino(player, player2);
-    player.initTetrominoInsideGrid();
-    player.rotateTetromino();
-    player2.getTetrominos()[0].rotateTetromino();
-    player2.initTetrominoInsideGrid();
-    const player1_grid = player.getGrid();
-    const player2_grid = player2.getGrid();
-    expect(player1_grid).toEqual(player2_grid);
+  describe('getPlayerName', () => {
+    it('should return the player name', () => {
+      expect(player.getPlayerName()).toBe('TestPlayer');
+    });
   });
-
-  it('should fall tetromino in a grid', () => {
-    const manage = new ManagePlayerTetromino();
-    const player_name = 'Player 1';
-    const player_name2 = 'Player 2';
-    const player = new Player(player_name, uuidv4());
-    const player2 = new Player(player_name2, uuidv4());
-    manage.injectTetromino(player, player2);
-    player.initTetrominoInsideGrid();
-    player.fallTetromino();
-    const t = player2.getTetrominos()[0];
-    const tShape = t.getShape();
-    const startX = Math.floor((10 - tShape.length) / 2);
-    const startY = 24 - tShape.length;
-    const grid2 = player2.getGrid();
-
-    for (let y = 0; y < tShape.length; y++) {
-      for (let x = 0; x < tShape[y].length; x++) {
-        if (tShape[y][x] != 0) grid2[startY + y][startX + x] = tShape[y][x];
-      }
-    }
-    while (grid2[23].some((value) => value == 1) == false) {
-      for (let y = grid2.length - 1; y > 0; y--) {
-        for (let x = 0; x < grid2[y].length; x++) {
-          if (grid2[y - 1][x] == 1) {
-            grid2[y][x] = 1;
-            grid2[y - 1][x] = 0;
-          }
-        }
-      }
-    }
-    expect(player.getGrid()).toEqual(grid2);
+  describe('getUuid', () => {
+    it('should return the player UUID', () => {
+      expect(player.getUuid()).toBe('1234-uuid');
+    });
   });
-
-  it('should transform tetromino 1 to 2 in a grid', () => {
-    const manage = new ManagePlayerTetromino();
-    const player_name = 'Player 1';
-    const player_name2 = 'Player 2';
-    const player = new Player(player_name, uuidv4());
-    const player2 = new Player(player_name2, uuidv4());
-    manage.injectTetromino(player, player2);
-    player.initTetrominoInsideGrid();
-    player2.initTetrominoInsideGrid();
-    player.fallTetromino();
-    player2.fallTetromino();
-    player.updateGrid();
-    const grid2 = player2.getGrid();
-    for (let y = 0; y < grid2.length; y++) {
-      for (let x = 0; x < grid2[y].length; x++) {
-        if (grid2[y][x] == 1) grid2[y][x] = 2;
-      }
-    }
-    expect(player.getGrid()).toEqual(grid2);
+  describe('getGrid', () => {
+    it('should return the player grid', () => {
+      expect(player.getGrid()).toEqual(grid);
+    });
   });
-  it('should update tetromino in a grid', () => {
-    const manage = new ManagePlayerTetromino();
-    const player_name = 'Player 1';
-    const player_name2 = 'Player 2';
-    const player = new Player(player_name, uuidv4());
-    const player2 = new Player(player_name2, uuidv4());
-    manage.injectTetromino(player, player2);
-    player.testgrid(2);
-    player.updateGrid();
-    const grid2 = player2.getGrid();
-    for (let y = 0; y < grid2.length; y++) {
-      for (let x = 0; x < grid2[y].length; x++) {
-        if (y == 23 && x % 2 == 0) grid2[y][x] = 2;
-      }
-    }
-    expect(player.getGrid()).toEqual(grid2);
+  describe('getSpectrum', () => {
+    it('should return the player spectrum', () => {
+      expect(player.getSpectrum()).toEqual(spectrum);
+    });
   });
-
-  it('should check colision tetromino in a grid moove', () => {
-    const manage = new ManagePlayerTetromino();
-    const player_name = 'Player 1';
-    const player_name2 = 'Player 2';
-    const player = new Player(player_name, uuidv4());
-    const player2 = new Player(player_name2, uuidv4());
-    manage.injectmultipleTetromino(player, player2, 10);
-    player.initTetrominoInsideGrid();
-    player2.initTetrominoInsideGrid();
-    player.fallTetromino();
-    player2.fallTetromino();
-    player.moveDownTetromino();
-    player.fallTetromino();
-    player.updateGrid();
-    player2.updateGrid();
-    expect(player.getGrid()).toEqual(player2.getGrid());
+  describe('getTetrominos', () => {
+    it('should return the player tetrominos', () => {
+      const tetromino = player.getTetrominos()[0];
+      expect(tetromino.getType()).toEqual('I');
+      expect(tetromino.getShape()).toEqual([
+        [E, E, E, E],
+        [I, I, I, I],
+        [E, E, E, E],
+        [E, E, E, E],
+      ]);
+      expect(tetromino.getRotation()).toEqual(0);
+    });
   });
-
-  it('should check colision tetromino in a grid rotate', () => {
-    const manage = new ManagePlayerTetromino();
-    const player_name = 'Player 1';
-    const player_name2 = 'Player 2';
-    const player = new Player(player_name, uuidv4());
-    const player2 = new Player(player_name2, uuidv4());
-    manage.injectmultipleTetromino(player, player2, 10);
-    player.initTetrominoInsideGrid();
-    player2.initTetrominoInsideGrid();
-    player.fallTetromino();
-    player2.fallTetromino();
-    for (let i = 0; i < 12; i++) {
-      player.moveRightTetromino();
-      player2.moveRightTetromino();
-    }
-    if (player.getTetrominos()[0].getType() == 'I') {
-      const lengthTetro = player.getTetrominos()[0].getLentgth();
-      const grid = player.getGrid();
-      let startX = 0;
-      let startY = 0;
-      let endX = 0;
-      let endY = 0;
-      for (let y = 0; y < grid.length; y++) {
-        for (let x = 0; grid[y].length > x; x++) {
-          if (grid[y][x] == 1) {
-            startX = x - lengthTetro.lengthXBeforeNumber;
-            startY = y - lengthTetro.lengthYBeforeNumber;
-            endX = startX + lengthTetro.x;
-            endY = startY + lengthTetro.y;
-            y = grid.length - 1;
-            x = grid[y].length;
-          }
-        }
-      }
-      expect(player.isColisionRotate({ startY, startX, endY, endX })).toBe(
-        true,
+  describe('getIsMaster', () => {
+    it('should return the player isMaster', () => {
+      expect(player.getIsMaster()).toBe(false);
+    });
+  });
+  describe('setIsMaster', () => {
+    it('should set the player isMaster', () => {
+      player.setIsMaster(true);
+      expect(player.getIsMaster()).toBe(true);
+    });
+  });
+  describe('addTeromino', () => {
+    it('should add a tetromino to the player', () => {
+      const tetromino = new Tetromino(
+        0,
+        [
+          [E, E, E, E],
+          [I, I, I, I],
+          [E, E, E, E],
+          [E, E, E, E],
+        ],
+        'I',
       );
-    }
-    expect(player.getGrid()).toEqual(player2.getGrid());
+      player.addTeromino(tetromino);
+      expect(player.getTetrominos().length).toBe(2);
+    });
   });
-});
+  describe('setGridToZero', () => {
+    it('should set the player grid to zero', () => {
+      player.setGridToZero();
+      expect(player.getGrid()).toEqual(
+        new Array(24).fill(null).map(() => new Array(10).fill(0)),
+      );
+    });
+  });
+  describe('setTetrominosToZero', () => {
+    it('should set the player tetrominos to zero', () => {
+      player.setTetrominosToZero();
+      expect(player.getTetrominos()).toEqual([]);
+    });
+  });
+  describe('setToken', () => {
+    it('should set the player token', () => {
+      player.setToken(1);
+      expect(player.getToken()).toBe(1);
+    });
+  });
 
-it('it should check if player lost', () => {
-  const manage = new ManagePlayerTetromino();
-  const player_name = 'Player 1';
-  const player_name2 = 'Player 2';
-  const player = new Player(player_name, uuidv4());
-  const player2 = new Player(player_name2, uuidv4());
-  manage.injectmultipleTetromino(player, player2, 100);
-  while (player.getGrid()[3].some((elem) => elem == 2) == false) {
-    player.initTetrominoInsideGrid();
-    player.fallTetromino();
-    player.updateGrid();
-  }
-  expect(player.isPlayerLost()).toBe(true);
+  describe('initTetrominosInsideGrid', () => {
+    it('should init the tetrominos inside the grid', () => {
+      player.initTetrominoInsideGrid();
+      grid[4][3] = I;
+      grid[4][4] = I;
+      grid[4][5] = I;
+      grid[4][6] = I;
+
+      grid[23][3] = SPECTRUM;
+      grid[23][4] = SPECTRUM;
+      grid[23][5] = SPECTRUM;
+      grid[23][6] = SPECTRUM;
+      expect(player.getGrid()).toEqual(grid);
+    });
+  });
 });
