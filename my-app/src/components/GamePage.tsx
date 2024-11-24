@@ -62,8 +62,8 @@ function GamePage() {
 		}
 		else {
 			socket?.emit("startSingleTetrisGame", { name: name, uuid: uuid });
-			setWaiting(true);
 		}
+		setWaiting(true);
 	}
 
 	const cellColorMainGrid = (cell: number) => {

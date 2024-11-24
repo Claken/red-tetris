@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { io } from 'socket.io-client'
 import Popup from "./popupWindow";
+import Toastify from 'toastify-js'
+import "toastify-js/src/toastify.css"
 
 function HomePage() {
 
@@ -52,14 +54,15 @@ function HomePage() {
 	}
 
 	const childForMyRooms = (room: string, waitList: string[], setListButtonClickedSpec: React.Dispatch<React.SetStateAction<boolean>>): ReactNode => {
-	
+
 		const startMultiGame = (room: string) => {
 			socket?.emit("startMultiGame", { name: name, uuid: uuid, roomId: room });
-			console.log(room);
 			const goToRoute = room + '/' + name;
-			navigate(goToRoute);
-			setListButtonClickedSpec(false);
-			setListButtonClicked(false);
+			if (waitList.length > 1) {
+				navigate(goToRoute);
+				setListButtonClickedSpec(false);
+				setListButtonClicked(false);
+			}
 		};
 
 		return (
@@ -88,7 +91,7 @@ function HomePage() {
 	}
 
 	const childForOtherRooms = (room: string, setListButtonClickedSpec: React.Dispatch<React.SetStateAction<boolean>>): ReactNode => {
-	
+
 		const joinGame = (room: string) => {
 			socket?.emit("joinGame", { name: name, uuid: uuid, roomId: room });
 			setListButtonClickedSpec(false);
@@ -117,7 +120,7 @@ function HomePage() {
 		title: string,
 	}
 	) => {
-	
+
 		if (uuid && name) {
 			return (
 				<div className="flex flex-col items-center justify-center h-screen">
@@ -285,6 +288,20 @@ function HomePage() {
 		});
 		return () => {
 			socket?.off("list_players_room");
+		};
+	}, [socket]);
+
+	useEffect(() => {
+		socket?.on("not_enough_person", (data) => {
+			console.log(data.message);
+			Toastify({
+				text: data.message,
+				duration: 3000,
+				close: true,
+			}).showToast();
+		});
+		return () => {
+			socket?.off("not_enough_person");
 		};
 	}, [socket]);
 
