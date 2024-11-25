@@ -149,8 +149,7 @@ function GamePage() {
 			if (left) {
 				return index < idx;
 			}
-			// return index >= idx;
-			return true;
+			return index >= idx;
 		}
 
 		return (
