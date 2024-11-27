@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import React from "react";
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
+import { io } from "socket.io-client";
 
 function GamePage() {
 
@@ -13,7 +14,8 @@ function GamePage() {
 		throw new Error('ConnectPage must be used within a SocketProvider');
 	}
 
-	const { socket } = socketContext;
+	const { socket, setSocket } = socketContext;
+
 	const uuid = sessionStorage.getItem("uuid");
 	const name = sessionStorage.getItem("name");
 	const [partyDone, setPartyDone] = useState<boolean>(false);
@@ -252,6 +254,18 @@ function GamePage() {
 			socket?.off("not_enough_person");
 		};
 	}, [socket]);
+
+	useEffect(() => {
+		if (socket === undefined) {
+			console.log("socket is undefined");
+			setSocket(
+				io("http://localhost:3000", {
+					query: { name: name, uuid: uuid },
+				})
+			);
+			console.log(socket);
+		}
+	}, []);
 
 	return (
 		<div className="bg-[#1a1b26] h-screen">
