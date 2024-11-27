@@ -396,6 +396,9 @@ export class Game {
       });
       return;
     }
+    if (socketId.length === 0) {
+      return;
+    }
     this._server.to(socketId).emit('myGame', {
       listSpectrum: listSpectrum,
       player: {
