@@ -350,6 +350,7 @@ function App() {
     // socket?.on("waitToPlay", (data) => {
     //   setRoomId(data.roomId);
     //   console.log(data);
+    // add comment
     // });
 
     socket?.on("new-person", (data) => {
