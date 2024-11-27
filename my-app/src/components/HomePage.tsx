@@ -190,6 +190,7 @@ function HomePage() {
 	const displayAList = () => {
 		if (listButtonClickedActive) {
 			socket?.emit("getActiveRooms", { uuid: uuid });
+			console.log("getActiveRooms 2");
 			return theRoomList(
 				{
 					listRooms: listRoomsAc,
@@ -251,6 +252,7 @@ function HomePage() {
 
 	useEffect(() => {
 		if (uuid && socket) {
+			console.log("getActiveRooms");
 			socket.emit("getActiveRooms", { uuid: uuid });
 			socket.emit("getCreateRooms", { uuid: uuid });
 			socket.emit("getOtherRooms", { uuid: uuid });
@@ -343,7 +345,8 @@ function HomePage() {
 										</div>
 									</button>
 									<button className="bg-[#6d6d6d] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-200" onClick={
-										() => {
+										(e: React.MouseEvent<HTMLButtonElement>) => {
+											e.preventDefault();
 											setListButtonClickedRooms(true);
 											setListButtonClicked(true);
 										}
@@ -355,7 +358,8 @@ function HomePage() {
 										</div>
 									</button>
 									<button className="bg-[#7851a9] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-200" onClick={
-										() => {
+										(e: React.MouseEvent<HTMLButtonElement>) => {
+											e.preventDefault();
 											setListButtonClickedOthers(true);
 											setListButtonClicked(true)
 										}
@@ -368,7 +372,8 @@ function HomePage() {
 										</div>
 									</button>
 									<button className="bg-[#3a7a45] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-200" onClick={
-										() => {
+										(e: React.MouseEvent<HTMLButtonElement>) => {
+											e.preventDefault();
 											setListButtonClickedActive(true);
 											setListButtonClicked(true);
 										}
