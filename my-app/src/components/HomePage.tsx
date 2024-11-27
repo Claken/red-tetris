@@ -251,13 +251,14 @@ function HomePage() {
 	}, [uuid]);
 
 	useEffect(() => {
+		console.log("useEffect get rooms");
 		if (uuid && socket) {
-			console.log("getActiveRooms");
 			socket.emit("getActiveRooms", { uuid: uuid });
 			socket.emit("getCreateRooms", { uuid: uuid });
 			socket.emit("getOtherRooms", { uuid: uuid });
 		}
 		socket?.on("getActiveRooms", (data) => {
+			console.log("getActiveRooms 3");
 			setListRoomsAc(data.activeRooms);
 		});
 		socket?.on("getCreateRooms", (data) => {
@@ -266,6 +267,11 @@ function HomePage() {
 		socket?.on("getOtherRooms", (data) => {
 			setListOtherRooms(data.otherRooms);
 		});
+		return () => {
+			socket?.off("getActiveRooms");
+			socket?.off("getCreateRooms");
+			socket?.off("getOtherRooms");
+		}
 	}, [socket]);
 
 	useEffect(() => {
@@ -374,6 +380,7 @@ function HomePage() {
 									<button className="bg-[#3a7a45] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-200" onClick={
 										(e: React.MouseEvent<HTMLButtonElement>) => {
 											e.preventDefault();
+											console.log("getActiveRooms ----");
 											setListButtonClickedActive(true);
 											setListButtonClicked(true);
 										}
