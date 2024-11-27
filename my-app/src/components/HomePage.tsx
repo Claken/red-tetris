@@ -145,7 +145,7 @@ function HomePage() {
 												e.preventDefault();
 												setRoomId((prev) => {
 													const newRoom = room;
-													// console.log(prev);
+													console.log(prev);
 													return newRoom
 												});
 												if (title === "ACTIVE ROOMLIST") {
