@@ -260,14 +260,13 @@ function GamePage() {
 			console.log("socket is undefined");
 			console.log(name);
 			console.log(uuid);
-			setSocket(
-				io("http://localhost:3000", {
-					query: { name: name, uuid: uuid },
-				})
-			);
+			const newSocket = io("http://localhost:3000", {
+				query: { name: name, uuid: uuid },
+			});
+			setSocket(newSocket);
 			console.log(socket);
 		}
-	}, []);
+	}, [socket]);
 
 	return (
 		<div className="bg-[#1a1b26] h-screen">

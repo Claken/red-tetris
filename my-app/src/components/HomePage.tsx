@@ -244,13 +244,14 @@ function HomePage() {
 		if (uuid && name) {
 			setUuid(uuid);
 			setName(name);
-			if (uuid && name) {
+			if (socket === undefined && uuid && name) {
+				console.log("useEffect setSocket");
 				setSocket(
 					io("http://localhost:3000", {
 						query: { name: name, uuid: uuid },
 					})
 				);
-			} else {
+			} else if (uuid === undefined || name === undefined) {
 				console.log(`uuid or name is undefined ${uuid} ${name}`);
 			}
 		}
@@ -323,7 +324,7 @@ function HomePage() {
 	return (
 		sessionStorage.getItem("name") ?
 			<div className="bg-black h-screen">
-				<header className="bg-[#ff0000] flex justify-between items-center p-4 border-b-2 border-white">
+				<header className="justify-between absolute bg-[#ff0000] flex flex-row w-screen p-4 border-b-2 border-white">
 					<h2 className="text-white text-xl font-bold">
 						{name}
 					</h2>
