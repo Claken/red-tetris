@@ -258,11 +258,13 @@ export class SocketGateway implements OnGatewayConnection {
       return;
     }
     this.manageSocket.add(socket, name, uuid);
+    if (uuid !== undefined || typeof uuid == 'string') {
+      this.waitGame.addSocket(uuid, socket.id);
+    }
     this.listenToEmmitter(socket);
   }
 
   handleDisconnect(socket: Socket): void {
-    // console.log('Client disconnected');
     this.waitGame.deleteSocket(socket.id);
     this.manageSocket.deleteSocket(socket);
   }
