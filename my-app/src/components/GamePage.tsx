@@ -266,6 +266,15 @@ function GamePage() {
 		socket?.emit("checkGame", { uuid: uuid, roomId: roomId });
 	}, [socket]);
 
+	useEffect(() => {
+		socket?.on("noGame", () => {
+			goBackToHome();
+		});
+		return () => {
+			socket?.off("noGame");
+		};
+	}, [socket]);
+
 	return (
 		<div className="bg-[#1a1b26] h-screen">
 			{isWaiting ? WaitingLogo() :
