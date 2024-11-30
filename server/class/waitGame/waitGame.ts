@@ -28,6 +28,28 @@ export class WaitGame {
   public getUUIDMapings(): Map<string, ClientInfo> {
     return this.UUIDMapings;
   }
+
+  public addSocket(uuid: string, socketId: string): void {
+    if (!this.UUIDMapings.has(uuid)) {
+      this.UUIDMapings.set(uuid, {
+        socketsId: [],
+        ownedRoomsId: [],
+        otherRoomsId: [],
+        name: '',
+      });
+    }
+    const infos: ClientInfo = this.UUIDMapings.get(uuid) as ClientInfo;
+    if (!infos.socketsId.includes(socketId)) {
+      infos.socketsId.push(socketId);
+      for (let i = 0; i < infos.ownedRoomsId.length; i++) {
+        this._server.sockets.sockets.get(socketId)?.join(infos.ownedRoomsId[i]);
+      }
+      for (let i = 0; i < infos.otherRoomsId.length; i++) {
+        this._server.sockets.sockets.get(socketId)?.join(infos.otherRoomsId[i]);
+      }
+    }
+  }
+
   public deleteSocket(socketId: string): void {
     this.UUIDMapings.forEach((value) => {
       const index = value.socketsId.indexOf(socketId);
@@ -178,6 +200,7 @@ export class WaitGame {
     let gameIsOver = false;
     const intervalId = setInterval(() => {
       const socketsId = this.UUIDMapings.get(uuid)?.socketsId as string[];
+
       game.gamePlay(player, touch, socketsId);
       if (gameIsOver == false) gameIsOver = game.endGame(this.UUIDMapings);
       if (gameIsOver) {
