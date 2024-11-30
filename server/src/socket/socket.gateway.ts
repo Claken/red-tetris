@@ -30,6 +30,34 @@ export class SocketGateway implements OnGatewayConnection {
   }
 
   private listenToEmmitter(socket: Socket) {
+    socket.on('checkGame', (data) => {
+      console.log('je passe');
+      const infos = this.manageSocket.getInfos(data.uuid);
+      if (infos == undefined) {
+        return;
+      }
+      const game: Game | undefined = this.waitGame.getGames().get(data.roomId);
+      if (game == undefined) {
+        socket.emit('noGame');
+        return;
+      }
+      if (game.getType() === SINGLE) {
+        console.log('single');
+        const player = game.getPlayers()[0];
+        socket.emit('myGame', {
+          player: {
+            grid: player.getGrid(),
+            name: player.getPlayerName(),
+            uuid: player.getUuid(),
+            roomId: data.roomId,
+            tetrominos: player.getTetrominos().slice(1, 6),
+            type: game.getType(),
+          },
+        });
+        return;
+      }
+    });
+
     socket.on('getWaitingList', (data) => {
       const infos = this.manageSocket.getInfos(data.uuid);
       if (infos == undefined) {
