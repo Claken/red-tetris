@@ -258,6 +258,8 @@ function GamePage() {
 	useEffect(() => {
 		if (socket === undefined) {
 			console.log("socket is undefined");
+			console.log(name);
+			console.log(uuid);
 			setSocket(
 				io("http://localhost:3000", {
 					query: { name: name, uuid: uuid },

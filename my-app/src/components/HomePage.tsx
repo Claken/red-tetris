@@ -46,6 +46,12 @@ function HomePage() {
 		setShowPopup(!showPopup);
 	};
 
+	const handleLogout = () => {
+		sessionStorage.clear();
+		setUuid(undefined);
+		setName("");
+	};
+
 	const handleJoinSolo = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
 		socket?.emit("startSingleTetrisGame", { name: name, uuid: uuid });
@@ -317,6 +323,17 @@ function HomePage() {
 	return (
 		sessionStorage.getItem("name") ?
 			<div className="bg-black h-screen">
+				<header className="bg-[#ff0000] flex justify-between items-center p-4 border-b-2 border-white">
+					<h2 className="text-white text-xl font-bold">
+						{name}
+					</h2>
+					<button
+						className="bg-[#7851a9] hover:bg-[#6d6d6d] active:bg-[#433a3f] text-white font-bold py-2 px-4 rounded-full transition-all duration-200"
+						onClick={handleLogout}
+					>
+						Disconnect
+					</button>
+				</header>
 				{Popup(
 					{
 						show: showPopup,
