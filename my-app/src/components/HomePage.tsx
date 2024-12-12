@@ -320,7 +320,7 @@ function HomePage() {
 		return () => {
 			socket?.off("list_players_room");
 		};
-	}, [socket]);
+	}, [socket, waitingList, setWaitingList, setPopupChild, setListButtonClickedRooms,childForMyRooms, togglePopup]);
 
 	useEffect(() => {
 		socket?.on("not_enough_person", (data) => {
