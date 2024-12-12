@@ -14,7 +14,8 @@ function HomePage() {
 	const navigate = useNavigate();
 	const socketContext = useSocket();
 	const [name, setName] = useState<string>("");
-	const [uuid, setUuid] = useState<string | undefined>(undefined);
+	const [uuid, setUuid] = useState<string | undefined>(sessionStorage.getItem("uuid") == null ? undefined : sessionStorage.getItem("uuid")?.toString());
+	console.log("HomePage", { uuid: uuid, name: name });
 	const [roomId, setRoomId] = useState<string>("");
 	const [listRoomsAc, setListRoomsAc] = useState([]);
 	const [listRoomsCreate, setListRoomsCreate] = useState([]);
@@ -46,6 +47,12 @@ function HomePage() {
 		setShowPopup(!showPopup);
 	};
 
+	// const handleLogout = () => {
+	// 	sessionStorage.clear();
+	// 	setUuid(undefined);
+	// 	setName("");
+	// };
+
 	const handleJoinSolo = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
 		socket?.emit("startSingleTetrisGame", { name: name, uuid: uuid });
@@ -61,6 +68,7 @@ function HomePage() {
 	const childForMyRooms = (room: string, waitList: string[], setListButtonClickedSpec: React.Dispatch<React.SetStateAction<boolean>>): ReactNode => {
 
 		const startMultiGame = (room: string) => {
+			console.log("startMultiGame", { name: name, uuid: uuid, roomId: room });
 			socket?.emit("startMultiGame", { name: name, uuid: uuid, roomId: room });
 			const goToRoute = room + '/' + name;
 			if (waitList.length > 1) {
@@ -98,6 +106,7 @@ function HomePage() {
 	const childForOtherRooms = (room: string, setListButtonClickedSpec: React.Dispatch<React.SetStateAction<boolean>>): ReactNode => {
 
 		const joinGame = (room: string) => {
+			console.log("joinGame : ", { name: name, uuid: uuid, roomId: room });
 			socket?.emit("joinGame", { name: name, uuid: uuid, roomId: room });
 			setListButtonClickedSpec(false);
 			setListButtonClicked(false);
@@ -233,21 +242,25 @@ function HomePage() {
 	});
 
 	useEffect(() => {
-		const uuid = sessionStorage.getItem("uuid");
-		const name = sessionStorage.getItem("name");
-		if (uuid && name) {
-			setUuid(uuid);
-			setName(name);
-			if (uuid && name) {
+		console.log("useEffect setUuid");
+		const newUuid = sessionStorage.getItem("uuid");
+		const newName = sessionStorage.getItem("name");
+		if (newUuid && newName) {
+			console.log("useEffect setUuid inside if");
+			setUuid(newUuid);
+			setName(newName);
+			if (socket === undefined && newUuid && newName) {
+				console.log("useEffect setSocket");
 				setSocket(
 					io("http://localhost:3000", {
-						query: { name: name, uuid: uuid },
+						query: { name: newName, uuid: newUuid },
 					})
 				);
-			} else {
-				console.log(`uuid or name is undefined ${uuid} ${name}`);
+			} else if (newUuid === undefined || newName === undefined) {
+				console.log(`uuid or name is undefined ${newUuid} ${newName}`);
 			}
 		}
+		console.log("useEffect setUuid end : ",  { uuid: uuid, name: name });
 	}, [uuid]);
 
 	useEffect(() => {
@@ -276,7 +289,7 @@ function HomePage() {
 
 	useEffect(() => {
 		socket?.on("getCreateRooms", (data) => {
-			console.log("getCreateRooms")
+			console.log("getCreateRooms", {uuid: uuid});
 			if (popupTitle === titleRoomCreated) {
 				console.log(popupTitle);
 				setPopupChild(<div className="text-white">
@@ -294,6 +307,11 @@ function HomePage() {
 	useEffect(() => {
 		socket?.on("list_players_room", (data) => {
 			console.log("list_players_room = " + data.players);
+			setTimeout(() => {
+				console.log("sessionStorage.getItem('uuid') = " + sessionStorage.getItem("uuid"));
+				console.log("sessionStorage.getItem('name') = " + sessionStorage.getItem("name"));
+				console.log({uuid: uuid, roomId: data.roomId, name: name});
+			}, 1000);
 			const newWaitingList = data.players;
 			setWaitingList(newWaitingList);
 			setPopupChild(childForMyRooms(data.roomId, data.players, setListButtonClickedRooms));
@@ -302,7 +320,7 @@ function HomePage() {
 		return () => {
 			socket?.off("list_players_room");
 		};
-	}, [socket]);
+	}, [socket, waitingList, setWaitingList, setPopupChild, setListButtonClickedRooms,childForMyRooms, togglePopup]);
 
 	useEffect(() => {
 		socket?.on("not_enough_person", (data) => {
@@ -317,6 +335,17 @@ function HomePage() {
 	return (
 		sessionStorage.getItem("name") ?
 			<div className="bg-black h-screen">
+				<header className="justify-between absolute bg-[#ff0000] flex flex-row w-screen p-4 border-b-2 border-white">
+					<h2 className="text-white text-xl font-bold">
+						{name}
+					</h2>
+					{/* <button
+						className="bg-[#7851a9] hover:bg-[#6d6d6d] active:bg-[#433a3f] text-white font-bold py-2 px-4 rounded-full transition-all duration-200"
+						onClick={handleLogout}
+					>
+						Disconnect
+					</button> */}
+				</header>
 				{Popup(
 					{
 						show: showPopup,

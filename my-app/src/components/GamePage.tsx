@@ -192,6 +192,7 @@ function GamePage() {
 	useEffect(() => {
 		socket?.on("countdown", (data) => {
 			if (data.roomId === roomId) {
+				setWaiting(false);
 				setCountdown(data.currentTime === 0 ? null : data.currentTime);
 			}
 		});
@@ -215,16 +216,14 @@ function GamePage() {
 	useEffect(() => {
 		socket?.on("myGame", (data) => {
 			if (data.player.roomId === roomId) {
+				setWaiting(false);
 				setGridWithRightSize(data.player.grid);
 				setTetro(data.player.tetrominos);
-				if (isWaiting === true) setWaiting(false);
 				setMultiGame(data.player.type === 100 ? true : false);
-				// if (multiGame === true) {
 				const caca = data.listSpectrum;
 				setSpecList(caca);
 				console.log(caca);
 				console.log(specList);
-				// }
 			}
 		});
 		return () => {
@@ -234,6 +233,7 @@ function GamePage() {
 
 	useEffect(() => {
 		socket?.on("endGame", (data) => {
+			setWaiting(false);
 			if (data.player.uuid === uuid) {
 				setWinner(data.player.winner);
 			}
@@ -258,14 +258,22 @@ function GamePage() {
 	useEffect(() => {
 		if (socket === undefined) {
 			console.log("socket is undefined");
-			setSocket(
-				io("http://localhost:3000", {
-					query: { name: name, uuid: uuid },
-				})
-			);
-			console.log(socket);
+			const newSocket = io("http://localhost:3000", {
+				query: { name: name, uuid: uuid },
+			});
+			setSocket(newSocket);
 		}
-	}, []);
+		socket?.emit("checkGame", { uuid: uuid, roomId: roomId });
+	}, [socket]);
+
+	useEffect(() => {
+		socket?.on("noGame", () => {
+			goBackToHome();
+		});
+		return () => {
+			socket?.off("noGame");
+		};
+	}, [socket]);
 
 	return (
 		<div className="bg-[#1a1b26] h-screen">
