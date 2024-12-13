@@ -290,6 +290,8 @@ export class Player {
     }
     this.fallSpectrum();
   }
+  // test fait
+
   moveRightTetromino(): void {
     if (this.isCollisionMove(0, 1)) return;
     for (let y = 0; y < this._grid.length; y++) {
@@ -302,6 +304,7 @@ export class Player {
     }
     this.fallSpectrum();
   }
+  // test fait
 
   rotateTetromino(): void {
     const lengthTetro = this._tetrominos[0].getLentgth();
@@ -340,6 +343,7 @@ export class Player {
     }
     this.fallSpectrum();
   }
+  // test fait
 
   isColisionRotate(p: any): boolean {
     // const copie = this._grid.map((arr) => arr.slice());
@@ -360,6 +364,8 @@ export class Player {
     return false;
   }
 
+  // test fait
+
   isCollisionMove(cy: number, cx: number): boolean {
     for (let y = 0; y < this._grid.length; y++) {
       for (let x = 0; this._grid[y].length > x; x++) {
@@ -377,6 +383,9 @@ export class Player {
     }
     return false;
   }
+
+  // test fait
+
   isPlayerLost(): boolean {
     // checker ceci apres un update soit finnis
     if (
@@ -388,6 +397,9 @@ export class Player {
     }
     return false;
   }
+
+  // test fait
+
   clearLines(): number {
     let nbrLineToDestroy = 0;
     for (let y = this._grid.length - 1; y > 0; y--) {
@@ -410,6 +422,9 @@ export class Player {
     }
     return nbrLineToDestroy;
   }
+
+  // test fait
+
   updateGrid(touched: number): any {
     let transform: boolean = false;
     for (let y = this._grid.length - 1; y > 0; y--) {
@@ -455,12 +470,16 @@ export class Player {
     return { nbrLineToAdd: nbrLineToAdd - 1, touched: touched };
   }
 
+  // test fait
+
   addLine(nbrLine: number): void {
     for (let i = 0; i < nbrLine; i++) {
       this._grid.shift();
       this._grid.push(new Array(10).fill(UNBREAKABLE_BRICK));
     }
   }
+
+  // test fait
 
   updateSpectrum(): void {
     for (let i = 0; i < this._spectrum.length; i++) {
@@ -477,4 +496,6 @@ export class Player {
       }
     }
   }
+
+  // test fait
 }
