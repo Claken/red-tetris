@@ -296,7 +296,6 @@ function GamePage() {
 						</div>
 						<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg">
 							<div className="flex flex-col items-center space-y-4 overflow-auto">
-
 								{specList && specList.length > 0 && displaySpectrums(specList, false)}
 							</div>
 						</div>
