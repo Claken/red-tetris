@@ -155,7 +155,7 @@ function GamePage() {
 		}
 
 		return (
-			<div className="grid grid-cols-2 space-x-4">
+			<div className="grid grid-cols-1 lg:grid-cols-2 space-x-4">
 				{specList.map((spectrum, index) => (
 					<div key={index}>
 						{rightOrLeft(index) && <div>

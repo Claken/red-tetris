@@ -293,7 +293,7 @@ function HomePage() {
 			if (popupTitle === titleRoomCreated) {
 				console.log(popupTitle);
 				setPopupChild(<div className="text-white">
-					{"a new room has been created : " + data.createRooms[data.createRooms.length - 1]}
+					{"A new room has been created : " + data.createRooms[data.createRooms.length - 1]}
 				</div>);
 				togglePopup();
 				setListRoomsCreate(data.createRooms);
