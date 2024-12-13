@@ -283,7 +283,7 @@ function GamePage() {
 						<div className="text-white font-bold text-center">
 							OPPONENTS
 						</div>
-						<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg">
+						<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg max-h-[720px] overflow-auto">
 							<div className="flex flex-col items-center space-y-4">
 
 								{specList && specList.length > 0 && displaySpectrums(specList, true)}
@@ -295,7 +295,7 @@ function GamePage() {
 							OPPONENTS
 						</div>
 						<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg">
-							<div className="flex flex-col items-center space-y-4">
+							<div className="flex flex-col items-center space-y-4 overflow-auto">
 
 								{specList && specList.length > 0 && displaySpectrums(specList, false)}
 							</div>
