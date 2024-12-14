@@ -37,9 +37,13 @@ export class ManagePlayerTetromino {
     }
   }
 
+  // test fait
+
   injectmultipleTetrominos(players: Player[], num: number): void {
     for (let i = 0; i < num; i++) {
       this.injectTetrominosInPlayers(players);
     }
   }
+
+  // test fait
 }
