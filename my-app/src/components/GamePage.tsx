@@ -234,6 +234,8 @@ function GamePage() {
 	useEffect(() => {
 		socket?.on("endGame", (data) => {
 			setWaiting(false);
+			console.log({"data.player": data.player});
+			setMultiGame(data.player.type === 100 ? true : false);
 			if (data.player.uuid === uuid) {
 				setWinner(data.player.winner);
 			}
