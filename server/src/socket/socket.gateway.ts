@@ -95,7 +95,7 @@ export class SocketGateway implements OnGatewayConnection {
         const playerWaiting = game
           .get_waitingPlayers()
           .find((elem) => elem.getUuid() === data.uuid);
-        if (playerWaiting === undefined) {
+        if (playerWaiting == undefined) {
           console.log('noGame');
           socket.emit('noGame');
         }
@@ -290,9 +290,13 @@ export class SocketGateway implements OnGatewayConnection {
             (!infos.ownedRoomsId.some((elem) => elem === value.getRoomId()) &&
               !infos.otherRoomsId.some((elem) => elem === value.getRoomId())))
         ) {
-          otherRooms.push(value.getRoomId());
+          otherRooms.push({
+            roomId: value.getRoomId(),
+            isStarted: value.getIsStarted(),
+          });
         }
       }
+
       socket.emit('getOtherRooms', {
         otherRooms: otherRooms,
       });
