@@ -277,6 +277,7 @@ export class Game {
             name: this._players[0].getPlayerName(),
             uuid: this._players[0].getUuid(),
             roomId: this._roomId,
+            type: this._type,
             winner: false,
           },
         });
@@ -299,6 +300,7 @@ export class Game {
               ].getPlayerName(),
               uuid: this._playersLost[this._playersLost.length - 1].getUuid(),
               roomId: this._roomId,
+              type: this._type,
               winner: false,
             },
           });
@@ -320,6 +322,7 @@ export class Game {
             name: this._players[0].getPlayerName(),
             uuid: this._players[0].getUuid(),
             roomId: this._roomId,
+            type: this._type,
             winner: true,
           },
         });
