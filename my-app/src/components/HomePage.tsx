@@ -152,7 +152,10 @@ function HomePage() {
 					</div>
 					<div className="w-full max-w-4xl shadow-lg p-8 bg-gray-900 border-4 border-gray-700 rounded-lg m-4">
 						<div className="items-center space-x-2 grid grid-cols-4 grid-rows-4 gap-4">
-							{listRooms.map((room: string, index: number) => {
+							{
+
+							title != "OTHERS ROOMLIST" ?	
+							listRooms.map((room: string, index: number) => {
 								return (
 									<div key={index} className="flex bg-gray-700 hover:bg-gray-500 rounded-md transition-all duration-200">
 										<button
@@ -173,17 +176,33 @@ function HomePage() {
 												else {
 													const newTitle = room;
 													setPopupTitle(newTitle);
-													if (title === "MY ROOMLIST") {
-														socket?.emit("getWaitingList", { uuid: uuid, roomId: room });
-													}
-													else if (title === "OTHERS ROOMLIST") {
-														setPopupChild(childForOtherRooms(room, setListButtonClickedSpec));
-														togglePopup();
-													}
+													socket?.emit("getWaitingList", { uuid: uuid, roomId: room });
 												}
 											}}
 										>
 											{room}
+										</button>
+									</div>
+								);
+							}) : listRooms.map((array: any, index: number) => {
+								return (
+									<div key={index} className="flex bg-gray-700 hover:bg-gray-500 rounded-md transition-all duration-200">
+										<button
+											className="text-white font-bold py-2 px-4 rounded-full w-full"
+											onClick={(e) => {
+												e.preventDefault();
+												setRoomId((prev) => {
+													const newRoom = array.roomId;
+													console.log(prev);
+													return newRoom
+												});
+													const newTitle = array.roomId;
+													setPopupTitle(newTitle);
+													setPopupChild(childForOtherRooms(array.roomId, setListButtonClickedSpec));
+													togglePopup();
+											}}
+										>
+											{array.roomId}
 										</button>
 									</div>
 								);
@@ -226,7 +245,6 @@ function HomePage() {
 			)
 		}
 		else if (listButtonClickedOthers) {
-
 			socket?.emit("getOtherRooms", { uuid: uuid });
 			return theRoomList(
 				{
