@@ -311,6 +311,7 @@ export class WaitGame {
     socketId: string,
     roomId: string,
   ): Promise<void> {
+    console.log('start game');
     const socket = this._server.sockets.sockets.get(socketId);
     if (socket === undefined) return;
     if (!this.UUIDMapings.has(uuid)) return;

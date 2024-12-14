@@ -95,8 +95,9 @@ export class SocketGateway implements OnGatewayConnection {
       this.waitGame.startSingleTetrisGame(data.uuid, infos.name, socket.id);
     });
     socket.on('startMultiGame', (data) => {
-      // console.log(data);
+      console.log(data);
       const infos = this.manageSocket.getInfos(data.uuid);
+      console.log(infos);
       if (infos == undefined) {
         return;
       }
