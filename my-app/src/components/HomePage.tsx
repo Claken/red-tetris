@@ -44,7 +44,14 @@ function HomePage() {
 	const { socket, setSocket } = socketContext;
 
 	const togglePopup = () => {
-		setShowPopup(!showPopup);
+		setShowPopup((prev) => {
+			const newBoolean = !showPopup;
+			if (prev === true) {
+				setPopupTitle("");
+				setPopupChild(<div></div>);
+			}
+			return newBoolean
+		});
 	};
 
 	// const handleLogout = () => {
@@ -209,6 +216,7 @@ function HomePage() {
 			)
 		}
 		else if (listButtonClickedRooms) {
+			socket?.emit("getCreateRooms", { uuid: uuid });
 			return theRoomList(
 				{
 					listRooms: listRoomsCreate,
@@ -296,7 +304,8 @@ function HomePage() {
 					{"A new room has been created : " + data.createRooms[data.createRooms.length - 1]}
 				</div>);
 				togglePopup();
-				setListRoomsCreate(data.createRooms);
+				const newCreatedRoom = data.createRooms;
+				setListRoomsCreate(newCreatedRoom);
 			}
 		});
 		return () => {
