@@ -352,7 +352,7 @@ function GamePage() {
 							<div className="text-white font-bold text-center">
 								NEXT
 							</div>
-							<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg w-32">
+							<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg w-32 h-[420px]">
 								<div className="flex flex-col items-center space-y-4">
 									{tetrominos && tetrominos.length > 0 && tetrominos.map((tetro, index) => (
 										<div key={index} className="items-center">
