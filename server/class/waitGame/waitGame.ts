@@ -256,6 +256,48 @@ export class WaitGame {
     game.removePlayer(uuid);
   }
 
+  private clearGame(game: Game) {
+    const lostPlayers = game.get_lostPlayers();
+    const players = game.getPlayers();
+
+    for (let i = 0; i < lostPlayers.length; i++) {
+      const uuid = lostPlayers[i].getUuid();
+      const roomId = game.getRoomId();
+
+      if (lostPlayers[i].getIsMaster()) {
+        game.changePlayerToWaiting(uuid);
+        continue;
+      }
+
+      const infos: ClientInfo = this.UUIDMapings.get(uuid) as ClientInfo;
+      const socketsId = this.UUIDMapings.get(uuid)?.socketsId as string[];
+      for (let i = 0; i < socketsId.length; i++) {
+        const socket = this._server.sockets.sockets.get(socketsId[i]);
+        if (socket !== undefined) socket.leave(roomId);
+      }
+      infos.otherRoomsId.splice(infos.otherRoomsId.indexOf(roomId), 1);
+      game.removeLostPlayer(uuid);
+    }
+    for (let i = 0; i < players.length; i++) {
+      const uuid = players[i].getUuid();
+      const roomId = game.getRoomId();
+
+      if (players[i].getIsMaster()) {
+        game.changePlayerToWaiting(uuid);
+        continue;
+      }
+
+      const infos: ClientInfo = this.UUIDMapings.get(uuid) as ClientInfo;
+      const socketsId = this.UUIDMapings.get(uuid)?.socketsId as string[];
+      for (let i = 0; i < socketsId.length; i++) {
+        const socket = this._server.sockets.sockets.get(socketsId[i]);
+        if (socket !== undefined) socket.leave(roomId);
+      }
+      infos.otherRoomsId.splice(infos.otherRoomsId.indexOf(roomId), 1);
+      game.removePlayer(uuid);
+    }
+  }
+
   public async retryGame(
     uuid: string,
     name: string,
@@ -319,6 +361,9 @@ export class WaitGame {
     const game = this.games.get(roomId);
     if (game === undefined) return;
     // game.setIsStarted(true);
+
+    this.clearGame(game);
+
     if (game.get_waitingPlayers().length <= 1) {
       this._server.to(socketId).emit('not_enough_person', {
         message: 'Not enough person to start the game',
