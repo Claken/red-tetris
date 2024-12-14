@@ -92,6 +92,13 @@ export class SocketGateway implements OnGatewayConnection {
           });
           return;
         }
+        const playerWaiting = game
+          .get_waitingPlayers()
+          .find((elem) => elem.getUuid() === data.uuid);
+        if (playerWaiting === undefined) {
+          console.log('noGame');
+          socket.emit('noGame');
+        }
       }
     });
 
