@@ -56,6 +56,43 @@ export class SocketGateway implements OnGatewayConnection {
         });
         return;
       }
+      if (game.getType() === MULTI && game.getIsStarted() === false) {
+        console.log('multi');
+        if (
+          game.get_lostPlayers().some((elem) => elem.getUuid() === data.uuid)
+        ) {
+          const lostPlayer = game
+            .get_lostPlayers()
+            .find((elem) => elem.getUuid() === data.uuid);
+          socket.emit('endGame', {
+            player: {
+              grid: lostPlayer?.getGrid(),
+              name: lostPlayer?.getPlayerName(),
+              uuid: lostPlayer?.getUuid(),
+              roomId: data.roomId,
+              tetrominos: lostPlayer?.getTetrominos().slice(1, 6),
+              type: game.getType(),
+            },
+          });
+          return;
+        }
+        const player = game
+          .getPlayers()
+          .find((elem) => elem.getUuid() === data.uuid);
+        if (game.getPlayers().some((elem) => elem.getUuid() === data.uuid)) {
+          socket.emit('endGame', {
+            player: {
+              grid: player?.getGrid(),
+              name: player?.getPlayerName(),
+              uuid: player?.getUuid(),
+              roomId: data.roomId,
+              type: game.getType(),
+              winner: true,
+            },
+          });
+          return;
+        }
+      }
     });
 
     socket.on('getWaitingList', (data) => {
@@ -71,6 +108,7 @@ export class SocketGateway implements OnGatewayConnection {
     });
 
     socket.on('notRetryGame', (data) => {
+      console.log({ notRetryGame: data });
       const infos = this.manageSocket.getInfos(data.uuid);
       if (infos == undefined) {
         return;
