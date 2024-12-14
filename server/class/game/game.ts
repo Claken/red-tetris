@@ -25,26 +25,43 @@ export class Game {
     return this._playersLost;
   }
 
+  // test fait
+
   public get_waitingPlayers(): Player[] {
     return this._waitingPlayers;
   }
 
+  // test fait
+
   public getPlayers(): Player[] {
     return this._players;
   }
+
+  // test fait
+
   public getRoomId(): string {
     return this._roomId;
   }
+
+  // test fait
+
   public getType(): number {
     return this._type;
   }
+
+  // test fait
+
   public getIsStarted(): boolean {
     return this._isStarted;
   }
 
+  // test fait
+
   public setIsStarted(val: boolean): void {
     this._isStarted = val;
   }
+
+  // test fait
 
   public removeLostPlayer(playerUuid: string): void {
     this._playersLost = this._playersLost.filter(
@@ -52,15 +69,22 @@ export class Game {
     );
   }
 
+  // test fait
+
   public removePlayer(playerUuid: string): void {
     this._players = this._players.filter(
       (player) => player.getUuid() != playerUuid,
     );
   }
 
+  // test fait
+
   public addWaitingPlayer(player: Player): void {
     this._waitingPlayers.push(player);
   }
+
+  // test fait
+
   public changePlayerToWaiting(playerUuid: string): void {
     const player = this._players.find(
       (player) => player.getUuid() == playerUuid,
