@@ -110,7 +110,9 @@ function HomePage() {
 		);
 	}
 
-	const childForOtherRooms = (room: string, setListButtonClickedSpec: React.Dispatch<React.SetStateAction<boolean>>): ReactNode => {
+	const childForOtherRooms = (room: string,
+								setListButtonClickedSpec: React.Dispatch<React.SetStateAction<boolean>>,
+								isStarted: boolean): ReactNode => {
 
 		const joinGame = (room: string) => {
 			console.log("joinGame : ", { name: name, uuid: uuid, roomId: room });
@@ -121,10 +123,12 @@ function HomePage() {
 
 		return (
 			<div>
-				<div className="flex flex-col my-1 space-y-5 p-10">
+				
+				<div className="flex flex-col space-y-5 p-5">
+					{isStarted ? <div className="text-white text-center">THIS GAME HAS ALREADY STARTED</div> : null}
 					<button className="bg-[#508fe0] hover:bg-[#00916E] active:bg-bg-[#00916E] text-white font-bold py-2 px-4 rounded-full transition-all duration-200"
 						onClick={() => { joinGame(room) }}>
-						Join this game
+						{isStarted ? "Join waiting list" : "Join this game"}
 					</button>
 				</div>
 			</div>
@@ -198,7 +202,7 @@ function HomePage() {
 												});
 													const newTitle = array.roomId;
 													setPopupTitle(newTitle);
-													setPopupChild(childForOtherRooms(array.roomId, setListButtonClickedSpec));
+													setPopupChild(childForOtherRooms(array.roomId, setListButtonClickedSpec, array.isStarted));
 													togglePopup();
 											}}
 										>
