@@ -44,7 +44,7 @@ const getTetroColor = (type: string) => {
 const displayTetromino = (tetromino: any) => {
     const tetroColor = getTetroColor(tetromino.type);
     return tetromino.shape.map((row: number[], rowIndex: number) => (
-        <div key={rowIndex} className="flex">
+        <div data-testid={rowIndex} key={rowIndex} className="flex">
             {row.map((cell: number, colIndex: number) => (
                 <div
                     key={colIndex}
@@ -107,6 +107,18 @@ describe('cellColorMainGrid', () => {
     });
 });
 
+describe('getTetroColor', () => {
+    it('should return the correct color for each type of tetromino', () => {
+        expect(getTetroColor('I')).toBe('bg-[#00ffff]');
+        expect(getTetroColor('J')).toBe('bg-[#0077ff]');
+        expect(getTetroColor('L')).toBe('bg-[#ff7f00]');
+        expect(getTetroColor('O')).toBe('bg-[#ffff00]');
+        expect(getTetroColor('S')).toBe('bg-[#00ff00]');
+        expect(getTetroColor('T')).toBe('bg-[#800080]');
+        expect(getTetroColor('Z')).toBe('bg-[#ff0000]');
+    });
+});
+
 describe('cellColorOppGrid', () => {
     it('should return bg-blue-500 when cell is 1 or 2', () => {
         expect(cellColorOppGrid(1)).toBe('bg-blue-500');
@@ -124,7 +136,7 @@ describe('cellColorOppGrid', () => {
 });
 
 describe('displayTetromino', () => {
-    it('should display the tetromino correctly', () => {
+    it('should display tetromino correctly', () => {
         const tetromino = {
             type: 'I',
             shape: [
@@ -141,11 +153,30 @@ describe('displayTetromino', () => {
             </div>
         );
 
+        const row1 = screen.getByTestId('0');
+        const row2 = screen.getByTestId('1');
+        const row3 = screen.getByTestId('2');
+        const row4 = screen.getByTestId('3');
+
+        expect(document.body.contains(row1)).toBe(true);
+        expect(document.body.contains(row2)).toBe(true);
+        expect(document.body.contains(row3)).toBe(true);
+        expect(document.body.contains(row4)).toBe(true);
+
+        expect(row1.children.length).toBe(4);
+        expect(row2.children.length).toBe(4);
+        expect(row3.children.length).toBe(4);
+        expect(row4.children.length).toBe(4);
+
+        expect(row1.children[0].className).contains('bg-transparent');
+        expect(row2.children[0].className).not.contains('bg-transparent');
+        expect(row3.children[0].className).contains('bg-transparent');
+        expect(row4.children[0].className).contains('bg-transparent');
     });
 });
 
 describe('displaySpectrums', () => {
-    it('devrait correctement afficher les spectres du côté gauche et du cote droit', () => {
+    it('should display spectrums correctly', () => {
 
         const specList = [
             {
@@ -170,5 +201,6 @@ describe('displaySpectrums', () => {
 
         expect(document.body.contains(player1)).toBe(true);
         expect(document.body.contains(player2)).toBe(true);
-    })
+    });
+
 });
