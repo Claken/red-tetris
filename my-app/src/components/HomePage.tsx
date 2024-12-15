@@ -93,7 +93,7 @@ function HomePage() {
 						<div className="flex flex-col space-y-3 p-4 max-h-48 overflow-y-auto">
 							{waitList?.map((player, index) => {
 								return (
-									<div key={index} className="text-white text-center py-2 px-4 bg-gray-600 rounded-lg shadow-md">
+									<div key={index} className="text-white text-center truncate py-2 px-4 bg-gray-600 rounded-lg shadow-md">
 										{player}
 									</div>
 								);
@@ -126,7 +126,7 @@ function HomePage() {
 
 				<div className="flex flex-col space-y-5 p-5">
 					{isStarted ? <div className="text-white text-center">THIS GAME HAS ALREADY STARTED</div> : null}
-					<button className="bg-[#508fe0] hover:bg-[#00916E] active:bg-bg-[#00916E] text-white font-bold py-2 px-4 rounded-full transition-all duration-200"
+					<button className="bg-[#508fe0] hover:bg-[#00916E] active:bg-bg-[#00916E] text-white truncate font-bold py-2 px-4 rounded-full transition-all duration-200"
 						onClick={() => { joinGame(room) }}>
 						{isStarted ? "Join waiting list" : "Join this game"}
 					</button>
@@ -162,7 +162,7 @@ function HomePage() {
 										return (
 											<div key={index} className="flex bg-gray-700 hover:bg-gray-500 rounded-md transition-all duration-200">
 												<button
-													className="text-white font-bold py-2 px-4 rounded-full w-full"
+													className="text-white truncate font-bold py-2 px-4 rounded-full w-full"
 													onClick={(e) => {
 														e.preventDefault();
 														const newRoom = room;
@@ -187,7 +187,7 @@ function HomePage() {
 										return (
 											<div key={index} className="flex bg-gray-700 hover:bg-gray-500 rounded-md transition-all duration-200">
 												<button
-													className="text-white font-bold py-2 px-4 rounded-full w-full"
+													className="text-white truncate font-bold py-2 px-4 rounded-full w-full"
 													onClick={(e) => {
 														e.preventDefault();
 														const newRoom = array.roomId;
@@ -313,7 +313,7 @@ function HomePage() {
 			console.log("getCreateRooms", { uuid: uuid });
 			if (popupTitle === titleRoomCreated) {
 				console.log(popupTitle);
-				setPopupChild(<div className="text-white">
+				setPopupChild(<div className="text-white truncate">
 					{"A new room has been created : " + data.createRooms[data.createRooms.length - 1]}
 				</div>);
 				togglePopup();
@@ -358,7 +358,7 @@ function HomePage() {
 		sessionStorage.getItem("name") ?
 			<div className="bg-black h-screen">
 				<header className="justify-between absolute bg-[#ff0000] flex flex-row w-screen p-4 border-b-2 border-white">
-					<h2 className="text-white text-xl font-bold">
+					<h2 className="text-white text-xl font-bold truncate">
 						{name}
 					</h2>
 					{/* <button

@@ -155,11 +155,11 @@ function GamePage() {
 		}
 
 		return (
-			<div className="grid grid-cols-1 lg:grid-cols-2 space-x-4">
+			<div className="grid grid-cols-1 lg:grid-cols-2 lg:space-x-4">
 				{specList.map((spectrum, index) => (
-					<div key={index}>
-						{rightOrLeft(index) && <div>
-							<h3 className="text-lg text-white text-center font-semibold mb-2">{spectrum.name}</h3>
+					<div key={index} className="w-[70px]">
+						{rightOrLeft(index) && <div className="">
+							<h3 className="text-lg text-white text-center truncate font-semibold mb-2">{spectrum.name}</h3>
 							<div
 								className="grid grid-cols-10 gap-0"
 							>
@@ -297,7 +297,6 @@ function GamePage() {
 						</div>
 						<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg max-h-[720px] overflow-auto">
 							<div className="flex flex-col items-center space-y-4">
-
 								{specList && specList.length > 0 && displaySpectrums(specList, true)}
 							</div>
 						</div>
