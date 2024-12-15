@@ -15,7 +15,6 @@ function HomePage() {
 	const socketContext = useSocket();
 	const [name, setName] = useState<string>("");
 	const [uuid, setUuid] = useState<string | undefined>(sessionStorage.getItem("uuid") == null ? undefined : sessionStorage.getItem("uuid")?.toString());
-	console.log("HomePage", { uuid: uuid, name: name });
 	const [roomId, setRoomId] = useState<string>("");
 	const [listRoomsAc, setListRoomsAc] = useState([]);
 	const [listRoomsCreate, setListRoomsCreate] = useState([]);

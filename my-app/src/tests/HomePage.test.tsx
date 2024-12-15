@@ -1,5 +1,4 @@
 import { describe, it, expect, vi } from 'vitest';
-import { useSocket } from '../contexts/socketContext';
 
 // La fonction que nous voulons tester
 const displayAList = (listButtonClickedActive: boolean, listButtonClickedRooms: boolean, listButtonClickedOthers: boolean, actions: { activeRoomsList: any; myRoomsList: any; otherRoomsList: any; }) => {

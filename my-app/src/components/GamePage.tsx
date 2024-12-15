@@ -156,14 +156,14 @@ function GamePage() {
 
 		return (
 			<div className="grid grid-cols-1 lg:grid-cols-2 lg:space-x-4">
-				{specList.map((spectrum, index) => (
+				{specList.map((spectrum: any, index: number) => (
 					<div key={index} className="w-[70px]">
 						{rightOrLeft(index) && <div className="">
 							<h3 className="text-lg text-white text-center truncate font-semibold mb-2">{spectrum.name}</h3>
 							<div
 								className="grid grid-cols-10 gap-0"
 							>
-								{spectrum.spectrum.flat().map((value, idx) => (
+								{spectrum.spectrum.flat().map((value: number, idx: number) => (
 									<div
 										key={idx}
 										className={`w-2 h-2 border border-gray-700 ${value > 0 ? (value === 1 ? 'bg-cyan-500' : 'bg-red-800') : 'bg-transparent'
@@ -365,7 +365,7 @@ function GamePage() {
 							</div>
 							<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg w-32 h-[420px] overflow-auto">
 								<div className="flex flex-col items-center space-y-4">
-									{tetrominos && tetrominos.length > 0 && tetrominos.map((tetro, index) => (
+									{tetrominos && tetrominos.length > 0 && tetrominos.map((tetro: any, index: number) => (
 										<div key={index} className="items-center">
 											{displayTetromino(tetro)}
 										</div>
