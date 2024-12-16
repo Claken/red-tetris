@@ -42,6 +42,12 @@ function GamePage() {
 		close: true,
 	});
 
+	const NoGame = Toastify({
+		text: "No game found",
+		duration: 3000,
+		close: true,
+	});
+
 	const handleKeydown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 		if (e.key === "ArrowRight") {
 			socket?.emit("moveRight", { uuid: uuid, roomId: roomId });
@@ -214,7 +220,6 @@ function GamePage() {
 
 	useEffect(() => {
 		socket?.on("noGame", () => {
-			console.log("noGame");
 			goBackToHome();
 		});
 		return () => {
@@ -235,6 +240,7 @@ function GamePage() {
 
 	useEffect(() => {
 		socket?.on("noGame", () => {
+			NoGame.showToast();
 			goBackToHome();
 		});
 		return () => {
