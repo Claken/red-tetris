@@ -52,7 +52,8 @@
     },
     "collectCoverage": true,
     "collectCoverageFrom": [
-      "src/**/*.(t|j)s"
+      "src/**/*.(t|j)s",
+      "class/**/*.(t|j)s"
     ],
     "coverageDirectory": "coverage",
     "coverageReporters": [
