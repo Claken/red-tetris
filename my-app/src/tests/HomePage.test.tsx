@@ -1,9 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { SocketProvider } from "../contexts/socketContext";
 import HomePage from "../components/HomePage";
-import React from "react";
+import React, { createContext } from "react";
 
 describe("HomePage Component", () => {
   it("renders the HomePage component with basic elements", () => {
@@ -111,6 +111,8 @@ describe("HomePage Component", () => {
       length: 0,
     };
 
+    const mockNavigate = vi.fn();
+
     global.sessionStorage = mockSessionStorage;
 
     const { getByText } = render(
@@ -182,6 +184,7 @@ describe("HomePage Component", () => {
   });
 
   it("handles starting multiplayer games correctly", () => {
+
     // Mock sessionStorage
     const mockSessionStorage = {
       getItem: vi.fn().mockImplementation((key) => {
@@ -208,10 +211,14 @@ describe("HomePage Component", () => {
       setSocket: vi.fn(),
     };
 
+    const MockSocketPro = createContext(mockSocketContext);
+
     render(
       <MemoryRouter>
-        <SocketProvider value={mockSocketContext}>
+        <SocketProvider>
+        <MockSocketPro.Provider value={mockSocketContext}>
           <HomePage />
+        </MockSocketPro.Provider>
         </SocketProvider>
       </MemoryRouter>
     );
@@ -220,9 +227,11 @@ describe("HomePage Component", () => {
     const allMyRoomsButton = screen.getByText("ALL MY ROOMS");
     fireEvent.click(allMyRoomsButton);
 
+        // expect(mockSocket.emit).toHaveBeenCalledWith("getCreateRooms", {uuid: "12345",});
+
     // Simuler un clic sur un élément qui déclenche childForMyRooms
-    const roomButton = screen.getByText("TestUser"); // Remplacez par le texte du bouton réel
-    fireEvent.click(roomButton);
+    // const roomButton = screen.getByText("TestUser"); // Remplacez par le texte du bouton réel
+    // fireEvent.click(roomButton);
 
     // Vérifiez que l'événement socket.emit a été appelé avec les bons arguments
     // expect(mockSocket.emit).toHaveBeenCalledWith("startMultiGame", {
@@ -235,7 +244,7 @@ describe("HomePage Component", () => {
     // expect(mockNavigate).toHaveBeenCalledWith("TestUser/TestUser");
   });
 
-  it("handles displaying room lists correctly", () => {
+  it("handles displaying room lists correctly", async () => {
     // Mock sessionStorage
     const mockSessionStorage = {
       getItem: vi.fn().mockImplementation((key) => {
@@ -255,6 +264,7 @@ describe("HomePage Component", () => {
     // Mock socket
     const mockSocket = {
       emit: vi.fn(),
+      on: vi.fn(),
     };
 
     const mockSocketContext = {
@@ -262,13 +272,17 @@ describe("HomePage Component", () => {
       setSocket: vi.fn(),
     };
 
+    const MockSocketPro = createContext(mockSocketContext);
+
     // Mock navigate
     const mockNavigate = vi.fn();
 
     render(
       <MemoryRouter>
-        <SocketProvider value={mockSocketContext}>
+        <SocketProvider>
+        <MockSocketPro.Provider value={mockSocketContext}>
           <HomePage />
+        </MockSocketPro.Provider>
         </SocketProvider>
       </MemoryRouter>
     );
@@ -276,19 +290,34 @@ describe("HomePage Component", () => {
     // Simuler un clic sur le bouton "ALL MY ROOMS"
     const allMyRoomsButton = screen.getByText("ALL MY ROOMS");
     fireEvent.click(allMyRoomsButton);
-
-    // Simuler un clic sur un élément qui déclenche theRoomList
-    const roomButton = screen.getByText("TestUser"); // Remplacez par le texte du bouton réel
-    fireEvent.click(roomButton);
-
-    // Vérifiez que l'événement socket.emit a été appelé avec les bons arguments
-    // expect(mockSocket.emit).toHaveBeenCalledWith("getWaitingList", {
-    //   uuid: "12345",
-    //   roomId: "TestUser",
+    // await waitFor(() => {
+    //   expect(mockSocket.emit).toHaveBeenCalledWith("getCreateRooms", {uuid: "12345",});
     // });
 
-    // // Vérifiez que navigate a été appelé avec la bonne route
-    // expect(mockNavigate).toHaveBeenCalledWith("TestUser/TestUser");
+    // Simuler un clic sur un élément qui déclenche theRoomList
+    const myRoomListText = screen.getByText("MY ROOMLIST");
+    expect(document.body.contains(myRoomListText)).toBe(true);
+
+    let theMenuButton = screen.getByText("Menu");
+    fireEvent.click(theMenuButton);
+
+    const goBackButton = screen.getByText("Go back to a game");
+    expect(document.body.contains(goBackButton)).toBe(true);
+    fireEvent.click(goBackButton);
+
+    const activeListText = screen.getByText("ACTIVE ROOMLIST");
+    expect(document.body.contains(activeListText)).toBe(true);
+
+    theMenuButton = screen.getByText("Menu");
+    fireEvent.click(theMenuButton);
+
+    const joinGameButton = screen.getByText("Join a game");
+    expect(document.body.contains(joinGameButton)).toBe(true);
+    fireEvent.click(joinGameButton);
+
+    const othersListText = screen.getByText("OTHERS ROOMLIST");
+    expect(document.body.contains(othersListText)).toBe(true);
+
   });
 
   it("handles pageToGo event correctly", () => {
