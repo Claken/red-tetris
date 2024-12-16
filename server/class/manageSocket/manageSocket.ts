@@ -18,6 +18,8 @@ export class ManageSocket {
     socket.emit('new-person', { uuid: uuid, name: name });
   }
 
+  // test fait
+
   public static getInstance(): ManageSocket {
     if (!ManageSocket._instance) {
       ManageSocket._instance = new ManageSocket();
@@ -25,9 +27,12 @@ export class ManageSocket {
     return ManageSocket._instance;
   }
 
+  // test fait
+
   public getInfos(uuid: string): IdentifierToSocket | undefined {
     return this.userSockets.get(uuid);
   }
+  // test fait
 
   public add(socket: Socket, name: string, uuid: string | undefined): void {
     if (uuid == undefined || !this.userSockets.has(uuid)) {
@@ -36,9 +41,13 @@ export class ManageSocket {
       this.userSockets.get(uuid)?.sockets.push(socket);
     }
   }
+  // test fait
   public IdentifierToSocket(uuid: string): IdentifierToSocket | undefined {
     return this.userSockets.get(uuid);
   }
+
+  // test fait
+
   public deleteSocket(socket: Socket): void {
     this.userSockets.forEach((value) => {
       if (value.sockets.find((elem) => elem.id === socket.id)) {
@@ -46,4 +55,5 @@ export class ManageSocket {
       }
     });
   }
+  // test fait
 }

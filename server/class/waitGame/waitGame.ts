@@ -25,6 +25,7 @@ export class WaitGame {
   public getGames(): Map<string, Game> {
     return this.games;
   }
+
   public getUUIDMapings(): Map<string, ClientInfo> {
     return this.UUIDMapings;
   }
@@ -310,6 +311,9 @@ export class WaitGame {
     if (infos === undefined) return;
     const game = this.games.get(roomId);
     if (game === undefined) return;
+    if (game.getIsStarted()) {
+      sockets.emit('noGame');
+    }
     const intervalId = setInterval(async () => {
       if (game.getIsStarted() == false) {
         clearInterval(intervalId);
@@ -327,24 +331,6 @@ export class WaitGame {
         }
       }
     }, 1000);
-
-    // console.log(game.getIsStarted());
-    // if (game.getIsStarted()) {
-    //   return;
-    // }
-    // // attendre 5 secondes avant de relancer la partie
-    // game.changePlayerToWaiting(uuid);
-    // const player = game
-    //   .get_waitingPlayers()
-    //   .find((player) => player.getUuid() === uuid);
-    // if (player?.getIsMaster() === true) {
-    //   await new Promise((resolve) => {
-    //     setTimeout(() => {
-    //       this.startMultiTetrisGame(uuid, name, socketId, roomId);
-    //       resolve(1);
-    //     }, 5000);
-    //   });
-    // }
   }
 
   public async startMultiTetrisGame(
