@@ -1,3 +1,5 @@
+import React from 'react';
+
 export const cellColorMainGrid = (cell: number) => {
 	switch (cell) {
 		case (1): // turquoise
@@ -46,7 +48,7 @@ export const getTetroColor = (type: string) => {
 export const displayTetromino = (tetromino: any) => {
 		const tetroColor = getTetroColor(tetromino.type);
 		return tetromino.shape.map((row: number[], rowIndex: number) => (
-			<div key={rowIndex} className="flex">
+			<div data-testid={rowIndex} key={rowIndex} className="flex">
 				{row.map((cell: number, colIndex: number) => (
 					<div
 						key={colIndex}

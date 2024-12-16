@@ -91,7 +91,7 @@ function GamePage() {
 	}
 
 	const WaitingLogo = () => {
-		return <div className="flex items-center justify-center h-screen">
+		return <div data-testid="waiting-logo" className="flex items-center justify-center h-screen">
 			<div className="flex flex-col items-center">
 				<div className="text-red-600 text-center font-bold mb-4">
 					PLEASE WAIT

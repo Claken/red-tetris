@@ -3,27 +3,45 @@ import { render, screen } from '@testing-library/react';
 import { cellColorMainGrid, getTetroColor, displayTetromino, displaySpectrums } from '../functions/forTheGame';
 import React from 'react';
 // import { SocketProvider } from '../contexts/socketContext';
-// import GamePage from '../components/GamePage';
+import GamePage from '../components/GamePage';
+import { MemoryRouter } from 'react-router-dom';
+import { SocketProvider } from '../contexts/socketContext';
 
 const setGridWithRightSize = (grid: number[][]) => {
     const newGrid = grid.slice(4, 24);
     return newGrid;
 }
 
+describe('GamePage Component', () => {
+    it('renders the GamePage component', () => {
+        render(
+            <MemoryRouter>
+                <SocketProvider>
+                    <GamePage />
+                </SocketProvider>
+            </MemoryRouter>
+        );
+        const linkElement = screen.getByTestId('waiting-logo');
+        expect(document.body.contains(linkElement)).toBe(true);
+
+    });
+});
+
+
 describe('cellColorMainGrid', () => {
-    it('should return bg-red-500 when cell is 1 or 2', () => {
-        expect(cellColorMainGrid(1)).toBe('bg-red-500');
-        expect(cellColorMainGrid(2)).toBe('bg-red-500');
-    });
-
-    it('should return bg-red-700 when cell is 102', () => {
-        expect(cellColorMainGrid(102)).toBe('bg-red-700');
-    });
-
-    it('should return bg-red-900 for any other values', () => {
-        expect(cellColorMainGrid(0)).toBe('bg-red-900');
-        expect(cellColorMainGrid(5)).toBe('bg-red-900');
-    });
+    it('should return the correct color for each cell', () => {
+        expect(cellColorMainGrid(1)).toBe('bg-[#00ffff]');
+        expect(cellColorMainGrid(2)).toBe('bg-[#0077ff]');
+        expect(cellColorMainGrid(3)).toBe('bg-[#ff7f00]');
+        expect(cellColorMainGrid(4)).toBe('bg-[#ffff00]');
+        expect(cellColorMainGrid(5)).toBe('bg-[#00ff00]');
+        expect(cellColorMainGrid(6)).toBe('bg-[#800080]');
+        expect(cellColorMainGrid(7)).toBe('bg-[#ff0000]');
+        expect(cellColorMainGrid(0)).toBe('bg-[#1a1b26]');
+        expect(cellColorMainGrid(102)).toBe('bg-[#7d0202] opacity-75');
+        expect(cellColorMainGrid(20)).toBe('bg-gray-500');
+    }
+    );
 });
 
 describe('getTetroColor', () => {
