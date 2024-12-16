@@ -4,6 +4,11 @@ import React from 'react';
 // import { SocketProvider } from '../contexts/socketContext';
 // import GamePage from '../components/GamePage';
 
+const setGridWithRightSize = (grid: number[][]) => {
+    const newGrid = grid.slice(4, 24);
+    return newGrid;
+}
+
 const cellColorMainGrid = (cell: number) => {
     if (cell === 1 || cell === 2) {
         return 'bg-red-500';
@@ -56,22 +61,22 @@ const displayTetromino = (tetromino: any) => {
     ));
 };
 
-const displaySpectrums = (specList: any, left: boolean) => {
-
+const rightOrLeft = (index: any, left: boolean): boolean => {
     const idx = 6;
-    const rightOrLeft = (index: any): boolean => {
-        console.log("index == " + index);
-        if (left) {
-            return index < idx;
-        }
-        return index >= idx;
+    
+    if (left) {
+        return index < idx;
     }
+    return index >= idx;
+}
+
+const displaySpectrums = (specList: any, left: boolean) => {
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 lg:space-x-4">
             {specList.map((spectrum: any, index: number) => (
                 <div key={index} className="w-[70px]">
-                    {rightOrLeft(index) && <div className="">
+                    {rightOrLeft(index, left) && <div className="">
                         <h3 className="text-lg text-white text-center truncate font-semibold mb-2">{spectrum.name}</h3>
                         <div
                             className="grid grid-cols-10 gap-0"
@@ -135,6 +140,16 @@ describe('cellColorOppGrid', () => {
     })
 });
 
+describe('setGridWithRightSize', () => {
+    it('should return a grid with the right size', () => {
+        const grid = Array(24).fill(Array(10).fill(0));
+        const newGrid = setGridWithRightSize(grid);
+
+        expect(newGrid.length).toBe(20);
+        expect(newGrid[0].length).toBe(10);
+    });
+});
+
 describe('displayTetromino', () => {
     it('should display tetromino correctly', () => {
         const tetromino = {
@@ -172,6 +187,26 @@ describe('displayTetromino', () => {
         expect(row2.children[0].className).not.contains('bg-transparent');
         expect(row3.children[0].className).contains('bg-transparent');
         expect(row4.children[0].className).contains('bg-transparent');
+    });
+});
+
+describe('rightOrLeft', () => {
+    it('should return true if index is less than 6 and left is true', () => {
+        expect(rightOrLeft(5, true)).toBe(true);
+    });
+
+    it('should return false if index is greater than or equal to 6 and left is true', () => {
+        expect(rightOrLeft(6, true)).toBe(false);
+        expect(rightOrLeft(7, true)).toBe(false);
+    });
+
+    it('should return true if index is greater than or equal to 6 and left is false', () => {
+        expect(rightOrLeft(6, false)).toBe(true);
+        expect(rightOrLeft(7, false)).toBe(true);
+    });
+
+    it('should return false if index is less than 6 and left is false', () => {
+        expect(rightOrLeft(5, false)).toBe(false);
     });
 });
 
