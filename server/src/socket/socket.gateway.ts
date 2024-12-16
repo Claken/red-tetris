@@ -101,7 +101,7 @@ export class SocketGateway implements OnGatewayConnection {
         }
       }
     });
-
+    // test fait
     socket.on('getWaitingList', (data) => {
       const infos = this.manageSocket.getInfos(data.uuid);
       if (infos == undefined) {
@@ -113,6 +113,7 @@ export class SocketGateway implements OnGatewayConnection {
         .map((elem) => elem.getPlayerName());
       socket.emit('list_players_room', { roomId: data.roomId, players: name });
     });
+    // test fait
 
     socket.on('notRetryGame', (data) => {
       console.log({ notRetryGame: data });
@@ -123,6 +124,8 @@ export class SocketGateway implements OnGatewayConnection {
       this.waitGame.notRetryGame(data.uuid, infos.name, socket.id, data.roomId);
     });
 
+    // test fait
+
     socket.on('retryGame', (data) => {
       const infos = this.manageSocket.getInfos(data.uuid);
       if (infos == undefined) {
@@ -131,16 +134,17 @@ export class SocketGateway implements OnGatewayConnection {
       this.waitGame.retryGame(data.uuid, infos.name, socket.id, data.roomId);
     });
 
+    // test fait
+
     socket.on('startSingleTetrisGame', (data) => {
-      // console.log(data);
       const infos = this.manageSocket.getInfos(data.uuid);
       if (infos == undefined) {
         return;
       }
       this.waitGame.startSingleTetrisGame(data.uuid, infos.name, socket.id);
     });
+    // test fait
     socket.on('startMultiGame', (data) => {
-      console.log(data);
       const infos = this.manageSocket.getInfos(data.uuid);
       console.log(infos);
       if (infos == undefined) {
@@ -153,6 +157,9 @@ export class SocketGateway implements OnGatewayConnection {
         data.roomId,
       );
     });
+
+    // test fait
+
     socket.on('moveRight', (data) => {
       const infos: ClientInfo | undefined = this.waitGame
         .getUUIDMapings()
@@ -163,6 +170,7 @@ export class SocketGateway implements OnGatewayConnection {
       if (game == undefined) return;
       game.moveRight(data.uuid, infos.socketsId);
     });
+
     socket.on('moveLeft', (data) => {
       const infos: ClientInfo | undefined = this.waitGame
         .getUUIDMapings()
