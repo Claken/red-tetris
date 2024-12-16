@@ -41,7 +41,7 @@ describe('Player', () => {
       ],
       'I',
     );
-    player.addTeromino(tetromino); // Ajouter un tetromino au joueur
+    player.addTetromino(tetromino); // Ajouter un tetromino au joueur
   });
 
   describe('getToken', () => {
@@ -93,7 +93,7 @@ describe('Player', () => {
       expect(player.getIsMaster()).toBe(true);
     });
   });
-  describe('addTeromino', () => {
+  describe('addTetromino', () => {
     it('should add a tetromino to the player', () => {
       const tetromino = new Tetromino(
         0,
@@ -105,7 +105,7 @@ describe('Player', () => {
         ],
         'I',
       );
-      player.addTeromino(tetromino);
+      player.addTetromino(tetromino);
       expect(player.getTetrominos().length).toBe(2);
     });
   });
@@ -259,7 +259,7 @@ describe('Player', () => {
         ],
         'I',
       );
-      player.addTeromino(tetromino2);
+      player.addTetromino(tetromino2);
 
       player.initTetrominoInsideGrid();
       player.fallTetromino();
@@ -402,7 +402,7 @@ describe('Player', () => {
           ],
           'I',
         );
-        player.addTeromino(tetromino2);
+        player.addTetromino(tetromino2);
       }
       player.initTetrominoInsideGrid();
       player.moveLeftTetromino();
@@ -444,7 +444,7 @@ describe('Player', () => {
           ],
           'I',
         );
-        player.addTeromino(tetromino2);
+        player.addTetromino(tetromino2);
       }
       player.initTetrominoInsideGrid();
       player.fallTetromino(1);
@@ -508,7 +508,7 @@ describe('Player', () => {
           ],
           'I',
         );
-        player.addTeromino(tetromino2);
+        player.addTetromino(tetromino2);
       }
       player.initTetrominoInsideGrid();
       player.fallTetromino();

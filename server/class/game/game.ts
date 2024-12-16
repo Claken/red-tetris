@@ -107,6 +107,8 @@ export class Game {
     }
   }
 
+  // test fait
+
   public moveRight(playerUuid: string, socketId: string[]): void {
     const player: Player | undefined = this._players.find(
       (player) => player.getUuid() == playerUuid,
@@ -121,6 +123,9 @@ export class Game {
       this.sendGameToClient(player, socketId, listSpectrum);
     }
   }
+
+  // test fait
+
   public moveLeft(playerUuid: string, socketId: string[]): void {
     const player: Player | undefined = this._players.find(
       (player) => player.getUuid() == playerUuid,
@@ -135,6 +140,9 @@ export class Game {
       this.sendGameToClient(player, socketId, listSpectrum);
     }
   }
+
+  // test fait
+
   public rotate(playerUuid: string, socketId: string[]): void {
     const player: Player | undefined = this._players.find(
       (player) => player.getUuid() == playerUuid,
@@ -149,6 +157,9 @@ export class Game {
       this.sendGameToClient(player, socketId, listSpectrum);
     }
   }
+
+  // test fait
+
   public moveDown(playerUuid: string, socketId: string[]): void {
     const player: Player | undefined = this._players.find(
       (player) => player.getUuid() == playerUuid,
@@ -163,6 +174,9 @@ export class Game {
       this.sendGameToClient(player, socketId, listSpectrum);
     }
   }
+
+  // test fait
+
   public fallDown(playerUuid: string, socketId: string[]): void {
     const player: Player | undefined = this._players.find(
       (player) => player.getUuid() == playerUuid,
@@ -185,6 +199,8 @@ export class Game {
       this.sendGameToClient(player, socketId, listSpectrum);
     }
   }
+
+  // test fait
 
   async startGame(UUIDMapings: Map<string, ClientInfo>): Promise<void> {
     this.setIsStarted(true);
@@ -209,6 +225,8 @@ export class Game {
       );
     }
   }
+
+  // test fait
 
   public async gamePlayMulti(UUIDMapings: Map<string, ClientInfo>) {
     for (let i = 0; i < this._players.length; i++) {
@@ -267,6 +285,8 @@ export class Game {
     // });
     // await Promise.all(promises);
   }
+
+  // test fait
 
   public endGame(UUIDMapings: Map<string, ClientInfo>): boolean {
     if (this._type === SINGLE) {
@@ -333,6 +353,8 @@ export class Game {
     return false;
   }
 
+  // test fait
+
   public async sendCounterToClient(
     player: Player,
     socketId: string[],
@@ -392,6 +414,8 @@ export class Game {
     });
   }
 
+  // test fait
+
   public gamePlay(player: Player, touch: any, socketId: string[]): void {
     if (this._type === SINGLE) {
       if (player.getTetrominos().length < 90) {
@@ -404,6 +428,8 @@ export class Game {
       this.sendGameToClient(player, socketId);
     }
   }
+
+  // test fait
 
   public sendGameToClient(
     player: Player,
@@ -439,3 +465,5 @@ export class Game {
     });
   }
 }
+
+// test fait
