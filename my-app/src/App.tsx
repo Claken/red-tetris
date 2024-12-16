@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./components/HomePage";
 import GamePage from "./components/GamePage";
 import NotFoundPage from "./components/NotFoundPage";
+import React from "react";
 
 function App() {
   return (

@@ -26,17 +26,17 @@ describe('Popup Component', () => {
     expect(document.body.contains(popupElement)).toBe(true);
   });
 
-  // Test 3: Vérifier que le titre du popup s'affiche correctement
-//   it('displays the correct title', () => {
-//     const title = "Popup Title Test";
-//     render(
-//       <Popup show={true} title={title} onClose={jest.fn()}>
-//         <div>Test Content</div>
-//       </Popup>
-//     );
-//     const titleElement = screen.getByText(title);
-//     expect(titleElement).toBeInTheDocument(); // Le titre doit être visible et correct
-//   });
+//   Test 3: Vérifier que le titre du popup s'affiche correctement
+  it('displays the correct title', () => {
+    const title = "Popup Title Test";
+    render(
+      <Popup show={true} title={title} onClose={jest.fn()}>
+        <div>Test Content</div>
+      </Popup>
+    );
+    const titleElement = screen.getByText(title);
+    expect(document.body.contains(titleElement)).toBe(true);
+  });
 
   // Test 4: Vérifier que le bouton de fermeture appelle la fonction `onClose`
   it('calls onClose when the close button is clicked', () => {
