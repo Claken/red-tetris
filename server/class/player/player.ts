@@ -81,7 +81,7 @@ export class Player {
     this._isMaster = right;
   }
   // test fait
-  addTeromino(tetromino: Tetromino): void {
+  addTetromino(tetromino: Tetromino): void {
     this._tetrominos.push(tetromino);
   }
   // test fait

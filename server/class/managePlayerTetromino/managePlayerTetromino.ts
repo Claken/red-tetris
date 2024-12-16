@@ -25,14 +25,14 @@ export class ManagePlayerTetromino {
     tetromino.generateRandomTetromino();
     for (let i = 0; i < players.length; i++) {
       if (i === 0) {
-        players[i].addTeromino(tetromino);
+        players[i].addTetromino(tetromino);
       } else {
         const tetrominoCopie = new Tetromino(
           tetromino.getRotation(),
           tetromino.getShape(),
           tetromino.getType(),
         );
-        players[i].addTeromino(tetrominoCopie);
+        players[i].addTetromino(tetrominoCopie);
       }
     }
   }
