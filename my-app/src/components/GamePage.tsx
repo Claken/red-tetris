@@ -234,8 +234,9 @@ function GamePage() {
 						<div className="border-8 border-[#414868]">
 							<div className="border-2 border-black">
 								<div className="grid grid-cols-10 gap-0.5"
-									tabIndex={0}
-									onKeyDown={handleKeydown}
+									 tabIndex={0}
+									 onKeyDown={handleKeydown}
+									 data-testid="grid-container"
 								>
 									{grid.map((row, rowIndex) =>
 										row.map((cell, colIndex) => (
