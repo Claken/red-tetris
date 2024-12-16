@@ -100,7 +100,6 @@ function GamePage() {
 	};
 
 	const displaySpectrums = (specList: any, left: boolean) => {
-
 		const idx = 6;
 		const rightOrLeft = (index: any): boolean => {
 			console.log("index == " + index);
