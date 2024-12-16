@@ -5,6 +5,7 @@ import React from "react";
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
 import { io } from "socket.io-client";
+import { cellColorMainGrid, displayTetromino, displaySpectrums } from "../functions/forTheGame";
 
 function GamePage() {
 
@@ -37,6 +38,12 @@ function GamePage() {
 
 	const CannotRestart = Toastify({
 		text: "Cannot restart the game : not enough players",
+		duration: 3000,
+		close: true,
+	});
+
+	const NoGame = Toastify({
+		text: "No game found",
 		duration: 3000,
 		close: true,
 	});
@@ -83,103 +90,8 @@ function GamePage() {
 		setWaiting(true);
 	}
 
-	const cellColorMainGrid = (cell: number) => {
-		switch (cell) {
-			case (1): // turquoise
-				return 'bg-[#00ffff]'
-			case (2):
-				return 'bg-[#0077ff]'
-			case (3):
-				return 'bg-[#ff7f00]'
-			case (4):
-				return 'bg-[#ffff00]'
-			case (5):
-				return 'bg-[#00ff00]'
-			case (6):
-				return 'bg-[#800080]'
-			case (7):
-				return 'bg-[#ff0000]'
-			case (0): 	// grid's cell
-				return 'bg-[#1a1b26]'
-			case (102): // tetromino's shadown
-				return 'bg-[#7d0202] opacity-75'
-			case (20): // indestructible line
-				return 'bg-gray-500'
-		}
-		return 'bg-red-400'
-	}
-
-	const getTetroColor = (type: string) => {
-		switch (type) {
-			case ('I'):
-				return 'bg-[#00ffff]'
-			case ('J'):
-				return 'bg-[#0077ff]'
-			case ('L'):
-				return 'bg-[#ff7f00]'
-			case ('O'):
-				return 'bg-[#ffff00]'
-			case ('S'):
-				return 'bg-[#00ff00]'
-			case ('T'):
-				return 'bg-[#800080]'
-			case ('Z'):
-				return 'bg-[#ff0000]'
-		}
-	}
-
-	const displayTetromino = (tetromino: any) => {
-		const tetroColor = getTetroColor(tetromino.type);
-		return tetromino.shape.map((row: number[], rowIndex: number) => (
-			<div key={rowIndex} className="flex">
-				{row.map((cell: number, colIndex: number) => (
-					<div
-						key={colIndex}
-						className={`w-4 h-4 border border-gray-900 ${cell !== 0 ? tetroColor : 'bg-transparent'}`}
-					>
-					</div>
-				))}
-			</div>
-		));
-	};
-
-	const displaySpectrums = (specList: any, left: boolean) => {
-
-		const idx = 6;
-		const rightOrLeft = (index: any): boolean => {
-			console.log("index == " + index);
-			if (left) {
-				return index < idx;
-			}
-			return index >= idx;
-		}
-
-		return (
-			<div className="grid grid-cols-2 space-x-4">
-				{specList.map((spectrum, index) => (
-					<div key={index}>
-						{rightOrLeft(index) && <div>
-							<h3 className="text-lg text-white text-center font-semibold mb-2">{spectrum.name}</h3>
-							<div
-								className="grid grid-cols-10 gap-0"
-							>
-								{spectrum.spectrum.flat().map((value, idx) => (
-									<div
-										key={idx}
-										className={`w-2 h-2 border border-gray-700 ${value > 0 ? (value === 1 ? 'bg-cyan-500' : 'bg-red-800') : 'bg-transparent'
-											}`}
-									></div>
-								))}
-							</div>
-						</div>}
-					</div>
-				))}
-			</div>
-		);
-	}
-
 	const WaitingLogo = () => {
-		return <div className="flex items-center justify-center h-screen">
+		return <div data-testid="waiting-logo" className="flex items-center justify-center h-screen">
 			<div className="flex flex-col items-center">
 				<div className="text-red-600 text-center font-bold mb-4">
 					PLEASE WAIT
@@ -234,6 +146,8 @@ function GamePage() {
 	useEffect(() => {
 		socket?.on("endGame", (data) => {
 			setWaiting(false);
+			console.log({"data.player": data.player});
+			setMultiGame(data.player.type === 100 ? true : false);
 			if (data.player.uuid === uuid) {
 				setWinner(data.player.winner);
 			}
@@ -256,6 +170,15 @@ function GamePage() {
 	}, [socket]);
 
 	useEffect(() => {
+		socket?.on("noGame", () => {
+			goBackToHome();
+		});
+		return () => {
+			socket?.off("noGame");
+		};
+	}, [socket]);
+
+	useEffect(() => {
 		if (socket === undefined) {
 			console.log("socket is undefined");
 			const newSocket = io("http://localhost:3000", {
@@ -268,6 +191,7 @@ function GamePage() {
 
 	useEffect(() => {
 		socket?.on("noGame", () => {
+			NoGame.showToast();
 			goBackToHome();
 		});
 		return () => {
@@ -283,9 +207,8 @@ function GamePage() {
 						<div className="text-white font-bold text-center">
 							OPPONENTS
 						</div>
-						<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg">
+						<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg max-h-[720px] overflow-auto">
 							<div className="flex flex-col items-center space-y-4">
-
 								{specList && specList.length > 0 && displaySpectrums(specList, true)}
 							</div>
 						</div>
@@ -295,8 +218,7 @@ function GamePage() {
 							OPPONENTS
 						</div>
 						<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg">
-							<div className="flex flex-col items-center space-y-4">
-
+							<div className="flex flex-col items-center space-y-4 overflow-auto">
 								{specList && specList.length > 0 && displaySpectrums(specList, false)}
 							</div>
 						</div>
@@ -353,9 +275,9 @@ function GamePage() {
 							<div className="text-white font-bold text-center">
 								NEXT
 							</div>
-							<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg w-32">
+							<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg w-32 h-[420px] overflow-auto">
 								<div className="flex flex-col items-center space-y-4">
-									{tetrominos && tetrominos.length > 0 && tetrominos.map((tetro, index) => (
+									{tetrominos && tetrominos.length > 0 && tetrominos.map((tetro: any, index: number) => (
 										<div key={index} className="items-center">
 											{displayTetromino(tetro)}
 										</div>

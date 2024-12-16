@@ -1,6 +1,7 @@
 import { createContext, useState, ReactNode, useContext } from 'react';
 import { ISocketContext } from '../interfaces/socketContext.interface';
 import { Socket } from "socket.io-client";
+import React from 'react';
 
 const SocketContext = createContext<ISocketContext | undefined>(undefined);
 

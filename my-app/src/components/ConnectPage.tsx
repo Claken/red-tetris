@@ -35,7 +35,7 @@ function ConnectPage({ name, setName, uuid, setUuid, socket, setSocket }: {
 	});
 
 	return (
-		<div className="flex items-center justify-center h-screen bg-black">
+		<div data-testid="connect-page" className="flex items-center justify-center h-screen bg-black">
 			<div className="flex flex-col justify-center items-center border border-white rounded-md bg-red-500">
 				<div className="text-white text-3xl font-bold p-2 m-4 w-fit">WELCOME TO RED TETRIS</div>
 				<div className="text-white text-center font-bold text-sm p-2 bg-red-900 border-y border-white w-full">↓ Please write your player name to access the site ↓</div>
@@ -43,6 +43,7 @@ function ConnectPage({ name, setName, uuid, setUuid, socket, setSocket }: {
 					<input type="text"
 						className="bg-red-900 placeholder:text-white placeholder:opacity-60 text-white font-bold border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
 						placeholder="Player name"
+						maxLength={20}
 						onChange={handleChange}
 					/>
 				</div>

@@ -15,7 +15,6 @@ function HomePage() {
 	const socketContext = useSocket();
 	const [name, setName] = useState<string>("");
 	const [uuid, setUuid] = useState<string | undefined>(sessionStorage.getItem("uuid") == null ? undefined : sessionStorage.getItem("uuid")?.toString());
-	console.log("HomePage", { uuid: uuid, name: name });
 	const [roomId, setRoomId] = useState<string>("");
 	const [listRoomsAc, setListRoomsAc] = useState([]);
 	const [listRoomsCreate, setListRoomsCreate] = useState([]);
@@ -44,7 +43,14 @@ function HomePage() {
 	const { socket, setSocket } = socketContext;
 
 	const togglePopup = () => {
-		setShowPopup(!showPopup);
+		setShowPopup((prev) => {
+			const newBoolean = !showPopup;
+			if (prev === true) {
+				setPopupTitle("");
+				setPopupChild(<div></div>);
+			}
+			return newBoolean
+		});
 	};
 
 	// const handleLogout = () => {
@@ -86,7 +92,7 @@ function HomePage() {
 						<div className="flex flex-col space-y-3 p-4 max-h-48 overflow-y-auto">
 							{waitList?.map((player, index) => {
 								return (
-									<div key={index} className="text-white text-center py-2 px-4 bg-gray-600 rounded-lg shadow-md">
+									<div key={index} className="text-white text-center truncate py-2 px-4 bg-gray-600 rounded-lg shadow-md">
 										{player}
 									</div>
 								);
@@ -103,7 +109,9 @@ function HomePage() {
 		);
 	}
 
-	const childForOtherRooms = (room: string, setListButtonClickedSpec: React.Dispatch<React.SetStateAction<boolean>>): ReactNode => {
+	const childForOtherRooms = (room: string,
+		setListButtonClickedSpec: React.Dispatch<React.SetStateAction<boolean>>,
+		isStarted: boolean): ReactNode => {
 
 		const joinGame = (room: string) => {
 			console.log("joinGame : ", { name: name, uuid: uuid, roomId: room });
@@ -114,10 +122,12 @@ function HomePage() {
 
 		return (
 			<div>
-				<div className="flex flex-col my-1 space-y-5 p-10">
-					<button className="bg-[#508fe0] hover:bg-[#00916E] active:bg-bg-[#00916E] text-white font-bold py-2 px-4 rounded-full transition-all duration-200"
+
+				<div className="flex flex-col space-y-5 p-5">
+					{isStarted ? <div className="text-white text-center">THIS GAME HAS ALREADY STARTED</div> : null}
+					<button className="bg-[#508fe0] hover:bg-[#00916E] active:bg-bg-[#00916E] text-white truncate font-bold py-2 px-4 rounded-full transition-all duration-200"
 						onClick={() => { joinGame(room) }}>
-						Join this game
+						{isStarted ? "Join waiting list" : "Join this game"}
 					</button>
 				</div>
 			</div>
@@ -143,44 +153,54 @@ function HomePage() {
 							{title}
 						</div>
 					</div>
-					<div className="w-full max-w-4xl shadow-lg p-8 bg-gray-900 border-4 border-gray-700 rounded-lg m-4">
+					<div className="w-full max-w-4xl max-h-[720px] shadow-lg p-8 bg-gray-900 border-4 border-gray-700 rounded-lg m-4 overflow-auto">
 						<div className="items-center space-x-2 grid grid-cols-4 grid-rows-4 gap-4">
-							{listRooms.map((room: string, index: number) => {
-								return (
-									<div key={index} className="flex bg-gray-700 hover:bg-gray-500 rounded-md transition-all duration-200">
-										<button
-											className="text-white font-bold py-2 px-4 rounded-full w-full"
-											onClick={(e) => {
-												e.preventDefault();
-												setRoomId((prev) => {
-													const newRoom = room;
-													console.log(prev);
-													return newRoom
-												});
-												if (title === "ACTIVE ROOMLIST") {
-													const goToRoute = room + '/' + name;
-													navigate(goToRoute);
-													setListButtonClickedSpec(false);
-													setListButtonClicked(false);
-												}
-												else {
-													const newTitle = room;
-													setPopupTitle(newTitle);
-													if (title === "MY ROOMLIST") {
-														socket?.emit("getWaitingList", { uuid: uuid, roomId: room });
-													}
-													else if (title === "OTHERS ROOMLIST") {
-														setPopupChild(childForOtherRooms(room, setListButtonClickedSpec));
+							{
+								title != "OTHERS ROOMLIST" ?
+									listRooms.map((room: string, index: number) => {
+										return (
+											<div key={index} className="flex bg-gray-700 hover:bg-gray-500 rounded-md transition-all duration-200">
+												<button
+													className="text-white truncate font-bold py-2 px-4 rounded-full w-full"
+													onClick={(e) => {
+														e.preventDefault();
+														const newRoom = room;
+														setRoomId(newRoom);
+														if (title === "ACTIVE ROOMLIST") {
+															const goToRoute = newRoom + '/' + name;
+															navigate(goToRoute);
+															setListButtonClickedSpec(false);
+															setListButtonClicked(false);
+														}
+														else {
+															setPopupTitle(newRoom);
+															socket?.emit("getWaitingList", { uuid: uuid, roomId: newRoom });
+														}
+													}}
+												>
+													{room}
+												</button>
+											</div>
+										);
+									}) : listRooms.map((array: any, index: number) => {
+										return (
+											<div key={index} className="flex bg-gray-700 hover:bg-gray-500 rounded-md transition-all duration-200">
+												<button
+													className="text-white truncate font-bold py-2 px-4 rounded-full w-full"
+													onClick={(e) => {
+														e.preventDefault();
+														const newRoom = array.roomId;
+														setRoomId(newRoom);
+														setPopupTitle(newRoom);
+														setPopupChild(childForOtherRooms(newRoom, setListButtonClickedSpec, array.isStarted));
 														togglePopup();
-													}
-												}
-											}}
-										>
-											{room}
-										</button>
-									</div>
-								);
-							})
+													}}
+												>
+													{array.roomId}
+												</button>
+											</div>
+										);
+									})
 							}
 						</div>
 					</div>
@@ -209,6 +229,7 @@ function HomePage() {
 			)
 		}
 		else if (listButtonClickedRooms) {
+			socket?.emit("getCreateRooms", { uuid: uuid });
 			return theRoomList(
 				{
 					listRooms: listRoomsCreate,
@@ -218,7 +239,6 @@ function HomePage() {
 			)
 		}
 		else if (listButtonClickedOthers) {
-
 			socket?.emit("getOtherRooms", { uuid: uuid });
 			return theRoomList(
 				{
@@ -260,7 +280,7 @@ function HomePage() {
 				console.log(`uuid or name is undefined ${newUuid} ${newName}`);
 			}
 		}
-		console.log("useEffect setUuid end : ",  { uuid: uuid, name: name });
+		console.log("useEffect setUuid end : ", { uuid: uuid, name: name });
 	}, [uuid]);
 
 	useEffect(() => {
@@ -289,14 +309,15 @@ function HomePage() {
 
 	useEffect(() => {
 		socket?.on("getCreateRooms", (data) => {
-			console.log("getCreateRooms", {uuid: uuid});
+			console.log("getCreateRooms", { uuid: uuid });
 			if (popupTitle === titleRoomCreated) {
 				console.log(popupTitle);
-				setPopupChild(<div className="text-white">
-					{"a new room has been created : " + data.createRooms[data.createRooms.length - 1]}
+				setPopupChild(<div className="text-white truncate">
+					{"A new room has been created : " + data.createRooms[data.createRooms.length - 1]}
 				</div>);
 				togglePopup();
-				setListRoomsCreate(data.createRooms);
+				const newCreatedRoom = data.createRooms;
+				setListRoomsCreate(newCreatedRoom);
 			}
 		});
 		return () => {
@@ -310,7 +331,7 @@ function HomePage() {
 			setTimeout(() => {
 				console.log("sessionStorage.getItem('uuid') = " + sessionStorage.getItem("uuid"));
 				console.log("sessionStorage.getItem('name') = " + sessionStorage.getItem("name"));
-				console.log({uuid: uuid, roomId: data.roomId, name: name});
+				console.log({ uuid: uuid, roomId: data.roomId, name: name });
 			}, 1000);
 			const newWaitingList = data.players;
 			setWaitingList(newWaitingList);
@@ -320,7 +341,7 @@ function HomePage() {
 		return () => {
 			socket?.off("list_players_room");
 		};
-	}, [socket, waitingList, setWaitingList, setPopupChild, setListButtonClickedRooms,childForMyRooms, togglePopup]);
+	}, [socket, waitingList, setWaitingList, setPopupChild, setListButtonClickedRooms, childForMyRooms, togglePopup]);
 
 	useEffect(() => {
 		socket?.on("not_enough_person", (data) => {
@@ -336,7 +357,7 @@ function HomePage() {
 		sessionStorage.getItem("name") ?
 			<div className="bg-black h-screen">
 				<header className="justify-between absolute bg-[#ff0000] flex flex-row w-screen p-4 border-b-2 border-white">
-					<h2 className="text-white text-xl font-bold">
+					<h2 className="text-white text-xl font-bold truncate">
 						{name}
 					</h2>
 					{/* <button
@@ -379,7 +400,7 @@ function HomePage() {
 											</svg>
 										</div>
 									</button>
-									<button className="bg-[#6d6d6d] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-200" onClick={
+									<button className="bg-[#6d6d6d] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 border border-2 transition-all duration-200" onClick={
 										(e: React.MouseEvent<HTMLButtonElement>) => {
 											e.preventDefault();
 											setListButtonClickedRooms(true);
@@ -392,7 +413,7 @@ function HomePage() {
 											</svg>
 										</div>
 									</button>
-									<button className="bg-[#7851a9] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-200" onClick={
+									<button className="bg-[#7851a9] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 border border-2 transition-all duration-200" onClick={
 										(e: React.MouseEvent<HTMLButtonElement>) => {
 											e.preventDefault();
 											setListButtonClickedOthers(true);
@@ -406,7 +427,7 @@ function HomePage() {
 											</svg>
 										</div>
 									</button>
-									<button className="bg-[#3a7a45] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-200" onClick={
+									<button className="bg-[#3a7a45] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 border border-2 transition-all duration-200" onClick={
 										(e: React.MouseEvent<HTMLButtonElement>) => {
 											e.preventDefault();
 											console.log("getActiveRooms ----");
