@@ -145,6 +145,7 @@ function GamePage() {
 
 	useEffect(() => {
 		socket?.on("endGame", (data) => {
+			if (data.player.roomId === roomId) {
 			setWaiting(false);
 			console.log({"data.player": data.player});
 			setMultiGame(data.player.type === 100 ? true : false);
@@ -153,6 +154,7 @@ function GamePage() {
 			}
 			setGrid(emptyGrid);
 			setPartyDone(true);
+		}
 		});
 		return () => {
 			socket?.off("endGame");
