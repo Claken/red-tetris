@@ -1,4 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, vi } from 'vitest';
+import React from 'react';
 import Popup from '../components/popupWindow';
 
 describe('Popup Component', () => {
@@ -6,7 +8,7 @@ describe('Popup Component', () => {
   // Test 1: Vérifier que le popup ne s'affiche pas lorsque `show` est false
   it('does not render when show is false', () => {
     render(
-      <Popup show={false} title="Test Popup" onClose={jest.fn()}>
+      <Popup show={false} title="Test Popup" onClose={vi.fn()}>
         <div>Test Content</div>
       </Popup>
     );
@@ -18,7 +20,7 @@ describe('Popup Component', () => {
   // Test 2: Vérifier que le popup s'affiche lorsque `show` est true
   it('renders when show is true', () => {
     render(
-      <Popup show={true} title="Test Popup" onClose={jest.fn()}>
+      <Popup show={true} title="Test Popup" onClose={vi.fn()}>
         <div>Test Content</div>
       </Popup>
     );
@@ -30,7 +32,7 @@ describe('Popup Component', () => {
   it('displays the correct title', () => {
     const title = "Popup Title Test";
     render(
-      <Popup show={true} title={title} onClose={jest.fn()}>
+      <Popup show={true} title={title} onClose={vi.fn()}>
         <div>Test Content</div>
       </Popup>
     );
@@ -40,7 +42,7 @@ describe('Popup Component', () => {
 
   // Test 4: Vérifier que le bouton de fermeture appelle la fonction `onClose`
   it('calls onClose when the close button is clicked', () => {
-    const mockOnClose = jest.fn(); // Mock de la fonction onClose
+    const mockOnClose = vi.fn(); // Mock de la fonction onClose
     render(
       <Popup show={true} title="Test Popup" onClose={mockOnClose}>
         <div>Test Content</div>
