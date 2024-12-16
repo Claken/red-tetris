@@ -5,7 +5,7 @@ import React from "react";
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
 import { io } from "socket.io-client";
-import { cellColorMainGrid, getTetroColor } from "../functions/forTheGame";
+import { cellColorMainGrid, displayTetromino, displaySpectrums } from "../functions/forTheGame";
 
 function GamePage() {
 
@@ -88,55 +88,6 @@ function GamePage() {
 		}
 		setPartyDone(false);
 		setWaiting(true);
-	}
-
-	const displayTetromino = (tetromino: any) => {
-		const tetroColor = getTetroColor(tetromino.type);
-		return tetromino.shape.map((row: number[], rowIndex: number) => (
-			<div key={rowIndex} className="flex">
-				{row.map((cell: number, colIndex: number) => (
-					<div
-						key={colIndex}
-						className={`w-4 h-4 border border-gray-900 ${cell !== 0 ? tetroColor : 'bg-transparent'}`}
-					>
-					</div>
-				))}
-			</div>
-		));
-	};
-
-	const displaySpectrums = (specList: any, left: boolean) => {
-		const idx = 6;
-		const rightOrLeft = (index: any): boolean => {
-			console.log("index == " + index);
-			if (left) {
-				return index < idx;
-			}
-			return index >= idx;
-		}
-
-		return (
-			<div className="grid grid-cols-1 lg:grid-cols-2 lg:space-x-4">
-				{specList.map((spectrum: any, index: number) => (
-					<div key={index} className="w-[70px]">
-						{rightOrLeft(index) && <div className="">
-							<h3 className="text-lg text-white text-center truncate font-semibold mb-2">{spectrum.name}</h3>
-							<div
-								className="grid grid-cols-10 gap-0"
-							>
-								{spectrum.spectrum.flat().map((value: number, idx: number) => (
-									<div
-										key={idx}
-										className={`w-2 h-2 border border-gray-700 ${value > 0 ? (value === 1 ? 'bg-cyan-500' : 'bg-red-800') : 'bg-transparent'
-											}`}
-									></div>
-								))}
-							</div>
-						</div>}
-					</div>
-				))}
-			</div>
-		);
 	}
 
 	const WaitingLogo = () => {
