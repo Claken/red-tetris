@@ -2,7 +2,6 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { cellColorMainGrid, getTetroColor, displayTetromino, displaySpectrums } from '../functions/forTheGame';
 import React from 'react';
-// import { SocketProvider } from '../contexts/socketContext';
 import GamePage from '../components/GamePage';
 import { MemoryRouter } from 'react-router-dom';
 import { SocketProvider } from '../contexts/socketContext';

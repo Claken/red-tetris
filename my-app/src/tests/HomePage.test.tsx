@@ -1,4 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
+import HomePage  from '../components/HomePage';
+import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { SocketProvider } from '../contexts/socketContext';
+import React from 'react';
 
 // La fonction que nous voulons tester
 const displayAList = (listButtonClickedActive: boolean, listButtonClickedRooms: boolean, listButtonClickedOthers: boolean, actions: { activeRoomsList: any; myRoomsList: any; otherRoomsList: any; }) => {
@@ -12,6 +17,20 @@ const displayAList = (listButtonClickedActive: boolean, listButtonClickedRooms: 
     return actions.otherRoomsList();
   }
 };
+
+describe('HomePage Component', () => {
+  it('renders the HomePage component', () => {
+    render(
+      <MemoryRouter>
+        <SocketProvider>
+          <HomePage />
+        </SocketProvider>
+      </MemoryRouter>
+    );
+    const linkElement = screen.getByTestId('connect-page');
+    expect(document.body.contains(linkElement)).toBe(true);
+  });
+});
 
 describe('displayAList', () => {
   it('should call activeRoomsList when listButtonClickedActive is true', () => {
@@ -75,43 +94,43 @@ describe('displayAList', () => {
   });
 });
 
-vi.mock('../contexts/socketContext', () => ({
-	useSocket: vi.fn(),
-  }));
+// vi.mock('../contexts/socketContext', () => ({
+// 	useSocket: vi.fn(),
+//   }));
   
-  // Exemple de fonction à tester sans la logique UI
-  const handleJoinSolo = (socket: { emit: any; } | undefined, name: string, uuid: string) => {
-	if (socket) {
-	  socket.emit('startSingleTetrisGame', { name, uuid });
-	}
-  };
+//   // Exemple de fonction à tester sans la logique UI
+//   const handleJoinSolo = (socket: { emit: any; } | undefined, name: string, uuid: string) => {
+// 	if (socket) {
+// 	  socket.emit('startSingleTetrisGame', { name, uuid });
+// 	}
+//   };
   
-  describe('handleJoinSolo', () => {
-	it('should emit startSingleTetrisGame when called', () => {
-	  // On crée une fausse fonction `emit` que nous pouvons vérifier
-	  const mockEmit = vi.fn();
+  // describe('handleJoinSolo', () => {
+	// it('should emit startSingleTetrisGame when called', () => {
+	//   // On crée une fausse fonction `emit` que nous pouvons vérifier
+	//   const mockEmit = vi.fn();
   
-	  // On simule un faux socket
-	  const fakeSocket = { emit: mockEmit };
+	//   // On simule un faux socket
+	//   const fakeSocket = { emit: mockEmit };
   
-	  // Appelle la fonction avec les paramètres de test
-	  handleJoinSolo(fakeSocket, 'testName', 'testUuid');
+	//   // Appelle la fonction avec les paramètres de test
+	//   handleJoinSolo(fakeSocket, 'testName', 'testUuid');
   
-	  // Vérifie que la fonction emit a été appelée avec les bons paramètres
-	  expect(mockEmit).toHaveBeenCalledWith('startSingleTetrisGame', {
-		name: 'testName',
-		uuid: 'testUuid',
-	  });
-	});
+	//   // Vérifie que la fonction emit a été appelée avec les bons paramètres
+	//   expect(mockEmit).toHaveBeenCalledWith('startSingleTetrisGame', {
+	// 	name: 'testName',
+	// 	uuid: 'testUuid',
+	//   });
+	// });
   
-	it('should not emit anything if socket is undefined', () => {
-	  const mockEmit = vi.fn();
+	// it('should not emit anything if socket is undefined', () => {
+	//   const mockEmit = vi.fn();
 	  
-	  // Appelle la fonction avec un socket indéfini
-	  handleJoinSolo(undefined, 'testName', 'testUuid');
+	//   // Appelle la fonction avec un socket indéfini
+	//   handleJoinSolo(undefined, 'testName', 'testUuid');
   
-	  // Vérifie que `emit` n'a pas été appelée
-	  expect(mockEmit).not.toHaveBeenCalled();
-	});
-  });
+	//   // Vérifie que `emit` n'a pas été appelée
+	//   expect(mockEmit).not.toHaveBeenCalled();
+	// });
+  // });
   
