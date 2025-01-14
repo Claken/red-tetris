@@ -2,8 +2,9 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { cellColorMainGrid, getTetroColor, displayTetromino, displaySpectrums } from '../functions/forTheGame';
 import GamePage from '../components/GamePage';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { SocketProvider, useSocket } from '../contexts/socketContext';
+import { io } from "socket.io-client";
 import React, { createContext } from 'react';
 
 vi.mock('react-router-dom', async () => {
@@ -13,6 +14,62 @@ vi.mock('react-router-dom', async () => {
         useParams: () => ({ room: 'testRoom' }),
     };
 });
+
+vi.mock("socket.io-client", () => {
+    return {
+      io: vi.fn(),
+    };
+  });
+  
+describe("GamePage - Initialisation de la socket", () => {
+    let socketMock: any;
+    const mockEmit = vi.fn();
+  
+    beforeEach(() => {
+      socketMock = { emit: mockEmit };
+      (io as any).mockReturnValue(socketMock);
+      sessionStorage.setItem("uuid", "test-uuid");
+      sessionStorage.setItem("name", "test-name");
+    });
+  
+    afterEach(() => {
+      vi.clearAllMocks();
+      sessionStorage.clear();
+    });
+  
+    it("devrait initialiser la socket si socket est undefined", () => {
+      render(
+        <MemoryRouter initialEntries={["/game/test-room"]}>
+          <SocketProvider>
+            <Routes>
+              <Route path="/game/:room" element={<GamePage />} />
+            </Routes>
+          </SocketProvider>
+        </MemoryRouter>
+      );
+  
+      expect(io).toHaveBeenCalledWith("http://localhost:3000", {
+        query: { name: "test-name", uuid: "test-uuid" },
+      });
+    });
+  
+    it("devrait émettre l'événement 'checkGame' avec les bons paramètres", () => {
+      render(
+        <MemoryRouter initialEntries={["/game/test-room"]}>
+          <SocketProvider>
+            <Routes>
+              <Route path="/game/:room" element={<GamePage />} />
+            </Routes>
+          </SocketProvider>
+        </MemoryRouter>
+      );
+  
+      expect(mockEmit).toHaveBeenCalledWith("checkGame", {
+        uuid: "test-uuid",
+        roomId: "test-room",
+      });
+    });
+  });
 
 // describe('GamePage - handleKeydown', () => {
 //     let mockSocket: { emit: ReturnType<typeof vi.fn>, on: ReturnType<typeof vi.fn>, off: ReturnType<typeof vi.fn> };
