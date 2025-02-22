@@ -1,4 +1,4 @@
-# Red Tetris
+# :tetris: Red Tetris
 
 ## Introduction
 
