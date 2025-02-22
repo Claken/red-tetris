@@ -2,15 +2,15 @@
 
 ## Introduction
 
-L'objectif de ce projet est de développer un jeu de Tetris multijoueur en réseau en utilisant exclusivement une stack Full Stack JavaScript
+The goal of this project is to develop a multiplayer Tetris game over the network using exclusively a Full Stack JavaScript stack
 
-## Regles
+## Rules
 
-- Le code écrit côté client doit etre ecrit sous un paradigme fonctionnel
-- Le code écrit côté serveur doit etre ecrit sous un paradigme objet
-- L'application doit inclure des tests unitaires rigoureux pour garantir la qualité et la fiabilité du code.
+- The client-side code must be written using a functional programming paradigm.
+- The server-side code must be written using an object-oriented programming paradigm.
+- The application must include rigorous unit tests to ensure code quality and reliability.
 
-## Technologies utilisées
+## Stack
 
 - React : client
 - NestJs : server
