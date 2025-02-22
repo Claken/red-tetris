@@ -20,3 +20,5 @@ The goal of this project is to develop a multiplayer Tetris game over the networ
 
 
 ## 🚀 Usage
+
+```docker-compose up```
