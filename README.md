@@ -1,5 +1,5 @@
 
-# ![red-tetris](https://github.com/user-attachments/assets/b2031333-9bff-47cf-b877-073466fcc7cd) Red Tetris
+# ![red-tetris - Copy](https://github.com/user-attachments/assets/a2df82c6-00d2-4dae-9977-c5ca1f49de15) Red Tetris
 
 
 ## Introduction
