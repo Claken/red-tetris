@@ -1,4 +1,5 @@
-# ![tetris(3)](https://github.com/user-attachments/assets/0aae2476-fc46-4b8f-b10e-a67cf76bc673) Red Tetris
+![tetris(3)](https://github.com/user-attachments/assets/0aae2476-fc46-4b8f-b10e-a67cf76bc673)
+# Red Tetris
 
 ## Introduction
 
