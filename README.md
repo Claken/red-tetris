@@ -1,6 +1,7 @@
-# :tetris: Red Tetris
+# ![tetris(3)](https://github.com/user-attachments/assets/0aae2476-fc46-4b8f-b10e-a67cf76bc673) Red Tetris
 
 ## Introduction
+
 
 The goal of this project is to develop a multiplayer Tetris game over the network using exclusively a Full Stack JavaScript stack
 
