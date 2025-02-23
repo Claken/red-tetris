@@ -1,5 +1,13 @@
 FROM node:20.17.0
 WORKDIR /my-app
 
+COPY package.json package-lock.json ./
+
+RUN npm install
+
+COPY . .
+
+# RUN npm run start
+
 EXPOSE 5173
 CMD ["tail", "-f", "/dev/null"]

@@ -1,7 +1,7 @@
 services:
   frontend:
     build:
-      dockerfile: dockerfile.frontend
+      dockerfile: ./dockerfile.frontend
       context: .
     container_name: redTetris-frontend
     ports:
@@ -12,6 +12,7 @@ services:
       - ./my-app:/my-app
       # - /my-app/node_modules
     restart: always
+    command: ["npm", "run", "dev"]
 
   backend:
     build:
@@ -26,6 +27,7 @@ services:
     volumes:
       - ./server:/server
       # - /app/node_modules
+    command: ["yarn", "run", "start:dev"]
 
   test:
     build:
