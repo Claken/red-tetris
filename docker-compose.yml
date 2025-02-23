@@ -27,7 +27,8 @@ services:
     volumes:
       - ./server:/server
       # - /app/node_modules
-    command: ["yarn", "run", "start:dev"]
+    working_dir: /server
+    command: ["yarn", "start"]
 
   test:
     build:
