@@ -23,7 +23,8 @@ Type this command in your terminal :
 ```
 docker compose up
 ```
-Once the project is launched, type this URL in your browser :
+This will install all the pre-requisites and launch the back and the front ends of the project
+Once everything is launched, type this URL in your browser :
 ```
 http://localhost:5173/
 ```
