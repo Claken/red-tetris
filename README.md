@@ -22,6 +22,12 @@ The goal of this project is to develop a multiplayer Tetris game over the networ
 
 ## 🚀 Usage
 
+Type this command in your terminal :
 ```
 docker compose up
 ```
+Once the project is launched, type this URL in your browser :
+```
+http://localhost:5173/
+```
+
