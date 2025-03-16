@@ -28,7 +28,7 @@ services:
       - ./server:/server
       # - /app/node_modules
     working_dir: /server
-    command: ["yarn", "start"]
+    command: ["yarn", "run", "start:dev"]
 
   test:
     build:

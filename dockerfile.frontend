@@ -7,7 +7,7 @@ RUN npm install
 
 COPY . .
 
-# RUN npm run start
+# RUN npm run dev
 
 EXPOSE 5173
 CMD ["tail", "-f", "/dev/null"]
