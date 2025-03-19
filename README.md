@@ -17,11 +17,43 @@ The goal of this project is to develop a multiplayer Tetris game over the networ
 <a href="https://nestjs.com/" target="_blank" rel="noreferrer"> <img src="https://nestjs.com/img/logo-small.svg" alt="nestjs" width="40" height="40"/> </a>
 <a href="https://www.docker.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/docker/docker-original-wordmark.svg" alt="docker" width="40">
 
-## 📦 Prerequisites
+# Coverage
 
+```
+npm run test -- --coverage
+```
 
 ## 🚀 Usage
 
+Type this command in your terminal :
 ```
 docker compose up
 ```
+This will install all the pre-requisites and launch the back and the front ends of the project <br />
+<br />
+Once everything is launched, type this URL in your browser :
+```
+http://localhost:5173/
+```
+Once you have typed it, you will need to write a name :
+![Screenshot_from_2025-03-19_12-51-34](https://github.com/user-attachments/assets/7ca76121-0dea-44b8-9a13-32cf94ea1494)<br />
+<br />
+Once that is done, this page will appear :<br />
+![Screenshot_from_2025-03-19_12-29-53](https://github.com/user-attachments/assets/468091af-14bf-4beb-b312-0720a8b9cef5)
+
+# ▶️ How to launch a game
+
+When you start a solo game, you will have something like this :<br />
+![Screenshot_from_2025-03-19_12-27-34](https://github.com/user-attachments/assets/92d36be8-9502-4bd8-a0ac-de69f9a7479f)<br />
+
+# 🎮 How to play a game
+
+### ⌨️ Keyboard controls
+
+| Action | Key |
+| --- | --- |
+| move piece to the left | left arrow |
+| move piece to the right | right arrow |
+| rotate piece | up arrow |
+| piece falls towards the pile | down arrow |
+| Vertically move piece on the pile | spacebar |
