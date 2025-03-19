@@ -46,10 +46,8 @@ When you start a solo game, you will have something like this :<br />
 
 | Action | Key |
 | --- | --- |
-| move forward | W |
-| move to the left | A |
-| move backward | S |
-| move to the right | D |
-| camera to the left | left arrow |
-| camera to the right | right arrow |
-| Quit game | ESC / red cross |
+| move piece to the left | left arrow |
+| move piece to the right | right arrow |
+| rotate piece | up arrow |
+| piece falls towards the pile | down arrow |
+| Vertically move piece on the pile | spacebar |
