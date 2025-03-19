@@ -17,12 +17,6 @@ The goal of this project is to develop a multiplayer Tetris game over the networ
 <a href="https://nestjs.com/" target="_blank" rel="noreferrer"> <img src="https://nestjs.com/img/logo-small.svg" alt="nestjs" width="40" height="40"/> </a>
 <a href="https://www.docker.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/docker/docker-original-wordmark.svg" alt="docker" width="40">
 
-### Coverage
-
-```
-npm run test -- --coverage
-```
-
 ## 🚀 Usage
 
 Type this command in your terminal :
@@ -40,6 +34,12 @@ Once you have typed it, you will need to write a name :
 <br />
 Once that is done, this page will appear :<br />
 ![Screenshot_from_2025-03-19_12-29-53](https://github.com/user-attachments/assets/468091af-14bf-4beb-b312-0720a8b9cef5)
+
+### Coverage
+
+```
+npm run test -- --coverage
+```
 
 # ▶️ How to launch a game
 
