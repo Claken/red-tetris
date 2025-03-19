@@ -39,3 +39,17 @@ Once that is done, this page will appear :<br />
 
 When you start a solo game, you will have something like this :<br />
 ![Screenshot_from_2025-03-19_12-27-34](https://github.com/user-attachments/assets/92d36be8-9502-4bd8-a0ac-de69f9a7479f)<br />
+
+# 🎮 How to play a game
+
+### ⌨️ Keyboard controls
+
+| Action | Key |
+| --- | --- |
+| move forward | W |
+| move to the left | A |
+| move backward | S |
+| move to the right | D |
+| camera to the left | left arrow |
+| camera to the right | right arrow |
+| Quit game | ESC / red cross |
