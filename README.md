@@ -56,7 +56,11 @@ Click on the "Create a room" button ; it will automatically creates a room other
 ![Screenshot_from_2025-03-20_11-50-49](https://github.com/user-attachments/assets/03941050-5a1c-4216-a920-876a34710542)
 <br />
 <br />
-Then, you need to have at least one other player to launch a multiplayer game.
+Then, you need to have at least one other player to launch a multiplayer game.<br />
+Other players need to click on the "join a game" button, choose the room one wants, click on it, then join it.
+
+![Screenshot_from_2025-03-20_12-24-31](https://github.com/user-attachments/assets/1db32a53-6e5d-452b-a6d9-49960fe6e8f8)
+
 
 # 🎮 How to play a game
 
