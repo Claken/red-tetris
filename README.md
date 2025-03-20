@@ -55,6 +55,7 @@ To play a game with multiple players, you need to create a room first.<br />
 Click on the "Create a room" button ; it will automatically creates a room other players can join.<br />
 ![Screenshot_from_2025-03-20_11-50-49](https://github.com/user-attachments/assets/03941050-5a1c-4216-a920-876a34710542)
 <br />
+<br />
 Then, you need to have at least one other player to launch a multiplayer game.
 
 # 🎮 How to play a game
