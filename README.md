@@ -43,9 +43,13 @@ npm run test -- --coverage
 
 # ▶️ How to launch a game
 
+### Solo player game
+
 Click on the "solo game" button to start a game on your own.<br />
 You will have something like this :<br />
 ![Screenshot_from_2025-03-19_12-27-34](https://github.com/user-attachments/assets/92d36be8-9502-4bd8-a0ac-de69f9a7479f)<br />
+
+### Multiplayer game
 
 # 🎮 How to play a game
 
