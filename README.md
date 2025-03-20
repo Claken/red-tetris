@@ -61,6 +61,10 @@ Other players need to click on the "Join a game" button, choose the room one wan
 
 ![Screenshot_from_2025-03-20_12-24-31](https://github.com/user-attachments/assets/1db32a53-6e5d-452b-a6d9-49960fe6e8f8)
 
+The player who has created the room can now launch it :<br />
+
+![Screenshot_from_2025-03-20_13-01-58](https://github.com/user-attachments/assets/23c8856d-7998-4965-8531-60bc4b859fda)
+
 
 # 🎮 How to play a game
 
