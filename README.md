@@ -29,7 +29,7 @@ Once everything is launched, type this URL in your browser :
 ```
 http://localhost:5173/
 ```
-Then, you will need to write a name :
+Then, you will need to write a name :<br />
 ![Screenshot_from_2025-03-19_12-51-34](https://github.com/user-attachments/assets/7ca76121-0dea-44b8-9a13-32cf94ea1494)<br />
 <br />
 Once this is done, this page will appear :<br />
