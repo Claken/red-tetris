@@ -12,12 +12,15 @@ services:
       - ./my-app:/my-app
       # - /my-app/node_modules
     restart: always
+    working_dir: /my-app
     command: ["npm", "run", "dev"]
+    depends_on:
+      - backend
 
   backend:
     build:
       dockerfile: ./dockerfile.backend
-      context: .
+      context: ./
     container_name: redTetris-backend
     ports:
       - 3000:3000
