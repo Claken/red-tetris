@@ -30,9 +30,11 @@ Once everything is launched, type this URL in your browser :
 http://localhost:5173/
 ```
 Then, you will need to write a name :<br />
+
 ![Screenshot_from_2025-03-19_12-51-34](https://github.com/user-attachments/assets/7ca76121-0dea-44b8-9a13-32cf94ea1494)<br />
 <br />
 Once this is done, this page will appear :<br />
+
 ![Screenshot_from_2025-03-19_12-29-53](https://github.com/user-attachments/assets/468091af-14bf-4beb-b312-0720a8b9cef5)
 
 ### Coverage
@@ -47,12 +49,14 @@ npm run test -- --coverage
 
 Click on the "solo game" button to start a game on your own.<br />
 You will have something like this :<br />
+
 ![Screenshot_from_2025-03-19_12-27-34](https://github.com/user-attachments/assets/92d36be8-9502-4bd8-a0ac-de69f9a7479f)<br />
 
 ### Multiplayer game
 
 To play a game with multiple players, you need to create a room first.<br />
 Click on the "Create a room" button ; it will automatically creates a room other players can join.<br />
+
 ![Screenshot_from_2025-03-20_13-01-28](https://github.com/user-attachments/assets/35afbc4d-1413-4a67-acd8-9b741bd80e9b)
 <br />
 <br />
