@@ -11,13 +11,18 @@ The game is built using a full-stack JavaScript stack and leverages modern techn
 - The server-side code is built using an object-oriented programming paradigm for robust and maintainable architecture.
 - Comprehensive unit testing is implemented to ensure code quality and reliability.
 
-## Stack
+## 🛠️ Tech Stack
 
 <a href="https://reactjs.org/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/react/react-original-wordmark.svg" alt="react" width="40" height="40"/> </a>
 <a href="https://nestjs.com/" target="_blank" rel="noreferrer"> <img src="https://nestjs.com/img/logo-small.svg" alt="nestjs" width="40" height="40"/> </a>
 <a href="https://www.docker.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/docker/docker-original-wordmark.svg" alt="docker" width="40">
 
-## 🚀 Usage
+The project utilizes the following technologies:
+- **React** for the client-side UI
+- **NestJS** for the server-side architecture
+- **Docker** for containerization and environment consistency
+
+## 🚀 Getting Started
 
 To launch the application, run the following command in your terminal:
 ```
@@ -38,7 +43,7 @@ Upon entering your name, the main game screen will be displayed:<br />
 ![Screenshot_from_2025-03-19_12-29-53](https://github.com/user-attachments/assets/468091af-14bf-4beb-b312-0720a8b9cef5)
 
 ### 🧪 Running Tests
-
+To run tests with coverage, use the following command:
 ```
 npm run test -- --coverage
 ```
@@ -53,18 +58,20 @@ Click on the Solo Game button to start a game by yourself:<br />
 
 ### Multiplayer game
 
-To play a game with multiple players, you need to create a room first.<br />
-Click on the "Create a room" button ; it will automatically creates a room other players can join.<br />
+To create a multiplayer game:
+1. Click on the `Create a room` button to set up a new room.<br />
 
 ![Screenshot_from_2025-03-20_13-01-28](https://github.com/user-attachments/assets/35afbc4d-1413-4a67-acd8-9b741bd80e9b)
-<br />
-<br />
-Then, you need to have at least one other player in the room to launch a multiplayer game in it.<br />
-Other players need to click on the "Join a game" button, choose the room they want, click on it, then join it and wait.
+
+2. Wait for other players to join.<br />
+
+To join an existing game, click on the `Join a game` button and select a room:<br />
 
 ![Screenshot_from_2025-03-20_12-24-31](https://github.com/user-attachments/assets/1db32a53-6e5d-452b-a6d9-49960fe6e8f8)
 
-The player who has created the room can now launch it :<br />
+3. The room creator can launch the game once at least one other player has joined.<br />
+
+Click on the `ALL MY ROOMS` button and select the room to want to launch:<br />
 
 ![Screenshot_from_2025-03-20_13-01-58](https://github.com/user-attachments/assets/23c8856d-7998-4965-8531-60bc4b859fda)
 
@@ -81,4 +88,4 @@ The player who has created the room can now launch it :<br />
 | Accelerate piece downward | down arrow |
 | Drop piece instantly | spacebar |
 
-Enjoy the game and challenge your friends to see who can achieve the highest score!
+Enjoy the game and challenge your friends to see who will be the last one standing !
