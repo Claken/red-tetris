@@ -2,8 +2,7 @@
 
 # ![red-tetris - Copy](https://github.com/user-attachments/assets/a2df82c6-00d2-4dae-9977-c5ca1f49de15)  RED TETRIS  ![red-tetris-reverse](https://github.com/user-attachments/assets/7b21961b-896d-4ada-ae8d-6a01f83c6e33)
 
-
-The goal of this project is to develop a multiplayer Tetris game over the network using exclusively a Full Stack JavaScript stack
+Red Tetris is a multiplayer Tetris game designed to be played over the network. The game is built using a full-stack JavaScript stack and leverages modern technologies to ensure smooth gameplay and reliable connectivity.
 
 ## 📜 Rules
 
@@ -19,25 +18,25 @@ The goal of this project is to develop a multiplayer Tetris game over the networ
 
 ## 🚀 Usage
 
-Type this command in your terminal :
+To launch the application, run the following command in your terminal:
 ```
 docker compose up
 ```
-This will install all the pre-requisites and launch the back and the front ends of the project <br />
+This command will automatically install all prerequisites and launch both the front-end and back-end services.<br />
 <br />
-Once everything is launched, type this URL in your browser :
+Once the application is up and running, open your browser and navigate to:
 ```
 http://localhost:5173/
 ```
-Then, you will need to write a name :<br />
+You will be prompted to enter a player name:<br />
 
 ![Screenshot_from_2025-03-19_12-51-34](https://github.com/user-attachments/assets/7ca76121-0dea-44b8-9a13-32cf94ea1494)<br />
 <br />
-Once this is done, this page will appear :<br />
+Upon entering your name, the main game screen will be displayed:<br />
 
 ![Screenshot_from_2025-03-19_12-29-53](https://github.com/user-attachments/assets/468091af-14bf-4beb-b312-0720a8b9cef5)
 
-### Coverage
+### 🧪 Running Tests
 
 ```
 npm run test -- --coverage
@@ -47,8 +46,7 @@ npm run test -- --coverage
 
 ### Solo player game
 
-Click on the "solo game" button to start a game on your own.<br />
-You will have something like this :<br />
+Click on the Solo Game button to start a game by yourself:<br />
 
 ![Screenshot_from_2025-03-19_12-27-34](https://github.com/user-attachments/assets/92d36be8-9502-4bd8-a0ac-de69f9a7479f)<br />
 
@@ -76,8 +74,10 @@ The player who has created the room can now launch it :<br />
 
 | Action | Key |
 | --- | --- |
-| move piece to the left | left arrow |
-| move piece to the right | right arrow |
-| rotate piece | up arrow |
-| piece falls towards the pile | down arrow |
-| Vertically move piece on the pile | spacebar |
+| Move piece left | left arrow |
+| Move piece right | right arrow |
+| Rotate piece | up arrow |
+| Accelerate piece downward | down arrow |
+| Drop piece instantly | spacebar |
+
+Enjoy the game and challenge your friends to see who can achieve the highest score!
