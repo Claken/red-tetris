@@ -13,14 +13,11 @@ The game is built using a full-stack JavaScript stack and leverages modern techn
 
 ## 🛠️ Tech Stack
 
-<a href="https://reactjs.org/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/react/react-original-wordmark.svg" alt="react" width="40" height="40"/> </a>
-<a href="https://nestjs.com/" target="_blank" rel="noreferrer"> <img src="https://nestjs.com/img/logo-small.svg" alt="nestjs" width="40" height="40"/> </a>
-<a href="https://www.docker.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/docker/docker-original-wordmark.svg" alt="docker" width="40">
-
-The project utilizes the following technologies:
-- **React** for the client-side UI
-- **NestJS** for the server-side architecture
-- **Docker** for containerization and environment consistency
+| Icon | Description                                |
+|-----------|--------------------------------------------|
+| <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/react/react-original-wordmark.svg" alt="react" width="35" height="35"/> | **React** for the client-side UI |
+| <img src="https://nestjs.com/img/logo-small.svg" alt="nestjs" width="35" height="35"/> | **NestJS** for the server-side architecture |
+| <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/docker/docker-original-wordmark.svg" alt="docker" width="35" height="35"/> | **Docker** for containerization and environment consistency |
 
 ## 🚀 Getting Started
 
@@ -52,7 +49,7 @@ npm run test -- --coverage
 
 ### Solo player game
 
-Click on the Solo Game button to start a game by yourself:<br />
+Click on the `Solo game` button to start a game by yourself:<br />
 
 ![Screenshot_from_2025-03-19_12-27-34](https://github.com/user-attachments/assets/92d36be8-9502-4bd8-a0ac-de69f9a7479f)<br />
 
