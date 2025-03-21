@@ -23,7 +23,7 @@ The game is built using a full-stack JavaScript stack and leverages modern techn
 
 To launch the application, run the following command in your terminal:
 ```
-docker compose up
+docker-compose up --build
 ```
 This command will automatically install all prerequisites and launch both the front-end and back-end services.<br />
 <br />
