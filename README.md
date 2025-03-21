@@ -5,11 +5,11 @@
 Red Tetris is a multiplayer Tetris game designed to be played over the network.<br />
 The game is built using a full-stack JavaScript stack and leverages modern technologies to ensure smooth gameplay and reliable connectivity.
 
-## 📜 Rules
+## 📜 Rules and Guidelines
 
-- The client-side code must be written using a functional programming paradigm.
-- The server-side code must be written using an object-oriented programming paradigm.
-- The application must include rigorous unit tests to ensure code quality and reliability.
+- The client-side code is written using a functional programming paradigm to maintain modularity and scalability.
+- The server-side code is built using an object-oriented programming paradigm for robust and maintainable architecture.
+- Comprehensive unit testing is implemented to ensure code quality and reliability.
 
 ## Stack
 
@@ -43,7 +43,7 @@ Upon entering your name, the main game screen will be displayed:<br />
 npm run test -- --coverage
 ```
 
-# ▶️ How to launch a game
+# ▶️ Starting a Game
 
 ### Solo player game
 
@@ -69,9 +69,9 @@ The player who has created the room can now launch it :<br />
 ![Screenshot_from_2025-03-20_13-01-58](https://github.com/user-attachments/assets/23c8856d-7998-4965-8531-60bc4b859fda)
 
 
-# 🎮 How to play a game
+# 🎮 How to Play
 
-### ⌨️ Keyboard controls
+### ⌨️ Controls
 
 | Action | Key |
 | --- | --- |
