@@ -1,5 +1,3 @@
-# !!! README IN PROGRESS !!! #
-
 # ![red-tetris - Copy](https://github.com/user-attachments/assets/a2df82c6-00d2-4dae-9977-c5ca1f49de15)  RED TETRIS  ![red-tetris-reverse](https://github.com/user-attachments/assets/7b21961b-896d-4ada-ae8d-6a01f83c6e33)
 
 Red Tetris is a multiplayer Tetris game designed to be played over the network.<br />
