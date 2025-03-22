@@ -6,6 +6,8 @@ COPY server/yarn.lock ./
 WORKDIR /server
 RUN yarn install
 
+RUN yarn global add @nestjs/cli
+
 COPY server/. .
 
 # RUN yarn run start:dev
