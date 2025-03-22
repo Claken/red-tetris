@@ -1,14 +1,17 @@
 FROM node:20.17.0
+
+COPY server/package*.json ./
+COPY server/yarn.lock ./
+
 WORKDIR /server
-
-COPY ./package.json ./
-COPY yarn.lock ./
-
 RUN yarn install
 
-COPY . .
+RUN yarn global add @nestjs/cli
+
+COPY server/. .
 
 # RUN yarn run start:dev
 
 EXPOSE 3000
-CMD ["tail", "-f", "/dev/null"]
+# CMD ["tail", "-f", "/dev/null"]
+CMD ["yarn", "run", "start:dev"]

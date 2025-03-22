@@ -1,13 +1,15 @@
 FROM node:20.17.0
-WORKDIR /my-app
 
-COPY package.json package-lock.json ./
+COPY my-app/package*.json ./
+
+WORKDIR /my-app
 
 RUN npm install
 
-COPY . .
-
 # RUN npm run dev
 
+COPY /my-app/. .
+
 EXPOSE 5173
-CMD ["tail", "-f", "/dev/null"]
+# CMD ["tail", "-f", "/dev/null"]
+CMD ["npm", "run", "dev"]
