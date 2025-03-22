@@ -72,6 +72,11 @@ Click on the `ALL MY ROOMS` button and select the room to want to launch:<br />
 
 ![Screenshot_from_2025-03-20_13-01-58](https://github.com/user-attachments/assets/23c8856d-7998-4965-8531-60bc4b859fda)
 
+Here is an example of a multiplayer game with two players:<br />
+
+![Screenshot_from_2025-03-22_16-30-58](https://github.com/user-attachments/assets/34410c84-d43f-415f-ae9b-11aa90bd0f3e)
+
+![Screenshot_from_2025-03-22_16-30-58-2](https://github.com/user-attachments/assets/e12ceb11-9cb1-4774-a7d2-8778f4de50a9)
 
 # 🎮 How to Play
 
