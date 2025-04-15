@@ -14,64 +14,64 @@ vi.mock('react-router-dom', async () => {
     };
 });
 
-// describe('GamePage - handleKeydown', () => {
-//     let mockSocket: { emit: ReturnType<typeof vi.fn>, on: ReturnType<typeof vi.fn>, off: ReturnType<typeof vi.fn> };
-//     let mockSetSocket: ReturnType<typeof vi.fn>;
+describe('GamePage - handleKeydown', () => {
+    let mockSocket: { emit: ReturnType<typeof vi.fn>, on: ReturnType<typeof vi.fn>, off: ReturnType<typeof vi.fn> };
+    let mockSetSocket: ReturnType<typeof vi.fn>;
   
-//     beforeEach(() => {
-//       mockSocket = {
-//         emit: vi.fn(),
-//         on: vi.fn(),
-//         off: vi.fn(),
-//       };
-//       mockSetSocket = vi.fn();
-//       sessionStorage.setItem('uuid', 'testUuid');
-//       sessionStorage.setItem('name', 'testName');
-//     });
+    beforeEach(() => {
+      mockSocket = {
+        emit: vi.fn(),
+        on: vi.fn(),
+        off: vi.fn(),
+      };
+      mockSetSocket = vi.fn();
+      sessionStorage.setItem('uuid', 'testUuid');
+      sessionStorage.setItem('name', 'testName');
+    });
   
-//     it('should call socket.emit with "moveRight" when ArrowRight is pressed', () => {
-//       // On rend le composant avec un Mock du contexte
-//       const { getByTestId } = render(
-//         <SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
-//           <MemoryRouter>
-//             <GamePage />
-//           </MemoryRouter>
-//         </SocketContext.Provider>
-//       );
+    it('should call socket.emit with "moveRight" when ArrowRight is pressed', () => {
+      // On rend le composant avec un Mock du contexte
+      const { getByTestId } = render(
+        <SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+          <MemoryRouter>
+            <GamePage />
+          </MemoryRouter>
+        </SocketContext.Provider>
+      );
   
-//       // On récupère l'élément qui a le onKeyDown
-//       // Dans votre code, c'est la div avec grid, tabIndex={0}
-//       // On peut tenter de le sélectionner par rôle ou par testId
-//       const gridElement = getByTestId('grid-container');
-//       // Si votre élément n'a pas de rôle, vous pouvez ajouter un data-testid dans le code du composant ou tenter un autre selecteur
+      // On récupère l'élément qui a le onKeyDown
+      // Dans votre code, c'est la div avec grid, tabIndex={0}
+      // On peut tenter de le sélectionner par rôle ou par testId
+      const gridElement = getByTestId('grid-container');
+      // Si votre élément n'a pas de rôle, vous pouvez ajouter un data-testid dans le code du composant ou tenter un autre selecteur
   
-//       // On simule la pression de la touche ArrowRight
-//       fireEvent.keyDown(gridElement, { key: 'ArrowRight', code: 'ArrowRight' });
+      // On simule la pression de la touche ArrowRight
+      fireEvent.keyDown(gridElement, { key: 'ArrowRight', code: 'ArrowRight' });
   
-//       // Vérifie que socket.emit a été appelé avec les bons arguments
-//       expect(mockSocket.emit).toHaveBeenCalledWith('moveRight', { uuid: 'testUuid', roomId: 'testRoom' });
-//     });
+      // Vérifie que socket.emit a été appelé avec les bons arguments
+      expect(mockSocket.emit).toHaveBeenCalledWith('moveRight', { uuid: 'testUuid', roomId: 'testRoom' });
+    });
   
-//     it('should call socket.emit with "moveLeft" when ArrowLeft is pressed', () => {
-//       render(
-//         <SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
-//           <MemoryRouter>
-//             <GamePage />
-//           </MemoryRouter>
-//         </SocketContext.Provider>
-//       );
+    it('should call socket.emit with "moveLeft" when ArrowLeft is pressed', () => {
+      render(
+        <SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+          <MemoryRouter>
+            <GamePage />
+          </MemoryRouter>
+        </SocketContext.Provider>
+      );
   
-//       const gridElement = document.querySelector('[tabindex="0"]'); 
-//       // Ici on sélectionne l'élément par son tabIndex, car c'est unique.
-//       // Ajustez ce sélecteur si nécessaire, ou ajoutez un data-testid sur l'élément dans GamePage pour le cibler plus facilement.
+      const gridElement = document.querySelector('[tabindex="0"]'); 
+      // Ici on sélectionne l'élément par son tabIndex, car c'est unique.
+      // Ajustez ce sélecteur si nécessaire, ou ajoutez un data-testid sur l'élément dans GamePage pour le cibler plus facilement.
   
-//       fireEvent.keyDown(gridElement!, { key: 'ArrowLeft', code: 'ArrowLeft' });
+      fireEvent.keyDown(gridElement!, { key: 'ArrowLeft', code: 'ArrowLeft' });
   
-//       expect(mockSocket.emit).toHaveBeenCalledWith('moveLeft', { uuid: 'testUuid', roomId: 'testRoom' });
-//     });
+      expect(mockSocket.emit).toHaveBeenCalledWith('moveLeft', { uuid: 'testUuid', roomId: 'testRoom' });
+    });
   
-//     // Vous pouvez créer des tests similaires pour ArrowUp, ArrowDown, et la barre d'espace
-//   });
+    // Vous pouvez créer des tests similaires pour ArrowUp, ArrowDown, et la barre d'espace
+  });
 
 describe('GamePage Component', () => {
     it('renders the GamePage component', () => {

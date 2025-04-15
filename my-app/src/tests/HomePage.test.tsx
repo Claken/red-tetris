@@ -86,7 +86,8 @@ describe("HomePage Component", () => {
     fireEvent.click(button);
 
     // Vérifiez que l'état de showPopup a changé
-    const popupElement = screen.queryByText("Popup Content"); // Remplacez par le contenu réel de la popup
+    const popupElement = screen.queryByText("A new room has been created");
+    // console.log(popupElement)
     expect(popupElement).toBeNull();
 
     // Simuler un autre clic pour fermer la popup
