@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { cellColorMainGrid, getTetroColor, displayTetromino, displaySpectrums } from '../functions/forTheGame';
 import GamePage from '../components/GamePage';
 import { MemoryRouter } from 'react-router-dom';
-import { SocketProvider, useSocket } from '../contexts/socketContext';
+import { SocketProvider, useSocket, SocketContext } from '../contexts/socketContext';
 import React, { createContext } from 'react';
 
 vi.mock('react-router-dom', async () => {
