@@ -82,6 +82,7 @@ export const displaySpectrums = (specList: any, left: boolean) => {
 								{spectrum.spectrum.flat().map((value: number, idx: number) => (
 									<div
 										key={idx}
+										data-testid="spectrum-bg"
 										className={`w-2 h-2 border border-gray-700 ${value > 0 ? (value === 1 ? 'bg-cyan-500' : 'bg-red-800') : 'bg-transparent'
 											}`}
 									></div>
