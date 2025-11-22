@@ -1,58 +1,76 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { cellColorMainGrid, getTetroColor, displayTetromino, displaySpectrums } from '../functions/forTheGame';
 import GamePage from '../components/GamePage';
 import { MemoryRouter } from 'react-router-dom';
-import { SocketProvider, useSocket, SocketContext } from '../contexts/socketContext';
-import React, { createContext } from 'react';
+import { SocketProvider, SocketContext } from '../contexts/socketContext';
+import React from 'react';
+import '@testing-library/jest-dom';
+import * as reactRouterDom from 'react-router-dom';
 
+// Mock toastify-js at module level
+vi.mock("toastify-js", () => ({
+	default: vi.fn(() => ({
+		showToast: vi.fn(),
+	})),
+}));
+
+// Mock react-router-dom
 vi.mock('react-router-dom', async () => {
 	const actual = await vi.importActual('react-router-dom') as object;
 	return {
 		...actual,
 		useParams: () => ({ room: 'testRoom' }),
+		useNavigate: () => vi.fn(),
 	};
 });
 
+function createMockSocket() {
+	const listeners: Record<string, Function[]> = {};
+
+	return {
+		on: vi.fn((event, cb) => {
+			listeners[event] = listeners[event] || [];
+			listeners[event].push(cb);
+		}),
+		off: vi.fn((event) => {
+			delete listeners[event];
+		}),
+		emit: vi.fn((event, data) => {
+			if (listeners[event]) {
+				listeners[event].forEach((cb) => cb(data));
+			}
+		}),
+		__simulate: (event: string, data: any) => {
+			if (listeners[event]) {
+				listeners[event].forEach((cb) => cb(data));
+			}
+		},
+		__getListeners: () => listeners,
+	};
+}
+
 describe('GamePage - handleKeydown', () => {
-	let mockSocket: { emit: ReturnType<typeof vi.fn>, on: ReturnType<typeof vi.fn>, off: ReturnType<typeof vi.fn> };
+	let mockSocket: ReturnType<typeof createMockSocket>;
 	let mockSetSocket: ReturnType<typeof vi.fn>;
+	let mockNavigate: ReturnType<typeof vi.fn>;
 
 	beforeEach(() => {
-		mockSocket = {
-			emit: vi.fn(),
-			on: vi.fn(),
-			off: vi.fn(),
-		};
+		mockSocket = createMockSocket();
 		mockSetSocket = vi.fn();
+		mockNavigate = vi.fn();
 		sessionStorage.setItem('uuid', 'testUuid');
 		sessionStorage.setItem('name', 'testName');
+		vi.spyOn(reactRouterDom, 'useNavigate').mockReturnValue(mockNavigate);
 	});
 
-	it('should call socket.emit with "moveRight" when ArrowRight is pressed', () => {
-		// On rend le composant avec un Mock du contexte
-		const { getByTestId } = render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
-				<MemoryRouter>
-					<GamePage />
-				</MemoryRouter>
-			</SocketContext.Provider>
-		);
-
-		// On récupère l'élément qui a le onKeyDown
-		// Dans votre code, c'est la div avec grid, tabIndex={0}
-		// On peut tenter de le sélectionner par rôle ou par testId
-		//   const gridElement = getByTestId('grid-container');
-		// Si votre élément n'a pas de rôle, vous pouvez ajouter un data-testid dans le code du composant ou tenter un autre selecteur
-
-		// On simule la pression de la touche ArrowRight
-		//   fireEvent.keyDown(gridElement, { key: 'ArrowRight', code: 'ArrowRight' });
-
-		// Vérifie que socket.emit a été appelé avec les bons arguments
-		//   expect(mockSocket.emit).toHaveBeenCalledWith('moveRight', { uuid: 'testUuid', roomId: 'testRoom' });
+	afterEach(() => {
+		vi.restoreAllMocks();
+		sessionStorage.clear();
 	});
 
-	it('should call socket.emit with "moveLeft" when ArrowLeft is pressed', () => {
+	it('should call socket.emit with "moveRight" when ArrowRight is pressed', async () => {
+		// Simulate beforeGame event to get out of waiting state
 		render(
 			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
 				<MemoryRouter>
@@ -61,16 +79,127 @@ describe('GamePage - handleKeydown', () => {
 			</SocketContext.Provider>
 		);
 
-		const gridElement = document.querySelector('[tabindex="0"]');
-		// Ici on sélectionne l'élément par son tabIndex, car c'est unique.
-		// Ajustez ce sélecteur si nécessaire, ou ajoutez un data-testid sur l'élément dans GamePage pour le cibler plus facilement.
+		// Simulate beforeGame to show the grid
+		await waitFor(() => {
+			mockSocket.__simulate('beforeGame', {
+				player: {
+					grid: Array(24).fill(null).map(() => Array(10).fill(0)),
+					tetrominos: [],
+					type: 101, // SINGLE
+					roomId: 'testRoom',
+				},
+			});
+		});
 
-		//   fireEvent.keyDown(gridElement!, { key: 'ArrowLeft', code: 'ArrowLeft' });
+		const gridElement = screen.getByTestId('grid-container');
+		fireEvent.keyDown(gridElement, { key: 'ArrowRight', code: 'ArrowRight' });
 
-		//   expect(mockSocket.emit).toHaveBeenCalledWith('moveLeft', { uuid: 'testUuid', roomId: 'testRoom' });
+		expect(mockSocket.emit).toHaveBeenCalledWith('moveRight', { uuid: 'testUuid', roomId: 'testRoom' });
 	});
 
-	// Vous pouvez créer des tests similaires pour ArrowUp, ArrowDown, et la barre d'espace
+	it('should call socket.emit with "moveLeft" when ArrowLeft is pressed', async () => {
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+				<MemoryRouter>
+					<GamePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		await waitFor(() => {
+			mockSocket.__simulate('beforeGame', {
+				player: {
+					grid: Array(24).fill(null).map(() => Array(10).fill(0)),
+					tetrominos: [],
+					type: 101,
+					roomId: 'testRoom',
+				},
+			});
+		});
+
+		const gridElement = screen.getByTestId('grid-container');
+		fireEvent.keyDown(gridElement, { key: 'ArrowLeft', code: 'ArrowLeft' });
+
+		expect(mockSocket.emit).toHaveBeenCalledWith('moveLeft', { uuid: 'testUuid', roomId: 'testRoom' });
+	});
+
+	it('should call socket.emit with "rotate" when ArrowUp is pressed', async () => {
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+				<MemoryRouter>
+					<GamePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		await waitFor(() => {
+			mockSocket.__simulate('beforeGame', {
+				player: {
+					grid: Array(24).fill(null).map(() => Array(10).fill(0)),
+					tetrominos: [],
+					type: 101,
+					roomId: 'testRoom',
+				},
+			});
+		});
+
+		const gridElement = screen.getByTestId('grid-container');
+		fireEvent.keyDown(gridElement, { key: 'ArrowUp', code: 'ArrowUp' });
+
+		expect(mockSocket.emit).toHaveBeenCalledWith('rotate', { uuid: 'testUuid', roomId: 'testRoom' });
+	});
+
+	it('should call socket.emit with "moveDown" when ArrowDown is pressed', async () => {
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+				<MemoryRouter>
+					<GamePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		await waitFor(() => {
+			mockSocket.__simulate('beforeGame', {
+				player: {
+					grid: Array(24).fill(null).map(() => Array(10).fill(0)),
+					tetrominos: [],
+					type: 101,
+					roomId: 'testRoom',
+				},
+			});
+		});
+
+		const gridElement = screen.getByTestId('grid-container');
+		fireEvent.keyDown(gridElement, { key: 'ArrowDown', code: 'ArrowDown' });
+
+		expect(mockSocket.emit).toHaveBeenCalledWith('moveDown', { uuid: 'testUuid', roomId: 'testRoom' });
+	});
+
+	it('should call socket.emit with "fallDown" when Space is pressed', async () => {
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+				<MemoryRouter>
+					<GamePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		await waitFor(() => {
+			mockSocket.__simulate('beforeGame', {
+				player: {
+					grid: Array(24).fill(null).map(() => Array(10).fill(0)),
+					tetrominos: [],
+					type: 101,
+					roomId: 'testRoom',
+				},
+			});
+		});
+
+		const gridElement = screen.getByTestId('grid-container');
+		fireEvent.keyDown(gridElement, { key: ' ', code: 'Space' });
+
+		expect(mockSocket.emit).toHaveBeenCalledWith('fallDown', { uuid: 'testUuid', roomId: 'testRoom' });
+	});
 });
 
 describe('GamePage Component', () => {
