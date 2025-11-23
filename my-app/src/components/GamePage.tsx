@@ -262,16 +262,33 @@ function GamePage() {
 								)}
 								{partyDone === true && (
 									<div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
-										<div className="flex flex-col my-1 space-y-5 p-10 bg-[#1a1b26] opacity-90 rounded-xl">
-											<h1 className="text-white text-5xl font-bold">
+										<div className="flex flex-col my-1 space-y-5 p-10 bg-gray-900 border-4 border-gray-700 rounded-lg">
+											<h1 className="text-white text-5xl font-bold text-center">
 												{winner ? "YOU WON" : "GAME OVER"}
 											</h1>
 											<h1 className="text-white text-3xl font-bold text-center">
-												{" " + "Retry ?"}
+												Retry ?
 											</h1>
 											<div className="flex flex-row justify-center items-center space-x-5">
-												<button className="bg-green-500 hover:bg-green-700 active:bg-green-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={retryGame}>YES</button>
-												<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={notRetryingGame}>NO</button>
+												<button 
+													className="bg-[#00ff00] hover:bg-[#00cc00] active:bg-[#00ff00] text-white font-bold py-2 px-4 rounded-full w-fit transition-all duration-200 relative overflow-hidden"
+													onClick={retryGame}
+												>
+													YES
+												</button>
+												<button 
+													className="bg-[#ff0000] hover:bg-[#cc0000] active:bg-[#ff0000] text-white font-bold py-2 px-4 rounded-full w-fit transition-all duration-200 relative overflow-hidden"
+													style={{
+														backgroundImage: `
+															linear-gradient(rgba(255,255,255,0.15) 1.5px, transparent 1px),
+															linear-gradient(90deg, rgba(255,255,255,0.15) 1.5px, transparent 1px)
+														`,
+														backgroundSize: '8px 8px'
+													}}
+													onClick={notRetryingGame}
+												>
+													NO
+												</button>
 											</div>
 										</div>
 									</div>

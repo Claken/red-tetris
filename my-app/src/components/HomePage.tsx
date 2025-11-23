@@ -423,7 +423,16 @@ function HomePage() {
 						<h1 className="bg-gray-900 text-white font-bold text-3xl border-t-4 border-l-4 border-r-4 border-gray-700">
 							RED TETRIS
 						</h1>
-						<div className="relative border-4 border-gray-700 bg-gray-900 w-64 h-100 rounded-lg">
+						<div 
+							className="relative border-4 border-gray-700 bg-gray-900 w-64 h-100 rounded-lg overflow-hidden"
+							style={{
+								backgroundImage: `
+									linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px),
+									linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)
+								`,
+								backgroundSize: '12px 12px'
+							}}
+						>
 							<div className="flex flex-col my-1 space-y-5 p-10">
 								<button
 									className="bg-[#00ff00] hover:bg-[#00cc00] active:bg-[#00ff00] text-black font-bold py-2 px-4 rounded-full transition-all duration-200 relative overflow-hidden"
@@ -432,7 +441,7 @@ function HomePage() {
 											linear-gradient(rgba(0,0,0,0.15) 1px, transparent 1px),
 											linear-gradient(90deg, rgba(0,0,0,0.15) 1px, transparent 1px)
 										`,
-										backgroundSize: '8px 8px'
+										backgroundSize: '12px 12px'
 									}}
 									onClick={handleJoinSolo}
 								>
@@ -461,7 +470,7 @@ function HomePage() {
 											linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px),
 											linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)
 										`,
-										backgroundSize: '8px 8px'
+										backgroundSize: '12px 12px'
 									}}
 									onClick={handleCreateRoom}
 								>
@@ -489,7 +498,7 @@ function HomePage() {
 											linear-gradient(rgba(0,0,0,0.15) 1px, transparent 1px),
 											linear-gradient(90deg, rgba(0,0,0,0.15) 1px, transparent 1px)
 										`,
-										backgroundSize: '8px 8px'
+										backgroundSize: '12px 12px'
 									}}
 									onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
 										e.preventDefault();
@@ -525,7 +534,7 @@ function HomePage() {
 											linear-gradient(rgba(0,0,0,0.15) 1.5px, transparent 1px),
 											linear-gradient(90deg, rgba(0,0,0,0.15) 1.5px, transparent 1px)
 										`,
-										backgroundSize: '8px 8px'
+										backgroundSize: '12px 12px'
 									}}
 									onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
 										e.preventDefault();
@@ -557,7 +566,7 @@ function HomePage() {
 											linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px),
 											linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)
 										`,
-										backgroundSize: '8px 8px'
+										backgroundSize: '12px 12px'
 									}}
 									onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
 										e.preventDefault();
