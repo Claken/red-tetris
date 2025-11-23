@@ -203,6 +203,24 @@ describe('GamePage - handleKeydown', () => {
 });
 
 describe('GamePage Component', () => {
+	let mockSocket: ReturnType<typeof createMockSocket>;
+	let mockSetSocket: ReturnType<typeof vi.fn>;
+	let mockNavigate: ReturnType<typeof vi.fn>;
+
+	beforeEach(() => {
+		mockSocket = createMockSocket();
+		mockSetSocket = vi.fn();
+		mockNavigate = vi.fn();
+		sessionStorage.setItem('uuid', 'testUuid');
+		sessionStorage.setItem('name', 'testName');
+		vi.spyOn(reactRouterDom, 'useNavigate').mockReturnValue(mockNavigate);
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+		sessionStorage.clear();
+	});
+
 	it('renders the GamePage component', () => {
 		render(
 			<MemoryRouter>
@@ -213,7 +231,83 @@ describe('GamePage Component', () => {
 		);
 		const linkElement = screen.getByTestId('waiting-logo');
 		expect(document.body.contains(linkElement)).toBe(true);
+	});
 
+	it('displays countdown when countdown event is received', async () => {
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+				<MemoryRouter>
+					<GamePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		// First trigger beforeGame to show the grid
+		await waitFor(() => {
+			mockSocket.__simulate('beforeGame', {
+				player: {
+					grid: Array(24).fill(null).map(() => Array(10).fill(0)),
+					tetrominos: [],
+					type: 101,
+					roomId: 'testRoom',
+				},
+			});
+		});
+
+		// Then trigger countdown event
+		await waitFor(() => {
+			mockSocket.__simulate('countdown', {
+				roomId: 'testRoom',
+				currentTime: 3,
+			});
+		});
+
+		// Check if countdown is displayed
+		await waitFor(() => {
+			expect(screen.getByText('3')).toBeInTheDocument();
+		});
+	});
+
+	it('displays game over screen with retry buttons when endGame event is received', async () => {
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+				<MemoryRouter>
+					<GamePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		// First trigger beforeGame to show the grid
+		await waitFor(() => {
+			mockSocket.__simulate('beforeGame', {
+				player: {
+					grid: Array(24).fill(null).map(() => Array(10).fill(0)),
+					tetrominos: [],
+					type: 101,
+					roomId: 'testRoom',
+				},
+			});
+		});
+
+		// Trigger endGame event with winner = false
+		await waitFor(() => {
+			mockSocket.__simulate('endGame', {
+				player: {
+					roomId: 'testRoom',
+					uuid: 'testUuid',
+					winner: false,
+					type: 101,
+				},
+			});
+		});
+
+		// Check if game over screen is displayed
+		await waitFor(() => {
+			expect(screen.getByText('GAME OVER')).toBeInTheDocument();
+			expect(screen.getByText('Retry ?')).toBeInTheDocument();
+			expect(screen.getByText('YES')).toBeInTheDocument();
+			expect(screen.getByText('NO')).toBeInTheDocument();
+		});
 	});
 });
 
@@ -312,12 +406,6 @@ describe('displaySpectrums', () => {
 
 		expect(document.body.contains(player1)).toBe(true);
 		expect(document.body.contains(player2)).toBe(true);
-
-		// const spectrum_bg = screen.getAllByTestId("spectrum-bg")
-		// expect(spectrum_bg[0].className).contains('bg-transparent');
-		// expect(spectrum_bg[1].className).contains('bg-cyan-500');
-
-
 	});
 
 });
