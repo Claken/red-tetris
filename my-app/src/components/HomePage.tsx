@@ -96,7 +96,7 @@ function HomePage() {
 		return (
 			<div>
 				<div className="flex flex-col my-1 space-y-5 p-10 ">
-					<div className="bg-gray-700 rounded-lg">
+					<div className="bg-gray-900 border-4 border-gray-700 rounded-lg">
 						<h1 className="text-white text-xl font-semibold text-center mt-4">
 							WAITING LIST
 						</h1>
@@ -105,7 +105,7 @@ function HomePage() {
 								return (
 									<div
 										key={index}
-										className="text-white text-center truncate py-2 px-4 bg-gray-600 rounded-lg shadow-md"
+										className="text-white text-center truncate py-2 px-4 bg-gray-700 rounded-lg shadow-md"
 									>
 										{player}
 									</div>
@@ -114,7 +114,7 @@ function HomePage() {
 						</div>
 					</div>
 					<button
-						className="bg-[#508fe0] hover:bg-[#00916E] active:bg-[#007b5f] text-white font-bold py-2 px-6 rounded-full transition-all duration-200 mb-4"
+						className="bg-[#ff0000] hover:bg-[#cc0000] active:bg-[#ff0000] text-white font-bold py-2 px-6 rounded-full transition-all duration-200 mb-4"
 						onClick={() => startMultiGame(room)}
 					>
 						Launch a game
@@ -145,7 +145,7 @@ function HomePage() {
 						</div>
 					) : null}
 					<button
-						className="bg-[#508fe0] hover:bg-[#00916E] active:bg-bg-[#00916E] text-white truncate font-bold py-2 px-4 rounded-full transition-all duration-200"
+						className="bg-[#ff0000] hover:bg-[#cc0000] active:bg-[#ff0000] text-white truncate font-bold py-2 px-4 rounded-full transition-all duration-200"
 						onClick={() => {
 							joinGame(room);
 						}}
@@ -169,7 +169,7 @@ function HomePage() {
 		if (uuid && name) {
 			return (
 				<div className="flex flex-col items-center justify-center h-screen">
-					<div className="p-4 bg-gray-900 border-4 border-white rounded-full w-fit">
+					<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-full w-fit">
 						<div className="text-white font-bold">{title}</div>
 					</div>
 					<div className="w-full max-w-4xl max-h-[720px] shadow-lg p-8 bg-gray-900 border-4 border-gray-700 rounded-lg m-4 overflow-auto">
@@ -179,7 +179,7 @@ function HomePage() {
 									return (
 										<div
 											key={index}
-											className="flex bg-gray-700 hover:bg-gray-500 rounded-md transition-all duration-200"
+											className="flex bg-gray-700 hover:bg-gray-600 rounded-md transition-all duration-200"
 										>
 											<button
 												className="text-white truncate font-bold py-2 px-4 rounded-full w-full"
@@ -210,7 +210,7 @@ function HomePage() {
 									return (
 										<div
 											key={index}
-											className="flex bg-gray-700 hover:bg-gray-500 rounded-md transition-all duration-200"
+											className="flex bg-gray-700 hover:bg-gray-600 rounded-md transition-all duration-200"
 										>
 											<button
 												className="text-white truncate font-bold py-2 px-4 rounded-full w-full"
@@ -238,7 +238,7 @@ function HomePage() {
 					</div>
 					<div className="text-center">
 						<button
-							className="bg-[#433a3f] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit transition-all duration-200"
+							className="bg-[#ff0000] hover:bg-[#cc0000] active:bg-[#ff0000] text-white font-bold py-2 px-4 rounded-full w-fit transition-all duration-200"
 							onClick={() => {
 								setListButtonClickedSpec(false);
 								setListButtonClicked(false);
@@ -399,8 +399,8 @@ function HomePage() {
 	}, [socket]);
 
 	return sessionStorage.getItem("name") ? (
-		<div className="bg-black h-screen">
-			<header className="justify-between absolute bg-[#ff0000] flex flex-row w-screen p-4 border-b-2 border-white">
+		<div className="bg-[#1a1b26] h-screen">
+			<header className="justify-between absolute bg-gray-900 flex flex-row w-screen p-4 border-b-4 border-gray-700">
 				<h2 className="text-white text-xl font-bold truncate">{name}</h2>
 				{/* <button
 						className="bg-[#7851a9] hover:bg-[#6d6d6d] active:bg-[#433a3f] text-white font-bold py-2 px-4 rounded-full transition-all duration-200"
@@ -420,20 +420,27 @@ function HomePage() {
 			) : (
 				<div className="flex items-center justify-center h-screen">
 					<div className="text-center">
-						<h1 className="bg-[#ff0000] text-white font-bold text-3xl border-t-2 border-l-2 border-r-2 border-white">
+						<h1 className="bg-gray-900 text-white font-bold text-3xl border-t-4 border-l-4 border-r-4 border-gray-700">
 							RED TETRIS
 						</h1>
-						<div className="relative border-2 border-white bg-[#ff0000] w-64 h-100">
+						<div className="relative border-4 border-gray-700 bg-gray-900 w-64 h-100 rounded-lg">
 							<div className="flex flex-col my-1 space-y-5 p-10">
 								<button
-									className="bg-[#508fe0] hover:bg-[#00916E] active:bg-bg-[#00916E] text-white font-bold py-2 px-4 rounded-full transition-all duration-200"
+									className="bg-[#00ff00] hover:bg-[#00cc00] active:bg-[#00ff00] text-black font-bold py-2 px-4 rounded-full transition-all duration-200 relative overflow-hidden"
+									style={{
+										backgroundImage: `
+											linear-gradient(rgba(0,0,0,0.15) 1px, transparent 1px),
+											linear-gradient(90deg, rgba(0,0,0,0.15) 1px, transparent 1px)
+										`,
+										backgroundSize: '8px 8px'
+									}}
 									onClick={handleJoinSolo}
 								>
 									Solo game
 									<div className="flex items-center justify-center">
 										<svg
 											xmlns="http://www.w3.org/2000/svg"
-											fill="white"
+											fill="black"
 											viewBox=""
 											strokeWidth={1.5}
 											stroke="currentColor"
@@ -448,7 +455,14 @@ function HomePage() {
 									</div>
 								</button>
 								<button
-									className="bg-[#b5651d] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-200"
+									className="bg-[#0077ff] hover:bg-[#0055cc] active:bg-[#0077ff] text-white font-bold py-2 px-4 rounded-full transition-all duration-200 relative overflow-hidden"
+									style={{
+										backgroundImage: `
+											linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px),
+											linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)
+										`,
+										backgroundSize: '8px 8px'
+									}}
 									onClick={handleCreateRoom}
 								>
 									Create a room
@@ -469,7 +483,14 @@ function HomePage() {
 									</div>
 								</button>
 								<button
-									className="bg-[#6d6d6d] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 border border-2 transition-all duration-200"
+									className="bg-[#ff7f00] hover:bg-[#cc6600] active:bg-[#ff7f00] text-black font-bold py-2 px-4 rounded transition-all duration-200 relative overflow-hidden"
+									style={{
+										backgroundImage: `
+											linear-gradient(rgba(0,0,0,0.15) 1px, transparent 1px),
+											linear-gradient(90deg, rgba(0,0,0,0.15) 1px, transparent 1px)
+										`,
+										backgroundSize: '8px 8px'
+									}}
 									onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
 										e.preventDefault();
 										setListButtonClickedRooms(true);
@@ -481,7 +502,7 @@ function HomePage() {
 										<svg
 											className="h-8 w-8"
 											viewBox="0 0 24 24"
-											fill="white"
+											fill="black"
 											stroke="currentColor"
 											strokeWidth="2"
 											strokeLinecap="round"
@@ -498,7 +519,14 @@ function HomePage() {
 									</div>
 								</button>
 								<button
-									className="bg-[#7851a9] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 border border-2 transition-all duration-200"
+									className="bg-[#ffff00] hover:bg-[#cccc00] active:bg-[#ffff00] text-black font-bold py-2 px-4 rounded transition-all duration-200 relative overflow-hidden"
+									style={{
+										backgroundImage: `
+											linear-gradient(rgba(0,0,0,0.15) 1.5px, transparent 1px),
+											linear-gradient(90deg, rgba(0,0,0,0.15) 1.5px, transparent 1px)
+										`,
+										backgroundSize: '8px 8px'
+									}}
 									onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
 										e.preventDefault();
 										setListButtonClickedOthers(true);
@@ -509,7 +537,7 @@ function HomePage() {
 									<div className="flex items-center justify-center">
 										<svg
 											className="h-8 w-8"
-											fill="white"
+											fill="black"
 											viewBox="0 0 24 24"
 											stroke="currentColor"
 										>
@@ -523,7 +551,14 @@ function HomePage() {
 									</div>
 								</button>
 								<button
-									className="bg-[#3a7a45] hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 border border-2 transition-all duration-200"
+									className="bg-[#800080] hover:bg-[#660066] active:bg-[#800080] text-white font-bold py-2 px-4 rounded transition-all duration-200 relative overflow-hidden"
+									style={{
+										backgroundImage: `
+											linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px),
+											linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)
+										`,
+										backgroundSize: '8px 8px'
+									}}
 									onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
 										e.preventDefault();
 										console.log("getActiveRooms ----");
