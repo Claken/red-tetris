@@ -341,7 +341,7 @@ function HomePage() {
 			if (popupTitle === titleRoomCreated) {
 				console.log(popupTitle);
 				setPopupChild(
-					<div className="text-white truncate">
+					<div className="text-white text-2xl font-bold text-center">
 						{"A new room has been created : " +
 							data.createRooms[data.createRooms.length - 1]}
 					</div>
@@ -407,7 +407,7 @@ function HomePage() {
 						onClick={handleLogout}
 					>
 						Disconnect
-					</button> */}
+				</button> */}
 			</header>
 			{Popup({
 				show: showPopup,
