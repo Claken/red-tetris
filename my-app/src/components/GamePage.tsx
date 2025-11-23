@@ -262,7 +262,7 @@ function GamePage() {
 								)}
 								{partyDone === true && (
 									<div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
-										<div className="flex flex-col my-1 space-y-5 p-10 bg-black bg-opacity-80 rounded-xl">
+										<div className="flex flex-col my-1 space-y-5 p-10 bg-[#1a1b26] opacity-90 rounded-xl">
 											<h1 className="text-white text-5xl font-bold">
 												{winner ? "YOU WON" : "GAME OVER"}
 											</h1>
