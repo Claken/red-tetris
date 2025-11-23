@@ -173,16 +173,16 @@ function HomePage() {
 						<div className="text-white font-bold">{title}</div>
 					</div>
 					<div className="w-full max-w-4xl max-h-[720px] shadow-lg p-8 bg-gray-900 border-4 border-gray-700 rounded-lg m-4 overflow-auto">
-						<div className="items-center space-x-2 grid grid-cols-4 grid-rows-4 gap-4">
+						<div className="grid grid-cols-4 gap-4 auto-rows-fr">
 							{title != "OTHERS ROOMLIST"
 								? listRooms.map((room: string, index: number) => {
 									return (
 										<div
 											key={index}
-											className="flex bg-gray-700 hover:bg-gray-600 rounded-md transition-all duration-200"
+											className="flex bg-gray-700 hover:bg-gray-600 rounded-md transition-all duration-200 min-h-[48px]"
 										>
 											<button
-												className="text-white truncate font-bold py-2 px-4 rounded-full w-full"
+												className="text-white truncate font-bold py-2 px-4 rounded-full w-full h-full flex items-center justify-center"
 												onClick={(e) => {
 													e.preventDefault();
 													const newRoom = room;
@@ -210,10 +210,10 @@ function HomePage() {
 									return (
 										<div
 											key={index}
-											className="flex bg-gray-700 hover:bg-gray-600 rounded-md transition-all duration-200"
+											className="flex bg-gray-700 hover:bg-gray-600 rounded-md transition-all duration-200 min-h-[48px]"
 										>
 											<button
-												className="text-white truncate font-bold py-2 px-4 rounded-full w-full"
+												className="text-white truncate font-bold py-2 px-4 rounded-full w-full h-full flex items-center justify-center"
 												onClick={(e) => {
 													e.preventDefault();
 													const newRoom = array.roomId;
