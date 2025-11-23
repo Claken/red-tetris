@@ -468,8 +468,6 @@ describe("HomePage Component", () => {
 			});
 		});
 
-		// Vérifie que la popup avec le bon texte est affichée
-	//	expect(screen.getByText("A new room has been created : Room C")).toBeInTheDocument();
 
 		// Vérifie que la liste des rooms a été mise à jour
 		// expect(screen.getByText("Room C")).toBeInTheDocument();

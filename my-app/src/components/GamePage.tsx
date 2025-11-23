@@ -204,28 +204,28 @@ function GamePage() {
 	return (
 		<div className="bg-[#1a1b26] h-screen">
 			{isWaiting ? WaitingLogo() :
-				<div>
-					{multiGame && <div className="absolute top-0 left-0">
-						<div className="text-white font-bold text-center">
+				<div className="relative w-full h-full">
+					{multiGame && specList && specList.length > 0 && <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-10">
+						<div className="text-white font-bold text-center text-xs sm:text-sm md:text-base mb-1">
 							OPPONENTS
 						</div>
-						<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg max-h-[720px] overflow-auto">
-							<div className="flex flex-col items-center space-y-4">
-								{specList && specList.length > 0 && displaySpectrums(specList, true)}
+						<div className="p-2 sm:p-3 md:p-4 bg-gray-900 border-2 sm:border-4 border-gray-700 rounded-lg max-h-[calc(100vh-4rem)] sm:max-h-[calc(100vh-6rem)] md:max-h-[720px] overflow-auto">
+							<div className="flex flex-col items-center space-y-2 sm:space-y-3 md:space-y-4">
+								{displaySpectrums(specList, true)}
 							</div>
 						</div>
 					</div>}
-					{multiGame && <div className="absolute top-0 right-0">
-						<div className="text-white font-bold text-center">
+					{multiGame && specList && specList.length > 6 && <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10">
+						<div className="text-white font-bold text-center text-xs sm:text-sm md:text-base mb-1">
 							OPPONENTS
 						</div>
-						<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg">
-							<div className="flex flex-col items-center space-y-4 overflow-auto">
-								{specList && specList.length > 0 && displaySpectrums(specList, false)}
+						<div className="p-2 sm:p-3 md:p-4 bg-gray-900 border-2 sm:border-4 border-gray-700 rounded-lg max-h-[calc(100vh-4rem)] sm:max-h-[calc(100vh-6rem)] md:max-h-[720px] overflow-auto">
+							<div className="flex flex-col items-center space-y-2 sm:space-y-3 md:space-y-4">
+								{displaySpectrums(specList, false)}
 							</div>
 						</div>
 					</div>}
-					<div className="flex items-center justify-center h-screen">
+					<div className="flex items-center justify-center h-screen px-2 sm:px-4 md:px-0">
 						<div className="mr-4">
 							<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg">
 								<div className="flex flex-col items-center space-y-4">

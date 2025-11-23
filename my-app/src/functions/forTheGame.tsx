@@ -71,11 +71,11 @@ export const displaySpectrums = (specList: any, left: boolean) => {
 		}
 
 		return (
-			<div className="grid grid-cols-1 lg:grid-cols-2 lg:space-x-4">
+			<div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-x-2 xl:gap-x-4">
 				{specList.map((spectrum: any, index: number) => (
-					<div key={index} className="w-[70px]">
+					<div key={index} className="w-[60px] sm:w-[70px] md:w-[80px]">
 						{rightOrLeft(index) && <div className="">
-							<h3 className="text-lg text-white text-center truncate font-semibold mb-2">{spectrum.name}</h3>
+							<h3 className="text-xs sm:text-sm md:text-lg text-white text-center truncate font-semibold mb-1 sm:mb-2">{spectrum.name}</h3>
 							<div
 								className="grid grid-cols-10 gap-0"
 							>
@@ -83,7 +83,7 @@ export const displaySpectrums = (specList: any, left: boolean) => {
 									<div
 										key={idx}
 										data-testid="spectrum-bg"
-										className={`w-2 h-2 border border-gray-700 ${value > 0 ? (value === 1 ? 'bg-cyan-500' : 'bg-red-800') : 'bg-transparent'
+										className={`w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-2.5 md:h-2.5 border border-gray-700 ${value > 0 ? (value === 1 ? 'bg-cyan-500' : 'bg-red-800') : 'bg-transparent'
 											}`}
 									></div>
 								))}
