@@ -251,14 +251,18 @@ function GamePage() {
 								</div>
 								{countdown !== null && (
 									<div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
-										<h1 className="text-white text-6xl font-bold">
-											{countdown}
-										</h1>
+										<div className="relative flex items-center justify-center">
+											<div className="absolute w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 border-4 border-gray-600 rounded-full"></div>
+											<div className="absolute w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 border-4 border-t-4 border-transparent border-t-white rounded-full animate-spin"></div>
+											<h1 className="text-white text-6xl sm:text-7xl md:text-8xl font-bold relative z-10">
+												{countdown}
+											</h1>
+										</div>
 									</div>
 								)}
 								{partyDone === true && (
 									<div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
-										<div className="flex flex-col my-1 space-y-5 p-10">
+										<div className="flex flex-col my-1 space-y-5 p-10 bg-black bg-opacity-80 rounded-xl">
 											<h1 className="text-white text-5xl font-bold">
 												{winner ? "YOU WON" : "GAME OVER"}
 											</h1>
