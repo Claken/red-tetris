@@ -114,7 +114,7 @@ function HomePage() {
 						</div>
 					</div>
 					<button
-						className="bg-[#ff0000] hover:bg-[#cc0000] active:bg-[#ff0000] text-white font-bold py-2 px-6 rounded-full transition-all duration-200 mb-4"
+						className="bg-[#00aa00] hover:bg-[#008800] active:bg-[#00aa00] text-white font-bold py-2 px-6 rounded-full transition-all duration-200 mb-4"
 						onClick={() => startMultiGame(room)}
 					>
 						Launch a game
@@ -145,7 +145,7 @@ function HomePage() {
 						</div>
 					) : null}
 					<button
-						className="bg-[#ff0000] hover:bg-[#cc0000] active:bg-[#ff0000] text-white truncate font-bold py-2 px-4 rounded-full transition-all duration-200"
+						className="bg-[#0055cc] hover:bg-[#0044aa] active:bg-[#0055cc] text-white truncate font-bold py-2 px-4 rounded-full transition-all duration-200"
 						onClick={() => {
 							joinGame(room);
 						}}
