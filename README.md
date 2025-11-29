@@ -30,6 +30,7 @@ Once the application is up and running, open your browser and navigate to:
 http://localhost:5173/
 ```
 You will be prompted to enter a player name:<br />
+
 <img width="703" height="348" alt="Screenshot_from_2025-11-29_15-39-41" src="https://github.com/user-attachments/assets/61e2740d-4a31-41bb-85a2-6d79fff62451" /><br />
 <br />
 Upon entering your name, the main game screen will be displayed:<br />
@@ -71,9 +72,10 @@ Click on the `ALL MY ROOMS` button and select the room to want to launch:<br />
 
 Here is an example of a multiplayer game with two players:<br />
 
-![Screenshot_from_2025-03-22_16-30-58](https://github.com/user-attachments/assets/34410c84-d43f-415f-ae9b-11aa90bd0f3e)
+<img width="1840" height="802" alt="Screenshot_from_2025-11-29_16-16-07" src="https://github.com/user-attachments/assets/8eaf01e5-9988-4216-b4c4-5d10da191004" />
 
-![Screenshot_from_2025-03-22_16-30-58-2](https://github.com/user-attachments/assets/e12ceb11-9cb1-4774-a7d2-8778f4de50a9)
+<img width="1840" height="802" alt="Screenshot_from_2025-11-29_16-16-15" src="https://github.com/user-attachments/assets/accb4606-7b6a-4133-b016-f7bbecc246f1" />
+
 
 # 🎮 How to Play
 
