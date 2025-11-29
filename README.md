@@ -62,13 +62,13 @@ To create a multiplayer game:
 
 To join an existing game, click on the `Join a game` button and select a room:<br />
 
-![Screenshot_from_2025-03-20_12-24-31](https://github.com/user-attachments/assets/1db32a53-6e5d-452b-a6d9-49960fe6e8f8)
+<img width="1915" height="887" alt="image" src="https://github.com/user-attachments/assets/86e37a9f-3334-4085-bc33-2520ceae4e19" />
 
 3. The room creator can launch the game once at least one other player has joined.<br />
 
 Click on the `ALL MY ROOMS` button and select the room to want to launch:<br />
 
-![Screenshot_from_2025-03-20_13-01-58](https://github.com/user-attachments/assets/23c8856d-7998-4965-8531-60bc4b859fda)
+<img width="1920" height="878" alt="image" src="https://github.com/user-attachments/assets/68992423-25d0-48bc-820a-4e743a83cb50" />
 
 Here is an example of a multiplayer game with two players:<br />
 
