@@ -30,12 +30,11 @@ Once the application is up and running, open your browser and navigate to:
 http://localhost:5173/
 ```
 You will be prompted to enter a player name:<br />
-
-![Screenshot_from_2025-03-19_12-51-34](https://github.com/user-attachments/assets/7ca76121-0dea-44b8-9a13-32cf94ea1494)<br />
+<img width="703" height="348" alt="Screenshot_from_2025-11-29_15-39-41" src="https://github.com/user-attachments/assets/61e2740d-4a31-41bb-85a2-6d79fff62451" /><br />
 <br />
 Upon entering your name, the main game screen will be displayed:<br />
 
-![Screenshot_from_2025-03-19_12-29-53](https://github.com/user-attachments/assets/468091af-14bf-4beb-b312-0720a8b9cef5)
+<img width="1856" height="838" alt="Screenshot_from_2025-11-29_15-40-28" src="https://github.com/user-attachments/assets/6fe6eda0-126e-4ed2-a1d8-4ac10438e6f6" />
 
 ### 🧪 Running Tests
 To run tests with coverage, use the following command:
@@ -56,7 +55,7 @@ Click on the `Solo game` button to start a game by yourself:<br />
 To create a multiplayer game:
 1. Click on the `Create a room` button to set up a new room.<br />
 
-![Screenshot_from_2025-03-20_13-01-28](https://github.com/user-attachments/assets/35afbc4d-1413-4a67-acd8-9b741bd80e9b)
+<img width="1856" height="838" alt="Screenshot_from_2025-11-29_15-41-42" src="https://github.com/user-attachments/assets/beb8b850-2f55-43e7-a66c-f56d87e86d1b" />
 
 2. Wait for other players to join.<br />
 
