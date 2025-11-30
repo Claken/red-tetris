@@ -3,7 +3,7 @@ import { ISocketContext } from '../interfaces/socketContext.interface';
 import { Socket } from "socket.io-client";
 import React from 'react';
 
-const SocketContext = createContext<ISocketContext | undefined>(undefined);
+export const SocketContext = createContext<ISocketContext | undefined>(undefined);
 
 export const SocketProvider = ({ children }: { children: ReactNode }) => {
 

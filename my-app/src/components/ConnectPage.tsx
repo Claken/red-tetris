@@ -35,19 +35,19 @@ function ConnectPage({ name, setName, uuid, setUuid, socket, setSocket }: {
 	});
 
 	return (
-		<div data-testid="connect-page" className="flex items-center justify-center h-screen bg-black">
-			<div className="flex flex-col justify-center items-center border border-white rounded-md bg-red-500">
+		<div data-testid="connect-page" className="flex items-center justify-center h-screen bg-[#1a1b26]">
+			<div className="flex flex-col justify-center items-center border-4 border-gray-700 rounded-lg bg-gray-900">
 				<div className="text-white text-3xl font-bold p-2 m-4 w-fit">WELCOME TO RED TETRIS</div>
-				<div className="text-white text-center font-bold text-sm p-2 bg-red-900 border-y border-white w-full">↓ Please write your player name to access the site ↓</div>
+				<div className="text-white text-center font-bold text-sm p-2 bg-gray-800 border-y-2 border-gray-700 w-full">↓ Please write your player name to access the site ↓</div>
 				<div className="m-3">
 					<input type="text"
-						className="bg-red-900 placeholder:text-white placeholder:opacity-60 text-white font-bold border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+						className="bg-gray-800 placeholder:text-white placeholder:opacity-60 text-white font-bold border-2 border-gray-700 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-gray-600 hover:border-gray-600 shadow-sm focus:shadow"
 						placeholder="Player name"
 						maxLength={20}
 						onChange={handleChange}
 					/>
 				</div>
-					<button className="bg-red-900 rounded-b-md hover:bg-red-700 border-t border-white active:bg-red-500 text-white font-bold py-2 px-4 w-full" onClick={handleSubmit}>CONFIRM</button>
+					<button className="bg-red-700 hover:bg-red-800 active:bg-red-700 rounded-md text-white font-bold py-2 px-4 w-full transition-all duration-200" onClick={handleSubmit}>CONFIRM</button>
 			</div>
 		</div>
 	);

@@ -204,28 +204,28 @@ function GamePage() {
 	return (
 		<div className="bg-[#1a1b26] h-screen">
 			{isWaiting ? WaitingLogo() :
-				<div>
-					{multiGame && <div className="absolute top-0 left-0">
-						<div className="text-white font-bold text-center">
+				<div className="relative w-full h-full">
+					{multiGame && specList && specList.length > 0 && <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-10">
+						<div className="text-white font-bold text-center text-xs sm:text-sm md:text-base mb-1">
 							OPPONENTS
 						</div>
-						<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg max-h-[720px] overflow-auto">
-							<div className="flex flex-col items-center space-y-4">
-								{specList && specList.length > 0 && displaySpectrums(specList, true)}
+						<div className="p-2 sm:p-3 md:p-4 bg-gray-900 border-2 sm:border-4 border-gray-700 rounded-lg max-h-[calc(100vh-4rem)] sm:max-h-[calc(100vh-6rem)] md:max-h-[720px] overflow-auto">
+							<div className="flex flex-col items-center space-y-2 sm:space-y-3 md:space-y-4">
+								{displaySpectrums(specList, true)}
 							</div>
 						</div>
 					</div>}
-					{multiGame && <div className="absolute top-0 right-0">
-						<div className="text-white font-bold text-center">
+					{multiGame && specList && specList.length > 6 && <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10">
+						<div className="text-white font-bold text-center text-xs sm:text-sm md:text-base mb-1">
 							OPPONENTS
 						</div>
-						<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg">
-							<div className="flex flex-col items-center space-y-4 overflow-auto">
-								{specList && specList.length > 0 && displaySpectrums(specList, false)}
+						<div className="p-2 sm:p-3 md:p-4 bg-gray-900 border-2 sm:border-4 border-gray-700 rounded-lg max-h-[calc(100vh-4rem)] sm:max-h-[calc(100vh-6rem)] md:max-h-[720px] overflow-auto">
+							<div className="flex flex-col items-center space-y-2 sm:space-y-3 md:space-y-4">
+								{displaySpectrums(specList, false)}
 							</div>
 						</div>
 					</div>}
-					<div className="flex items-center justify-center h-screen">
+					<div className="flex items-center justify-center h-screen px-2 sm:px-4 md:px-0">
 						<div className="mr-4">
 							<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg">
 								<div className="flex flex-col items-center space-y-4">
@@ -251,23 +251,44 @@ function GamePage() {
 								</div>
 								{countdown !== null && (
 									<div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
-										<h1 className="text-white text-6xl font-bold">
-											{countdown}
-										</h1>
+										<div className="relative flex items-center justify-center">
+											<div className="absolute w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 border-4 border-gray-600 rounded-full"></div>
+											<div className="absolute w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 border-4 border-t-4 border-transparent border-t-white rounded-full animate-spin"></div>
+											<h1 className="text-white text-6xl sm:text-7xl md:text-8xl font-bold relative z-10">
+												{countdown}
+											</h1>
+										</div>
 									</div>
 								)}
 								{partyDone === true && (
 									<div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
-										<div className="flex flex-col my-1 space-y-5 p-10">
-											<h1 className="text-white text-5xl font-bold">
+										<div className="flex flex-col my-1 space-y-5 p-10 bg-gray-900 border-4 border-gray-700 rounded-lg">
+											<h1 className="text-white text-5xl font-bold text-center">
 												{winner ? "YOU WON" : "GAME OVER"}
 											</h1>
 											<h1 className="text-white text-3xl font-bold text-center">
-												{" " + "Retry ?"}
+												Retry ?
 											</h1>
 											<div className="flex flex-row justify-center items-center space-x-5">
-												<button className="bg-green-500 hover:bg-green-700 active:bg-green-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={retryGame}>YES</button>
-												<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={notRetryingGame}>NO</button>
+												<button 
+													className="bg-[#00ff00] hover:bg-[#00cc00] active:bg-[#00ff00] text-white font-bold py-2 px-4 rounded-full w-fit transition-all duration-200 relative overflow-hidden"
+													onClick={retryGame}
+												>
+													YES
+												</button>
+												<button 
+													className="bg-[#ff0000] hover:bg-[#cc0000] active:bg-[#ff0000] text-white font-bold py-2 px-4 rounded-full w-fit transition-all duration-200 relative overflow-hidden"
+													style={{
+														backgroundImage: `
+															linear-gradient(rgba(255,255,255,0.15) 1.5px, transparent 1px),
+															linear-gradient(90deg, rgba(255,255,255,0.15) 1.5px, transparent 1px)
+														`,
+														backgroundSize: '8px 8px'
+													}}
+													onClick={notRetryingGame}
+												>
+													NO
+												</button>
 											</div>
 										</div>
 									</div>

@@ -18,9 +18,9 @@
     "toastify-js": "^1.12.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.25.2",
-    "@babel/preset-env": "^7.25.4",
-    "@babel/preset-typescript": "^7.24.7",
+    "@babel/core": "^7.26.10",
+    "@babel/preset-env": "^7.26.10",
+    "@babel/preset-typescript": "^7.26.10",
     "@eslint/js": "^9.9.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
@@ -30,8 +30,8 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@types/toastify-js": "^1.12.3",
-    "@vitejs/plugin-react-swc": "^3.5.0",
-    "@vitest/coverage-v8": "^2.1.8",
+    "@vitejs/plugin-react-swc": "^3.7.0",
+    "@vitest/coverage-v8": "^4.0.13",
     "autoprefixer": "^10.4.20",
     "babel-jest": "^29.7.0",
     "eslint": "^9.9.0",
@@ -39,12 +39,13 @@
     "eslint-plugin-react-refresh": "^0.4.9",
     "globals": "^15.9.0",
     "jsdom": "^25.0.1",
+    "msw": "^2.7.5",
     "postcss": "^8.4.45",
     "tailwindcss": "^3.4.10",
     "ts-jest": "^29.2.5",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
-    "vite": "^5.4.1",
-    "vitest": "^2.1.1"
+    "vite": "^5.4.8",
+    "vitest": "^4.0.13"
   }
 }
