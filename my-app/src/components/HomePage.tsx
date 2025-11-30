@@ -168,7 +168,7 @@ function HomePage() {
 	}) => {
 		if (uuid && name) {
 			return (
-				<div className="flex flex-col items-center justify-center h-screen">
+				<div className="flex flex-col items-center justify-center min-h-screen pt-16">
 					<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-full w-fit">
 						<div className="text-white font-bold">{title}</div>
 					</div>
@@ -399,8 +399,8 @@ function HomePage() {
 	}, [socket]);
 
 	return sessionStorage.getItem("name") ? (
-		<div className="bg-[#1a1b26] h-screen">
-			<header className="justify-between absolute bg-gray-900 flex flex-row w-screen p-4 border-b-4 border-gray-700">
+		<div className="bg-[#1a1b26] min-h-screen">
+			<header className="fixed top-0 left-0 right-0 bg-gray-900 flex flex-row w-full p-4 border-b-4 border-gray-700 z-10">
 				<h2 className="text-white text-xl font-bold truncate">{name}</h2>
 				{/* <button
 						className="bg-[#7851a9] hover:bg-[#6d6d6d] active:bg-[#433a3f] text-white font-bold py-2 px-4 rounded-full transition-all duration-200"
@@ -418,7 +418,7 @@ function HomePage() {
 			{listButtonClicked ? (
 				displayAList()
 			) : (
-				<div className="flex items-center justify-center h-screen">
+				<div className="flex items-center justify-center min-h-screen pt-16">
 					<div className="text-center">
 						<h1 className="bg-gray-900 text-white font-bold text-3xl border-t-4 border-l-4 border-r-4 border-gray-700">
 							RED TETRIS
