@@ -334,6 +334,160 @@ export class SocketGateway implements OnGatewayConnection {
         roomsJoined: roomsJoined,
       });
     });
+
+    // ==================== GLOBAL ROOM EVENTS ====================
+    // Rejoindre la room globale unique
+    socket.on('joinGlobalRoom', (data) => {
+      console.log('joinGlobalRoom', data);
+      const infos = this.manageSocket.getInfos(data.uuid);
+      if (infos == undefined) {
+        console.log('infos undefined');
+        return;
+      }
+      console.log('infos', infos);
+      const success = this.waitGame.joinGlobalRoom(
+        data.uuid,
+        infos.name,
+        socket.id,
+      );
+      console.log('success', success);
+      if (success) {
+        console.log('global_room_joined');
+        socket.emit('global_room_joined', { success: true });
+      } else {
+        console.log('global_room_join_failed');
+        socket.emit('global_room_join_failed', {
+          message: 'Cannot join: room started or already in room',
+        });
+      }
+    });
+
+    // Quitter la room globale
+    socket.on('leaveGlobalRoom', (data) => {
+      const infos = this.manageSocket.getInfos(data.uuid);
+      if (infos == undefined) {
+        return;
+      }
+      this.waitGame.leaveGlobalRoom(data.uuid, socket.id);
+      socket.emit('global_room_left', { success: true });
+    });
+
+    socket.on('startGlobalGame', async (data) => {
+      const infos = this.manageSocket.getInfos(data.uuid);
+      if (infos == undefined) {
+        return;
+      }
+      const success = await this.waitGame.startGlobalGame(
+        data.uuid,
+        infos.name,
+        socket.id,
+      );
+      if (!success) {
+        socket.emit('global_game_start_failed', {
+          message: 'Only host can start or not enough players',
+        });
+      }
+    });
+
+
+    socket.on('allPlayerInGlobalRoom', (data) => {
+      const infos = this.manageSocket.getInfos(data.uuid);
+      if (infos == undefined) {
+        return;
+      }
+      const game = this.waitGame.getGames().get('GLOBAL_ROOM');
+      if (game == undefined) {
+        socket.emit('allPlayerInGlobalRoom', { 
+          players: [],
+          isStarted: false,
+          hostUuid: '',
+          totalPlayers: 0,
+        });
+        return;
+      }
+
+      const isStarted = game.getIsStarted();
+      let playersList = [];
+      let hostUuid = '';
+
+      if (isStarted) {
+        const activePlayers = game.getPlayers().map((player) => ({
+          name: player.getPlayerName(),
+          uuid: player.getUuid(),
+          isHost: player.getIsMaster(),
+          status: 'playing',
+        }));
+        const lostPlayers = game.get_lostPlayers().map((player) => ({
+          name: player.getPlayerName(),
+          uuid: player.getUuid(),
+          isHost: player.getIsMaster(),
+          status: 'lost',
+        }));
+        const waitingPlayers = game.get_waitingPlayers().map((player) => ({
+          name: player.getPlayerName(),
+          uuid: player.getUuid(),
+          isHost: player.getIsMaster(),
+          status: 'waiting',
+        }));
+        playersList = [...activePlayers, ...lostPlayers, ...waitingPlayers];
+        const allGamePlayers = [...game.getPlayers(), ...game.get_lostPlayers()];
+        hostUuid = allGamePlayers.find((p) => p.getIsMaster())?.getUuid() || '';
+
+      } else {
+        const waitingPlayers = game.get_waitingPlayers();
+        
+        playersList = waitingPlayers.map((player) => ({
+          name: player.getPlayerName(),
+          uuid: player.getUuid(),
+          isHost: player.getIsMaster(),
+          status: 'waiting',
+        }));
+        hostUuid = waitingPlayers.find((p) => p.getIsMaster())?.getUuid() || '';
+      }
+      socket.emit('allPlayerInGlobalRoom', {
+        players: playersList,
+        hostUuid: hostUuid,
+        isStarted: isStarted,
+        totalPlayers: playersList.length,
+      });
+    });
+
+    socket.on('isWaitingForGlobalGame', (data) => {
+      const infos = this.manageSocket.getInfos(data.uuid);
+      if (infos == undefined) {
+        return;
+      }
+      const game = this.waitGame.getGames().get('GLOBAL_ROOM');
+      if (game == undefined) {
+        socket.emit('isWaitingForGlobalGame', { isWaiting: false });
+        return;
+      }
+      const isWaiting = game.get_waitingPlayers().some((player) => player.getUuid() === data.uuid);
+      socket.emit('isWaitingForGlobalGame', { isWaiting: isWaiting });
+    })
+
+
+    socket.on('isHostOfGlobalGame', (data) => {
+      const infos = this.manageSocket.getInfos(data.uuid);
+      if (infos == undefined) {
+        return;
+      }
+      const game = this.waitGame.getGames().get('GLOBAL_ROOM');
+      if (game == undefined) {
+        socket.emit('responseIsHostOfGlobalGame', { isHost: false });
+        return;
+      }
+      const inWaiting = game.get_waitingPlayers().find((player) => player.getUuid() === data.uuid);
+      const inPlaying = game.getPlayers().find((player) => player.getUuid() === data.uuid);
+      const inLost = game.get_lostPlayers().find((player) => player.getUuid() === data.uuid);
+      const isHost = 
+        (inWaiting && inWaiting.getIsMaster()) ||
+        (inPlaying && inPlaying.getIsMaster()) ||
+        (inLost && inLost.getIsMaster()) ||
+        false;
+      socket.emit('responseIsHostOfGlobalGame', { isHost: isHost });
+    })
+    // ==================== END GLOBAL ROOM EVENTS ====================
   }
 
   handleConnection(socket: Socket): void {
@@ -351,6 +505,12 @@ export class SocketGateway implements OnGatewayConnection {
   }
 
   handleDisconnect(socket: Socket): void {
+    // Retirer de la room globale si présent
+    const uuid = socket.handshake.query.uuid as string | undefined;
+    if (uuid) {
+      this.waitGame.leaveGlobalRoom(uuid, socket.id);
+    }
+    
     this.waitGame.deleteSocket(socket.id);
     this.manageSocket.deleteSocket(socket);
   }
