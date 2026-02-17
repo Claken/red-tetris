@@ -97,6 +97,12 @@ function GamePage() {
 					PLEASE WAIT
 				</div>
 				<div className="w-16 h-16 border-4 border-t-4 border-red-200 rounded-full animate-spin border-t-red-500"></div>
+				{/* <button 
+					className="mt-6 bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit"
+					onClick={goBackToHome}
+				>
+					Menu
+				</button> */}
 			</div>
 		</div>
 	}
