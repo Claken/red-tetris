@@ -11,6 +11,7 @@ export class Game {
   private _playersLost: Player[] = [];
   private _waitingPlayers: Player[] = [];
   private _isStarted = false;
+  private _initialPlayerCount = 0;
   private _roomId: string;
   private _type: number;
   private _server: Server;
@@ -59,6 +60,10 @@ export class Game {
 
   public setIsStarted(val: boolean): void {
     this._isStarted = val;
+  }
+
+  public getInitialPlayerCount(): number {
+    return this._initialPlayerCount;
   }
 
   // test fait
@@ -205,8 +210,11 @@ export class Game {
   async startGame(UUIDMapings: Map<string, ClientInfo>): Promise<void> {
     this.setIsStarted(true);
     if (this._type === MULTI) {
+      this._initialPlayerCount = this._waitingPlayers.length;
       this._players = this._waitingPlayers;
       this._waitingPlayers = [];
+    } else {
+      this._initialPlayerCount = this._players.length;
     }
     const promises = this._players.map((player) => {
       return this.sendCounterToClient(
@@ -301,6 +309,25 @@ export class Game {
             winner: false,
           },
         });
+        this.setIsStarted(false);
+        return true;
+      }
+    } else if (this._type === MULTI && this._initialPlayerCount === 1) {
+      // Solo in a room: same as SINGLE but emit to player's sockets
+      if (this._players[0].isPlayerLost()) {
+        const socketIds =
+          UUIDMapings.get(this._players[0].getUuid())?.socketsId ?? [];
+        this._server.to(socketIds).emit('endGame', {
+          player: {
+            grid: this._players[0].getGrid(),
+            name: this._players[0].getPlayerName(),
+            uuid: this._players[0].getUuid(),
+            roomId: this._roomId,
+            type: this._type,
+            winner: false,
+          },
+        });
+        this.setIsStarted(false);
         return true;
       }
     } else {
@@ -324,10 +351,6 @@ export class Game {
               winner: false,
             },
           });
-          // faire un setTimout pour demander a l'utilisateur si il veut etre remis dans la partie suivante
-          // vérifier si c'est le owner de la room ou non
-          // envoyer une une requete pour savoir si il veut continuer
-          // si oui on attend que la partie se finisse pour qu'elle se relance.
           i = 0;
         }
       }

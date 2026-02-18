@@ -125,10 +125,14 @@ describe('SocketGateway', () => {
       emit: jest.fn(),
       join: jest.fn(),
       on: jest.fn(),
+      handshake: {
+        query: { uuid: 'uuid123', name: 'testPlayer' },
+      },
     } as unknown as Socket;
 
     const mockWaitGameInstance = {
       deleteSocket: jest.fn(),
+      getUUIDMapings: jest.fn().mockReturnValue(new Map()),
     } as unknown as WaitGame;
 
     const mockManageSocketInstance = {

@@ -247,12 +247,14 @@ describe('Game Class', () => {
         socketsId: ['socketId1'],
         ownedRoomsId: ['room1'],
         otherRoomsId: [],
+        lobbyRoomsId: [],
         name: 'player1',
       });
       UUIDMapings.set('uuid2', {
         socketsId: ['socketId2'],
         ownedRoomsId: [],
         otherRoomsId: ['room1'],
+        lobbyRoomsId: [],
         name: 'player2',
       });
       await game.startGame(UUIDMapings);
@@ -321,12 +323,14 @@ describe('Game Class', () => {
         socketsId: ['socketId1'],
         ownedRoomsId: ['room1'],
         otherRoomsId: [],
+        lobbyRoomsId: [],
         name: 'player1',
       });
       UUIDMapings.set('uuid2', {
         socketsId: ['socketId2'],
         ownedRoomsId: [],
         otherRoomsId: ['room1'],
+        lobbyRoomsId: [],
         name: 'player2',
       });
       await game.gamePlayMulti(UUIDMapings);
@@ -400,12 +404,14 @@ describe('Game Class', () => {
         socketsId: ['socket1'],
         ownedRoomsId: [],
         otherRoomsId: [],
+        lobbyRoomsId: [],
         name: 'player1',
       });
       UUIDMapings.set('uuid2', {
         socketsId: ['socket2'],
         ownedRoomsId: [],
         otherRoomsId: [],
+        lobbyRoomsId: [],
         name: 'player2',
       });
 

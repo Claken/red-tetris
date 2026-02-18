@@ -221,7 +221,7 @@ describe('GamePage Component', () => {
 		sessionStorage.clear();
 	});
 
-	it('renders the GamePage component', () => {
+	it('renders the GamePage component with lobby', () => {
 		render(
 			<MemoryRouter>
 				<SocketProvider>
@@ -229,8 +229,9 @@ describe('GamePage Component', () => {
 				</SocketProvider>
 			</MemoryRouter>
 		);
-		const linkElement = screen.getByTestId('waiting-logo');
-		expect(document.body.contains(linkElement)).toBe(true);
+		// GamePage starts in lobby phase
+		expect(screen.getByText('RED TETRIS')).toBeInTheDocument();
+		expect(screen.getByText('Leave Room')).toBeInTheDocument();
 	});
 
 	it('displays countdown when countdown event is received', async () => {
@@ -304,9 +305,9 @@ describe('GamePage Component', () => {
 		// Check if game over screen is displayed
 		await waitFor(() => {
 			expect(screen.getByText('GAME OVER')).toBeInTheDocument();
-			expect(screen.getByText('Retry ?')).toBeInTheDocument();
-			expect(screen.getByText('YES')).toBeInTheDocument();
-			expect(screen.getByText('NO')).toBeInTheDocument();
+			expect(screen.getByText('Back to lobby?')).toBeInTheDocument();
+			expect(screen.getByText('LOBBY')).toBeInTheDocument();
+			expect(screen.getByText('MENU')).toBeInTheDocument();
 		});
 	});
 });

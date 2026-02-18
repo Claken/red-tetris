@@ -70,9 +70,11 @@ function HomePage() {
 		socket?.emit("startSingleTetrisGame", { name: name, uuid: uuid });
 	};
 
-	const handleJoinGlobalRoom = (e: React.MouseEvent<HTMLButtonElement>) => {
+	const handleJoinRoom = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
-		socket?.emit("joinGlobalRoom", { name: name, uuid: uuid });
+		if (name) {
+			navigate("/global-room/" + name);
+		}
 	};
 
 	const handleCreateRoom = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -92,7 +94,7 @@ function HomePage() {
 			socket?.emit("startMultiGame", { name: name, uuid: uuid, roomId: room });
 			const goToRoute = room + "/" + name;
 			if (waitList.length > 1) {
-				navigate(goToRoute);
+				navigate(goToRoute, { state: { legacy: true } });
 				setListButtonClickedSpec(false);
 				setListButtonClicked(false);
 			}
@@ -194,7 +196,7 @@ function HomePage() {
 													setRoomId(newRoom);
 													if (title === "ACTIVE ROOMLIST") {
 														const goToRoute = newRoom + "/" + name;
-														navigate(goToRoute);
+														navigate(goToRoute, { state: { legacy: true } });
 														setListButtonClickedSpec(false);
 														setListButtonClicked(false);
 													} else {
@@ -287,7 +289,7 @@ function HomePage() {
 		socket?.on("pageToGo", (data) => {
 			setRoomId(data.pageInfos.roomName);
 			const goToRoute = data.pageInfos.path;
-			navigate(goToRoute);
+			navigate(goToRoute, { state: { legacy: true } });
 		});
 		return () => {
 			socket?.off("pageToGo");
@@ -448,7 +450,7 @@ function HomePage() {
 										`,
 										backgroundSize: '12px 12px'
 									}}
-									onClick={handleJoinGlobalRoom}
+									onClick={handleJoinRoom}
 								>
 									Play with Anyone
 								</button>

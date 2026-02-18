@@ -3,22 +3,17 @@ import { Game } from '../game/game';
 import { ClientInfo } from '../../interfaces/clientInfo';
 import { SINGLE, MULTI } from '../../constantes/constantes';
 import { Player } from '../player/player';
-// import { ManagePlayerTetromino } from '../managePlayerTetromino/managePlayerTetromino';
-// import { ManageSocket } from '../manageSocket/manageSocket';
-// gfg
 
 export class WaitGame {
   private static _instance: WaitGame;
   private _server: Server;
   private games: Map<string, Game> = new Map(); // roomId / game
   private UUIDMapings: Map<string, ClientInfo> = new Map(); // uuid / socketId[] roomId[] name;
-  private GLOBAL_ROOM_ID = 'GLOBAL_ROOM';
-  
+
   private constructor(server: Server) {
     this._server = server;
-    this._createGlobalRoom();
   }
-  
+
   public static getInstance(server: Server): WaitGame {
     if (!WaitGame._instance) {
       WaitGame._instance = new WaitGame(server);
@@ -26,23 +21,15 @@ export class WaitGame {
     return WaitGame._instance;
   }
 
-  /**
-   * Créer la room globale unique au démarrage
-   */
-  private _createGlobalRoom(): void {
-    const game = new Game([], this.GLOBAL_ROOM_ID, MULTI, this._server);
-    this.games.set(this.GLOBAL_ROOM_ID, game);
-  }
+  // ==================== GENERIC ROOM METHODS ====================
 
   /**
-   * Rejoindre la room globale unique
+   * Rejoindre une room par nom (la créer si elle n'existe pas)
+   * Premier joueur = host
    */
-  public joinGlobalRoom(uuid: string, name: string, socketId: string): boolean {
+  public joinRoom(uuid: string, name: string, socketId: string, roomId: string): { success: boolean; reason?: string } {
     const socket = this._server.sockets.sockets.get(socketId);
-    if (socket === undefined) return false;
-    
-    const game = this.games.get(this.GLOBAL_ROOM_ID);
-    if (game === undefined) return false;
+    if (socket === undefined) return { success: false, reason: 'no_socket' };
 
     // Initialiser les infos du joueur s'il n'existe pas
     if (!this.UUIDMapings.has(uuid)) {
@@ -50,72 +37,83 @@ export class WaitGame {
         socketsId: [],
         ownedRoomsId: [],
         otherRoomsId: [],
+        lobbyRoomsId: [],
         name: name,
       });
     }
-
     const infos: ClientInfo = this.UUIDMapings.get(uuid) as ClientInfo;
     if (!infos.socketsId.includes(socketId)) {
       infos.socketsId.push(socketId);
     }
 
-    // Vérifier si le joueur est déjà dans la room
-    const waitPlayer = game.get_waitingPlayers().find((player) => player.getUuid() === uuid);
-    const player = game.getPlayers().find((player) => player.getUuid() === uuid);
-    const lostPlayer = game.get_lostPlayers().find((player) => player.getUuid() === uuid);
-
-    if (player !== undefined || waitPlayer !== undefined || lostPlayer !== undefined) {
-      return false; // Déjà dans la room
+    // Créer la room si elle n'existe pas
+    let game = this.games.get(roomId);
+    if (game === undefined) {
+      game = new Game([], roomId, MULTI, this._server);
+      this.games.set(roomId, game);
     }
 
-    // Créer le joueur et l'ajouter à la salle d'attente
+    // Bloquer le join si la partie est en cours
+    if (game.getIsStarted()) {
+      return { success: false, reason: 'game_started' };
+    }
+
+    // Vérifier si le joueur est déjà dans la room
+    const waitPlayer = game.get_waitingPlayers().find((p) => p.getUuid() === uuid);
+    const player = game.getPlayers().find((p) => p.getUuid() === uuid);
+    const lostPlayer = game.get_lostPlayers().find((p) => p.getUuid() === uuid);
+
+    if (waitPlayer !== undefined || player !== undefined || lostPlayer !== undefined) {
+      // Already in room — just ensure socket is joined and re-notify
+      socket.join(roomId);
+      this._notifyRoomPlayersUpdate(game, roomId);
+      return { success: true };
+    }
+
+    // Vérifier que le nom n'est pas déjà pris dans la room
+    const nameExists = game.get_waitingPlayers().some((p) => p.getPlayerName() === name);
+    if (nameExists) {
+      return { success: false, reason: 'name_taken' };
+    }
+
+    // Créer le joueur ; premier dans la room = host
     const newPlayer = new Player(name, uuid);
-    
-    // Si c'est le premier joueur ET que la partie n'est pas démarrée, il devient l'hôte
-    if (game.get_waitingPlayers().length === 0 && !game.getIsStarted()) {
+    if (game.get_waitingPlayers().length === 0) {
       newPlayer.setIsMaster(true);
     }
 
     game.addWaitingPlayer(newPlayer);
-    socket.join(this.GLOBAL_ROOM_ID);
+    socket.join(roomId);
 
-    if (!infos.otherRoomsId.includes(this.GLOBAL_ROOM_ID)) {
-      infos.otherRoomsId.push(this.GLOBAL_ROOM_ID);
+    if (!infos.lobbyRoomsId.includes(roomId)) {
+      infos.lobbyRoomsId.push(roomId);
     }
 
     // Notifier tous les joueurs de la room
-    const playersList = game.get_waitingPlayers().map((p) => ({
-      name: p.getPlayerName(),
-      uuid: p.getUuid(),
-      isHost: p.getIsMaster(),
-    }));
-
-    this._server.to(this.GLOBAL_ROOM_ID).emit('global_players_update', {
-      players: playersList,
-      hostUuid: game.get_waitingPlayers().find((p) => p.getIsMaster())?.getUuid() || '',
-      isStarted: game.getIsStarted(),
-    });
-
-    return true;
+    this._notifyRoomPlayersUpdate(game, roomId);
+    return { success: true };
   }
 
   /**
-   * Quitter la room globale
+   * Quitter une room
    */
-  public leaveGlobalRoom(uuid: string, socketId: string): void {
-    const game = this.games.get(this.GLOBAL_ROOM_ID);
+  public leaveRoom(uuid: string, socketId: string, roomId: string): void {
+    const game = this.games.get(roomId);
     if (game === undefined) return;
 
     const socket = this._server.sockets.sockets.get(socketId);
     const infos = this.UUIDMapings.get(uuid);
-    
+
     // Chercher le joueur dans les 3 listes possibles
     const waitPlayer = game.get_waitingPlayers().find((p) => p.getUuid() === uuid);
     const playingPlayer = game.getPlayers().find((p) => p.getUuid() === uuid);
     const lostPlayer = game.get_lostPlayers().find((p) => p.getUuid() === uuid);
 
+    // Pas dans la room
+    if (!waitPlayer && !playingPlayer && !lostPlayer) return;
+
     // Déterminer si le joueur qui quitte était l'hôte
-    const wasHost = 
+    const wasHost =
       (waitPlayer && waitPlayer.getIsMaster()) ||
       (playingPlayer && playingPlayer.getIsMaster()) ||
       (lostPlayer && lostPlayer.getIsMaster()) ||
@@ -128,63 +126,127 @@ export class WaitGame {
         game.get_waitingPlayers().splice(index, 1);
       }
     }
-    
+
     if (playingPlayer) {
       game.removePlayer(uuid);
     }
-    
+
     if (lostPlayer) {
       game.removeLostPlayer(uuid);
     }
 
     // Si l'hôte quitte, transférer le rôle d'hôte
     if (wasHost) {
-      this._transferHostInGlobalRoom(game);
+      this._transferHostInRoom(game, roomId);
     }
 
     // Déconnecter le socket de la room
     if (socket) {
-      socket.leave(this.GLOBAL_ROOM_ID);
+      socket.leave(roomId);
     }
 
     // Retirer de la liste des rooms du joueur
     if (infos) {
-      const index = infos.otherRoomsId.indexOf(this.GLOBAL_ROOM_ID);
+      const index = infos.lobbyRoomsId.indexOf(roomId);
       if (index !== -1) {
-        infos.otherRoomsId.splice(index, 1);
+        infos.lobbyRoomsId.splice(index, 1);
       }
     }
 
+    // Nettoyer la room si vide
+    if (
+      game.get_waitingPlayers().length === 0 &&
+      game.getPlayers().length === 0 &&
+      game.get_lostPlayers().length === 0
+    ) {
+      this.games.delete(roomId);
+      return;
+    }
+
     // Notifier tous les joueurs restants
-    this._notifyGlobalRoomPlayersUpdate(game);
+    this._notifyRoomPlayersUpdate(game, roomId);
   }
 
   /**
-   * Transférer le rôle d'hôte dans la room globale
-   * Priorité : players > lostPlayers > waitingPlayers
+   * Démarrer la partie dans une room (seulement l'hôte peut démarrer)
    */
-  private _transferHostInGlobalRoom(game: Game): void {
-    let newHost = null;
+  public async startRoom(uuid: string, name: string, socketId: string, roomId: string): Promise<{ success: boolean; reason?: string }> {
+    const socket = this._server.sockets.sockets.get(socketId);
+    if (socket === undefined) return { success: false, reason: 'no_socket' };
 
-    // 1. Priorité : un joueur actif (en train de jouer)
+    const game = this.games.get(roomId);
+    if (game === undefined) return { success: false, reason: 'no_room' };
+
+    if (game.getIsStarted()) return { success: false, reason: 'already_started' };
+
+    // Vérifier que c'est l'hôte qui demande
+    const host = game.get_waitingPlayers().find((p) => p.getIsMaster());
+    if (host === undefined || host.getUuid() !== uuid) {
+      return { success: false, reason: 'not_host' };
+    }
+
+    if (game.get_waitingPlayers().length < 1) {
+      return { success: false, reason: 'no_players' };
+    }
+
+    if (game.get_waitingPlayers().length === 1) {
+      // Mode solo : un seul joueur dans la room
+      await game.startGame(this.UUIDMapings);
+      const player = game.getPlayers()[0];
+      const touch = { touch1: 1 };
+      let gameIsOver = false;
+      const intervalId = setInterval(() => {
+        const socketsId = this.UUIDMapings.get(player.getUuid())?.socketsId as string[];
+        game.gamePlay(player, touch, socketsId);
+        if (!gameIsOver) gameIsOver = game.endGame(this.UUIDMapings);
+        if (gameIsOver) {
+          clearInterval(intervalId);
+          // Remettre le joueur en waiting pour le lobby
+          game.changePlayerToWaiting(player.getUuid());
+          this._notifyRoomPlayersUpdate(game, roomId);
+        }
+      }, 1000);
+    } else {
+      // Mode multi : 2+ joueurs
+      await game.startGame(this.UUIDMapings);
+      const intervalId = setInterval(() => {
+        if (game.endGame(this.UUIDMapings)) {
+          clearInterval(intervalId);
+          // Move all players (winner + losers) back to waiting for the lobby
+          const uuidsToMove = [
+            ...game.getPlayers().map((p) => p.getUuid()),
+            ...game.get_lostPlayers().map((p) => p.getUuid()),
+          ];
+          for (const playerUuid of uuidsToMove) {
+            game.changePlayerToWaiting(playerUuid);
+          }
+          this._notifyRoomPlayersUpdate(game, roomId);
+        }
+        game.gamePlayMulti(this.UUIDMapings);
+      }, 1000);
+    }
+
+    return { success: true };
+  }
+
+  /**
+   * Transférer le rôle d'hôte dans une room
+   */
+  private _transferHostInRoom(game: Game, roomId: string): void {
+    let newHost: Player | null = null;
+
     if (game.getPlayers().length > 0) {
       newHost = game.getPlayers()[0];
-      newHost.setIsMaster(true);
-    }
-    // 2. Sinon : un joueur qui a perdu
-    else if (game.get_lostPlayers().length > 0) {
+    } else if (game.get_lostPlayers().length > 0) {
       newHost = game.get_lostPlayers()[0];
-      newHost.setIsMaster(true);
-    }
-    // 3. Sinon : un joueur en attente
-    else if (game.get_waitingPlayers().length > 0) {
+    } else if (game.get_waitingPlayers().length > 0) {
       newHost = game.get_waitingPlayers()[0];
-      newHost.setIsMaster(true);
     }
 
-    // Notifier le changement d'hôte
     if (newHost) {
-      this._server.to(this.GLOBAL_ROOM_ID).emit('global_host_changed', {
+      newHost.setIsMaster(true);
+      this._server.to(roomId).emit('room_host_changed', {
+        roomId: roomId,
         newHostUuid: newHost.getUuid(),
         newHostName: newHost.getPlayerName(),
       });
@@ -192,45 +254,24 @@ export class WaitGame {
   }
 
   /**
-   * Notifier tous les joueurs de la room globale
+   * Notifier tous les joueurs d'une room
    */
-  private _notifyGlobalRoomPlayersUpdate(game: Game): void {
+  private _notifyRoomPlayersUpdate(game: Game, roomId: string): void {
     const playersList = game.get_waitingPlayers().map((p) => ({
       name: p.getPlayerName(),
       uuid: p.getUuid(),
       isHost: p.getIsMaster(),
     }));
 
-    this._server.to(this.GLOBAL_ROOM_ID).emit('global_players_update', {
+    this._server.to(roomId).emit('room_players_update', {
+      roomId: roomId,
       players: playersList,
       hostUuid: game.get_waitingPlayers().find((p) => p.getIsMaster())?.getUuid() || '',
       isStarted: game.getIsStarted(),
     });
   }
 
-  /**
-   * Démarrer la partie globale (seulement l'hôte peut démarrer)
-   */
-  public async startGlobalGame(uuid: string, name: string, socketId: string): Promise<boolean> {
-    const game = this.games.get(this.GLOBAL_ROOM_ID);
-    if (game === undefined) return false;
-
-    // Vérifier que c'est l'hôte qui demande
-    const host = game.get_waitingPlayers().find((p) => p.getIsMaster());
-    if (host === undefined || host.getUuid() !== uuid) {
-      return false; // Seul l'hôte peut démarrer
-    }
-
-    // Besoin d'au moins 1 joueur
-    if (game.get_waitingPlayers().length < 1) {
-      return false;
-    }
-
-    // Utiliser la méthode existante startMultiTetrisGame
-    await this.startMultiTetrisGame(uuid, name, socketId, this.GLOBAL_ROOM_ID);
-    
-    return true;
-  }
+  // ==================== EXISTING METHODS ====================
 
   public getGames(): Map<string, Game> {
     return this.games;
@@ -246,6 +287,7 @@ export class WaitGame {
         socketsId: [],
         ownedRoomsId: [],
         otherRoomsId: [],
+        lobbyRoomsId: [],
         name: '',
       });
     }
@@ -278,6 +320,7 @@ export class WaitGame {
         socketsId: [],
         ownedRoomsId: [],
         otherRoomsId: [],
+        lobbyRoomsId: [],
         name: name,
       });
     }
@@ -331,6 +374,7 @@ export class WaitGame {
         socketsId: [],
         ownedRoomsId: [],
         otherRoomsId: [],
+        lobbyRoomsId: [],
         name: name,
       });
     }
@@ -382,6 +426,7 @@ export class WaitGame {
         socketsId: [],
         ownedRoomsId: [],
         otherRoomsId: [],
+        lobbyRoomsId: [],
         name: name,
       });
     }
@@ -423,7 +468,7 @@ export class WaitGame {
         infos.ownedRoomsId.splice(infos.ownedRoomsId.indexOf(roomName), 1);
         this.games.delete(roomName);
       }
-    }, 1000); // update every second
+    }, 1000);
   }
 
   public notRetryGame(
@@ -556,7 +601,6 @@ export class WaitGame {
     const infos: ClientInfo = this.UUIDMapings.get(uuid) as ClientInfo;
     const game = this.games.get(roomId);
     if (game === undefined) return;
-    // game.setIsStarted(true);
 
     this.clearGame(game);
 
@@ -573,7 +617,7 @@ export class WaitGame {
         clearInterval(intervalId);
       }
       game.gamePlayMulti(this.UUIDMapings);
-    }, 1000); // update every second
+    }, 1000);
   }
 
   private async pageToGo(
@@ -582,8 +626,6 @@ export class WaitGame {
     type: number,
     name: string,
   ): Promise<void> {
-    // const infos: ClientInfo | undefined = this.UUIDMapings.get(uuid);
-    // if (infos === undefined) return;
     if (type == SINGLE) {
       this._server.to(roomName).emit('pageToGo', {
         pageInfos: {
