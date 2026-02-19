@@ -212,8 +212,8 @@ export class SocketGateway implements OnGatewayConnection {
         }
       }
       for (let i = 0; i < infos.otherRoomsId.length; i++) {
-        if (this.waitGame.getGames().get(infos.otherRoomsId[i])?.getIsStarted())
-          activeRooms.push(infos.otherRoomsId[i]);
+        // if (this.waitGame.getGames().get(infos.otherRoomsId[i])?.getIsStarted())
+        activeRooms.push(infos.otherRoomsId[i]);
         socket.join(infos.otherRoomsId[i]);
       }
 
