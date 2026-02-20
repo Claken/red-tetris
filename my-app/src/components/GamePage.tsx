@@ -36,6 +36,11 @@ function GamePage() {
 	const [winner, setWinner] = useState<boolean>(false);
 	const [multiGame, setMultiGame] = useState<boolean>(false);
 	const [isWaiting, setWaiting] = useState<boolean>(true);
+
+	// Derived game mode booleans
+	const [isPlayWithAnyone, setIsPlayWithAnyone] = useState<boolean>(!isLegacyNav);
+	const [isCustomRoom, setIsCustomRoom] = useState<boolean>(isLegacyNav && multiGame);
+	const [isSolo, setIsSolo] = useState<boolean>(isLegacyNav && !multiGame);
 	const [countdown, setCountdown] = useState<number | null>(null);
 	const roomId = routeParam.room;
 	const playerNameFromUrl = routeParam.player_name;
@@ -111,15 +116,16 @@ function GamePage() {
 	}
 
 	const retryGame = () => {
-		if (isLegacyNav) {
-			// Old system: emit retryGame to server
+		if (isPlayWithAnyone) {
+			goBackToLobby();
+		} else if (isCustomRoom) {
 			socket?.emit("retryGame", { uuid: uuid, roomId: roomId });
 			setPartyDone(false);
-			setWinner(false);
-			setGrid(emptyGrid);
-		} else {
-			// New room system: retry = go back to lobby
-			goBackToLobby();
+			setWaiting(true);
+		} else if (isSolo) {
+			socket?.emit("startSingleTetrisGame", { name: name, uuid: uuid });
+			setPartyDone(false);
+			setWaiting(true);
 		}
 	}
 
@@ -249,7 +255,10 @@ function GamePage() {
 			setWaiting(false);
 			setGridWithRightSize(data.player.grid);
 			setTetro(data.player.tetrominos);
+			setIsPlayWithAnyone(!isLegacyNav);
 			setMultiGame(data.player.type === 100 ? true : false);
+			setIsCustomRoom(data.player.type === 100 && isLegacyNav);
+			setIsSolo(data.player.type !== 100 && isLegacyNav);
 		});
 		return () => {
 			socket?.off("beforeGame");
@@ -344,6 +353,7 @@ function GamePage() {
 								backgroundSize: '12px 12px'
 							}}
 							onClick={() => socket?.emit('startRoom', { uuid: uuid, roomId: roomId })}
+							disabled={players.length < 2}
 						>
 							Start Game
 						</button>
@@ -458,14 +468,21 @@ function GamePage() {
 												{winner ? "YOU WON" : "GAME OVER"}
 											</h1>
 											<h1 className="text-white text-3xl font-bold text-center">
-												Back to lobby?
+												{isPlayWithAnyone ? "Back to lobby?" : "Retry?"}
 											</h1>
 											<div className="flex flex-row justify-center items-center space-x-5">
 												<button
 													className="bg-[#00ff00] hover:bg-[#00cc00] active:bg-[#00ff00] text-white font-bold py-2 px-4 rounded-full w-fit transition-all duration-200 relative overflow-hidden"
+													style={{
+														backgroundImage: `
+															linear-gradient(rgba(255,255,255,0.15) 1.5px, transparent 1px),
+															linear-gradient(90deg, rgba(255,255,255,0.15) 1.5px, transparent 1px)
+														`,
+														backgroundSize: '8px 8px'
+													}}
 													onClick={retryGame}
 												>
-													LOBBY
+													{isPlayWithAnyone ? "LOBBY" : "RETRY"}
 												</button>
 												<button
 													className="bg-[#ff0000] hover:bg-[#cc0000] active:bg-[#ff0000] text-white font-bold py-2 px-4 rounded-full w-fit transition-all duration-200 relative overflow-hidden"
