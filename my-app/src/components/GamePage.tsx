@@ -344,8 +344,8 @@ function GamePage() {
 
 					{isHost ? (
 						<button
-							className="bg-[#00ff00] hover:bg-[#00cc00] active:bg-[#00ff00] text-black font-bold py-3 px-8 rounded-full w-full transition-all duration-200"
-							style={{
+							className={`font-bold py-3 px-8 rounded-full w-full transition-all duration-200 ${players.length < 2 ? 'bg-gray-600 text-gray-400 cursor-not-allowed' : 'bg-[#00ff00] hover:bg-[#00cc00] active:bg-[#00ff00] text-black'}`}
+							style={players.length < 2 ? {} : {
 								backgroundImage: `
 									linear-gradient(rgba(0,0,0,0.15) 1px, transparent 1px),
 									linear-gradient(90deg, rgba(0,0,0,0.15) 1px, transparent 1px)
@@ -355,7 +355,7 @@ function GamePage() {
 							onClick={() => socket?.emit('startRoom', { uuid: uuid, roomId: roomId })}
 							disabled={players.length < 2}
 						>
-							Start Game
+							{players.length < 2 ? 'Waiting for players...' : 'Start Game'}
 						</button>
 					) : (
 						<div className="flex items-center space-x-3 text-gray-400">
