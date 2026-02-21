@@ -203,18 +203,23 @@ export class SocketGateway implements OnGatewayConnection {
       const activeRooms = [];
       for (let i = 0; i < infos.ownedRoomsId.length; i++) {
         socket.join(infos.ownedRoomsId[i]);
-        if (
-          this.waitGame.getGames().get(infos.ownedRoomsId[i])?.getType() ===
-            SINGLE ||
-          this.waitGame.getGames().get(infos.ownedRoomsId[i])?.getIsStarted()
-        ) {
-          activeRooms.push(infos.ownedRoomsId[i]);
+        const game = this.waitGame.getGames().get(infos.ownedRoomsId[i]);
+        if (game?.getIsStarted()) {
+          const isLost = game.get_lostPlayers().some((p) => p.getUuid() === data.uuid);
+          if (!isLost) {
+            activeRooms.push(infos.ownedRoomsId[i]);
+          }
         }
       }
       for (let i = 0; i < infos.otherRoomsId.length; i++) {
-        // if (this.waitGame.getGames().get(infos.otherRoomsId[i])?.getIsStarted())
-        activeRooms.push(infos.otherRoomsId[i]);
         socket.join(infos.otherRoomsId[i]);
+        const game = this.waitGame.getGames().get(infos.otherRoomsId[i]);
+        if (game?.getIsStarted()) {
+          const isLost = game.get_lostPlayers().some((p) => p.getUuid() === data.uuid);
+          if (!isLost) {
+            activeRooms.push(infos.otherRoomsId[i]);
+          }
+        }
       }
 
       socket.emit('getActiveRooms', {

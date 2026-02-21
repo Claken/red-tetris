@@ -351,7 +351,7 @@ export class Game {
               winner: false,
             },
           });
-          i = 0;
+          i = -1;
         }
       }
       if (this._players.length === 1) {
@@ -387,29 +387,16 @@ export class Game {
     return await new Promise((resolve) => {
       const intervalId = setInterval(() => {
         if (currentTime == 4) {
-          if (this._type !== SINGLE) {
-            this._server.to(this._roomId).emit('beforeGame', {
-              player: {
-                grid: player.getGrid(),
-                name: player.getPlayerName(),
-                uuid: player.getUuid(),
-                roomId: this._roomId,
-                tetrominos: player.getTetrominos().slice(1, 6),
-                type: this._type,
-              },
-            });
-          } else {
-            this._server.to(socketId).emit('beforeGame', {
-              player: {
-                grid: player.getGrid(),
-                name: player.getPlayerName(),
-                uuid: player.getUuid(),
-                roomId: this._roomId,
-                tetrominos: player.getTetrominos().slice(1, 6),
-                type: this._type,
-              },
-            });
-          }
+          this._server.to(socketId).emit('beforeGame', {
+            player: {
+              grid: player.getGrid(),
+              name: player.getPlayerName(),
+              uuid: player.getUuid(),
+              roomId: this._roomId,
+              tetrominos: player.getTetrominos().slice(1, 6),
+              type: this._type,
+            },
+          });
           currentTime--;
         } else if (currentTime >= 0) {
           if (this._type === SINGLE) {

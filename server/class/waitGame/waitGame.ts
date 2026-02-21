@@ -196,6 +196,10 @@ export class WaitGame {
       const touch = { touch1: 1 };
       let gameIsOver = false;
       const intervalId = setInterval(() => {
+        if (!this.games.has(roomId)) {
+          clearInterval(intervalId);
+          return;
+        }
         const socketsId = this.UUIDMapings.get(player.getUuid())?.socketsId as string[];
         game.gamePlay(player, touch, socketsId);
         if (!gameIsOver) gameIsOver = game.endGame(this.UUIDMapings);
@@ -210,6 +214,10 @@ export class WaitGame {
       // Mode multi : 2+ joueurs
       await game.startGame(this.UUIDMapings);
       const intervalId = setInterval(() => {
+        if (!this.games.has(roomId)) {
+          clearInterval(intervalId);
+          return;
+        }
         if (game.endGame(this.UUIDMapings)) {
           clearInterval(intervalId);
           // Move all players (winner + losers) back to waiting for the lobby
@@ -221,6 +229,7 @@ export class WaitGame {
             game.changePlayerToWaiting(playerUuid);
           }
           this._notifyRoomPlayersUpdate(game, roomId);
+          return;
         }
         game.gamePlayMulti(this.UUIDMapings);
       }, 1000);
@@ -455,6 +464,10 @@ export class WaitGame {
     const touch = { touch1: 1 };
     let gameIsOver = false;
     const intervalId = setInterval(() => {
+      if (!this.games.has(roomName)) {
+        clearInterval(intervalId);
+        return;
+      }
       const socketsId = this.UUIDMapings.get(uuid)?.socketsId as string[];
 
       game.gamePlay(player, touch, socketsId);
@@ -483,33 +496,48 @@ export class WaitGame {
     if (infos === undefined) return;
     const game = this.games.get(roomId);
     if (game === undefined) return;
-    // le joueur ne fait plus partie de la room
+
     const player_lost = game
       .get_lostPlayers()
       .find((player) => player.getUuid() === uuid);
-
     const player = game
       .getPlayers()
       .find((player) => player.getUuid() === uuid);
+    const waitPlayer = game
+      .get_waitingPlayers()
+      .find((player) => player.getUuid() === uuid);
 
-    if (player === undefined && player_lost === undefined) {
+    if (player === undefined && player_lost === undefined && waitPlayer === undefined) {
       return;
     }
-    if (
+
+    // Si c'est le master, on le garde dans la room en waiting
+    const isMaster =
       (player != undefined && player.getIsMaster()) ||
-      (player_lost != undefined && player_lost.getIsMaster())
-    ) {
+      (player_lost != undefined && player_lost.getIsMaster()) ||
+      (waitPlayer != undefined && waitPlayer.getIsMaster());
+    if (isMaster) {
       game.changePlayerToWaiting(uuid);
       return;
     }
+
+    // Retirer le joueur de toutes les listes
     const socketsId = this.UUIDMapings.get(uuid)?.socketsId as string[];
     for (let i = 0; i < socketsId.length; i++) {
       const socket = this._server.sockets.sockets.get(socketsId[i]);
       if (socket !== undefined) socket.leave(roomId);
     }
-    infos.otherRoomsId.splice(infos.otherRoomsId.indexOf(roomId), 1);
+    const otherIdx = infos.otherRoomsId.indexOf(roomId);
+    if (otherIdx !== -1) {
+      infos.otherRoomsId.splice(otherIdx, 1);
+    }
     game.removeLostPlayer(uuid);
     game.removePlayer(uuid);
+    // Aussi retirer de waitingPlayers
+    const waitIdx = game.get_waitingPlayers().findIndex((p) => p.getUuid() === uuid);
+    if (waitIdx !== -1) {
+      game.get_waitingPlayers().splice(waitIdx, 1);
+    }
   }
 
   private clearGame(game: Game) {
@@ -569,7 +597,14 @@ export class WaitGame {
     if (game.getIsStarted()) {
       sockets.emit('noGame');
     }
+    let retryCount = 0;
+    const maxRetries = 60; // timeout après 60 secondes
     const intervalId = setInterval(async () => {
+      retryCount++;
+      if (!this.games.has(roomId) || retryCount >= maxRetries) {
+        clearInterval(intervalId);
+        return;
+      }
       if (game.getIsStarted() == false) {
         clearInterval(intervalId);
         game.changePlayerToWaiting(uuid);
@@ -613,8 +648,21 @@ export class WaitGame {
 
     await game.startGame(this.UUIDMapings);
     const intervalId = setInterval(() => {
+      if (!this.games.has(roomId)) {
+        clearInterval(intervalId);
+        return;
+      }
       if (game.endGame(this.UUIDMapings)) {
         clearInterval(intervalId);
+        // Move all players (winner + losers) back to waiting
+        const uuidsToMove = [
+          ...game.getPlayers().map((p) => p.getUuid()),
+          ...game.get_lostPlayers().map((p) => p.getUuid()),
+        ];
+        for (const playerUuid of uuidsToMove) {
+          game.changePlayerToWaiting(playerUuid);
+        }
+        return;
       }
       game.gamePlayMulti(this.UUIDMapings);
     }, 1000);

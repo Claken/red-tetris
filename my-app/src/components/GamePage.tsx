@@ -38,9 +38,9 @@ function GamePage() {
 	const [isWaiting, setWaiting] = useState<boolean>(true);
 
 	// Derived game mode booleans
-	const [isPlayWithAnyone, setIsPlayWithAnyone] = useState<boolean>(!isLegacyNav);
-	const [isCustomRoom, setIsCustomRoom] = useState<boolean>(isLegacyNav && multiGame);
-	const [isSolo, setIsSolo] = useState<boolean>(isLegacyNav && !multiGame);
+	const isPlayWithAnyone = !isLegacyNav;
+	const isCustomRoom = isLegacyNav && multiGame;
+	const isSolo = isLegacyNav && !multiGame;
 	const [countdown, setCountdown] = useState<number | null>(null);
 	const roomId = routeParam.room;
 	const playerNameFromUrl = routeParam.player_name;
@@ -96,7 +96,7 @@ function GamePage() {
 	const goBackToHome = () => {
 		if (isLegacyNav) {
 			// Only emit notRetryGame if the game is over, not during active play
-			// (the old system just navigated away; the game loop handles its own cleanup)
+			// (during active play the player stays in _players so they can rejoin via "Go back to a game")
 			if (partyDone) {
 				socket?.emit("notRetryGame", { uuid: uuid, roomId: roomId });
 			}
@@ -123,7 +123,7 @@ function GamePage() {
 			setPartyDone(false);
 			setWaiting(true);
 		} else if (isSolo) {
-			socket?.emit("startSingleTetrisGame", { name: name, uuid: uuid });
+			socket?.emit("startSingleTetrisGame", { name: playerNameFromUrl || sessionStorage.getItem("name"), uuid: uuid });
 			setPartyDone(false);
 			setWaiting(true);
 		}
@@ -255,10 +255,7 @@ function GamePage() {
 			setWaiting(false);
 			setGridWithRightSize(data.player.grid);
 			setTetro(data.player.tetrominos);
-			setIsPlayWithAnyone(!isLegacyNav);
 			setMultiGame(data.player.type === 100 ? true : false);
-			setIsCustomRoom(data.player.type === 100 && isLegacyNav);
-			setIsSolo(data.player.type !== 100 && isLegacyNav);
 		});
 		return () => {
 			socket?.off("beforeGame");
@@ -306,6 +303,20 @@ function GamePage() {
 		});
 		return () => {
 			socket?.off("noGame");
+		};
+	}, [socket]);
+
+	useEffect(() => {
+		socket?.on("not_enough_person", (data) => {
+			Toastify({
+				text: data.message || "Not enough players to start the game",
+				duration: 3000,
+				close: true,
+			}).showToast();
+			navigate("/");
+		});
+		return () => {
+			socket?.off("not_enough_person");
 		};
 	}, [socket]);
 

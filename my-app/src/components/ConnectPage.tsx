@@ -18,21 +18,16 @@ function ConnectPage({ name, setName, uuid, setUuid, socket, setSocket }: {
 	};
 
 	const handleSubmit = () => {
-		setSocket(
-			io("http://localhost:3000", {
-				query: { name: name, uuid: uuid },
-			})
-		);
+		const newSocket = io("http://localhost:3000", {
+			query: { name: name, uuid: uuid },
+		});
+		newSocket.on("new-person", (data) => {
+			sessionStorage.setItem("uuid", data.uuid);
+			setUuid(data.uuid);
+			sessionStorage.setItem("name", data.name);
+		});
+		setSocket(newSocket);
 	}
-
-	socket?.on("new-person", (data) => {
-		console.log("new-person");
-		console.log(data);
-		sessionStorage.setItem("uuid", data.uuid);
-		const newUuid = data.uuid;
-		setUuid(newUuid);
-		sessionStorage.setItem("name", data.name);
-	});
 
 	return (
 		<div data-testid="connect-page" className="flex items-center justify-center h-screen bg-[#1a1b26]">

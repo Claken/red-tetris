@@ -31,6 +31,9 @@ function HomePage() {
 		useState<boolean>(false);
 	const [listButtonClickedOthers, setListButtonClickedOthers] =
 		useState<boolean>(false);
+	const [listButtonClickedJoined, setListButtonClickedJoined] =
+		useState<boolean>(false);
+	const [listRoomsJoined, setListRoomsJoined] = useState([]);
 
 	const [showPopup, setShowPopup] = useState<boolean>(false);
 	const [popupTitle, setPopupTitle] = useState<string>("");
@@ -50,12 +53,11 @@ function HomePage() {
 
 	const togglePopup = () => {
 		setShowPopup((prev) => {
-			const newBoolean = !showPopup;
 			if (prev === true) {
 				setPopupTitle("");
 				setPopupChild(<div></div>);
 			}
-			return newBoolean;
+			return !prev;
 		});
 	};
 
@@ -93,11 +95,9 @@ function HomePage() {
 			console.log("startMultiGame", { name: name, uuid: uuid, roomId: room });
 			socket?.emit("startMultiGame", { name: name, uuid: uuid, roomId: room });
 			const goToRoute = room + "/" + name;
-			if (waitList.length > 1) {
-				navigate(goToRoute, { state: { legacy: true } });
-				setListButtonClickedSpec(false);
-				setListButtonClicked(false);
-			}
+			navigate(goToRoute, { state: { legacy: true } });
+			setListButtonClickedSpec(false);
+			setListButtonClicked(false);
 		};
 
 		return (
@@ -194,7 +194,7 @@ function HomePage() {
 													e.preventDefault();
 													const newRoom = room;
 													setRoomId(newRoom);
-													if (title === "ACTIVE ROOMLIST") {
+													if (title === "ACTIVE ROOMLIST" || title === "MY JOINED ROOMS") {
 														const goToRoute = newRoom + "/" + name;
 														navigate(goToRoute, { state: { legacy: true } });
 														setListButtonClickedSpec(false);
@@ -261,26 +261,28 @@ function HomePage() {
 
 	const displayAList = () => {
 		if (listButtonClickedActive) {
-			socket?.emit("getActiveRooms", { uuid: uuid });
-			console.log("getActiveRooms 2");
 			return theRoomList({
 				listRooms: listRoomsAc,
 				setListButtonClickedSpec: setListButtonClickedActive,
 				title: "ACTIVE ROOMLIST",
 			});
 		} else if (listButtonClickedRooms) {
-			socket?.emit("getCreateRooms", { uuid: uuid });
 			return theRoomList({
 				listRooms: listRoomsCreate,
 				setListButtonClickedSpec: setListButtonClickedRooms,
 				title: "MY ROOMLIST",
 			});
 		} else if (listButtonClickedOthers) {
-			socket?.emit("getOtherRooms", { uuid: uuid });
 			return theRoomList({
 				listRooms: listOtherRooms,
 				setListButtonClickedSpec: setListButtonClickedOthers,
 				title: "OTHERS ROOMLIST",
+			});
+		} else if (listButtonClickedJoined) {
+			return theRoomList({
+				listRooms: listRoomsJoined,
+				setListButtonClickedSpec: setListButtonClickedJoined,
+				title: "MY JOINED ROOMS",
 			});
 		}
 	};
@@ -294,7 +296,7 @@ function HomePage() {
 		return () => {
 			socket?.off("pageToGo");
 		};
-	});
+	}, [socket]);
 
 	useEffect(() => {
 		console.log("useEffect setUuid");
@@ -324,29 +326,18 @@ function HomePage() {
 			socket.emit("getActiveRooms", { uuid: uuid });
 			socket.emit("getCreateRooms", { uuid: uuid });
 			socket.emit("getOtherRooms", { uuid: uuid });
+			socket.emit("getOthersRoomsJoined", { uuid: uuid });
 		}
+	}, [socket]);
+
+	useEffect(() => {
 		socket?.on("getActiveRooms", (data) => {
 			console.log("getActiveRooms 3");
 			setListRoomsAc(data.activeRooms);
 		});
 		socket?.on("getCreateRooms", (data) => {
 			setListRoomsCreate(data.createRooms);
-		});
-		socket?.on("getOtherRooms", (data) => {
-			setListOtherRooms(data.otherRooms);
-		});
-		return () => {
-			socket?.off("getActiveRooms");
-			socket?.off("getCreateRooms");
-			socket?.off("getOtherRooms");
-		};
-	}, [socket]);
-
-	useEffect(() => {
-		socket?.on("getCreateRooms", (data) => {
-			console.log("getCreateRooms", { uuid: uuid });
 			if (popupTitle === titleRoomCreated) {
-				console.log(popupTitle);
 				setPopupChild(
 					<div className="text-white text-2xl font-bold text-center">
 						{"A new room has been created : " +
@@ -354,12 +345,19 @@ function HomePage() {
 					</div>
 				);
 				togglePopup();
-				const newCreatedRoom = data.createRooms;
-				setListRoomsCreate(newCreatedRoom);
 			}
 		});
+		socket?.on("getOtherRooms", (data) => {
+			setListOtherRooms(data.otherRooms);
+		});
+		socket?.on("getOthersRoomsJoined", (data) => {
+			setListRoomsJoined(data.roomsJoined);
+		});
 		return () => {
+			socket?.off("getActiveRooms");
 			socket?.off("getCreateRooms");
+			socket?.off("getOtherRooms");
+			socket?.off("getOthersRoomsJoined");
 		};
 	}, [socket, popupTitle]);
 
@@ -522,6 +520,7 @@ function HomePage() {
 									}}
 									onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
 										e.preventDefault();
+										socket?.emit("getCreateRooms", { uuid: uuid });
 										setListButtonClickedRooms(true);
 										setListButtonClicked(true);
 									}}
@@ -558,11 +557,45 @@ function HomePage() {
 									}}
 									onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
 										e.preventDefault();
+										socket?.emit("getOtherRooms", { uuid: uuid });
 										setListButtonClickedOthers(true);
 										setListButtonClicked(true);
 									}}
 								>
 									Join a game
+									<div className="flex items-center justify-center">
+										<svg
+											className="h-8 w-8"
+											fill="black"
+											viewBox="0 0 24 24"
+											stroke="currentColor"
+										>
+											<path
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												strokeWidth="2"
+												d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+											/>
+										</svg>
+									</div>
+								</button>
+								<button
+									className="bg-[#20b2aa] hover:bg-[#1a9690] active:bg-[#20b2aa] text-black font-bold py-2 px-4 rounded transition-all duration-200 relative overflow-hidden"
+									style={{
+										backgroundImage: `
+											linear-gradient(rgba(0,0,0,0.15) 1px, transparent 1px),
+											linear-gradient(90deg, rgba(0,0,0,0.15) 1px, transparent 1px)
+										`,
+										backgroundSize: '12px 12px'
+									}}
+									onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+										e.preventDefault();
+										socket?.emit("getOthersRoomsJoined", { uuid: uuid });
+										setListButtonClickedJoined(true);
+										setListButtonClicked(true);
+									}}
+								>
+									My joined rooms
 									<div className="flex items-center justify-center">
 										<svg
 											className="h-8 w-8"
@@ -590,7 +623,7 @@ function HomePage() {
 									}}
 									onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
 										e.preventDefault();
-										console.log("getActiveRooms ----");
+										socket?.emit("getActiveRooms", { uuid: uuid });
 										setListButtonClickedActive(true);
 										setListButtonClicked(true);
 									}}
