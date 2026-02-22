@@ -41,8 +41,8 @@ describe('Game Class', () => {
     expect(game.getType()).toBe(gameType);
     expect(game.getPlayers()).toEqual(playersMock);
     expect(game.getIsStarted()).toBe(false);
-    expect(game.get_waitingPlayers()).toHaveLength(0);
-    expect(game.get_lostPlayers()).toHaveLength(0);
+    expect(game.getWaitingPlayers()).toHaveLength(0);
+    expect(game.getLostPlayers()).toHaveLength(0);
   });
 
   describe('setIsStarted', () => {
@@ -57,13 +57,13 @@ describe('Game Class', () => {
   describe('removeLostPlayer', () => {
     it('should remove a lost player', () => {
       const game = new Game(playersMock, roomId, gameType, serverMock);
-      const lostPlayers = game.get_lostPlayers();
+      const lostPlayers = game.getLostPlayers();
       lostPlayers.push(playersMock[0]);
       lostPlayers.push(playersMock[1]);
       game.removeLostPlayer(playersMock[1].getUuid());
 
-      expect(game.get_lostPlayers()).toHaveLength(1);
-      expect(game.get_lostPlayers()).toContain(playersMock[0]);
+      expect(game.getLostPlayers()).toHaveLength(1);
+      expect(game.getLostPlayers()).toContain(playersMock[0]);
     });
   });
 
@@ -82,8 +82,8 @@ describe('Game Class', () => {
       const game = new Game(playersMock, roomId, gameType, serverMock);
       game.addWaitingPlayer(playersMock[0]);
 
-      expect(game.get_waitingPlayers()).toHaveLength(1);
-      expect(game.get_waitingPlayers()).toContain(playersMock[0]);
+      expect(game.getWaitingPlayers()).toHaveLength(1);
+      expect(game.getWaitingPlayers()).toContain(playersMock[0]);
     });
   });
 
@@ -91,8 +91,8 @@ describe('Game Class', () => {
     it('should change a player to waiting', () => {
       const game = new Game(playersMock, roomId, gameType, serverMock);
       game.changePlayerToWaiting(playersMock[0].getUuid());
-      expect(game.get_waitingPlayers()).toHaveLength(1);
-      expect(game.get_waitingPlayers()).toContain(playersMock[0]);
+      expect(game.getWaitingPlayers()).toHaveLength(1);
+      expect(game.getWaitingPlayers()).toContain(playersMock[0]);
     });
   });
 

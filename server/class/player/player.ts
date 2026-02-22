@@ -31,81 +31,56 @@ export class Player {
     this._token = 0;
   }
 
-  // testgrid(num1: number): void {
-  //   if (num1 == 1) {
-  //     for (let y = 0; y < this._grid.length; y++) {
-  //       for (let x = 0; x < this._grid[y].length; x++) {
-  //         if (y == 23) this._grid[y][x] = B;
-  //       }
-  //     }
-  //   } else if (num1 == 2) {
-  //     for (let y = 0; y < this._grid.length; y++) {
-  //       for (let x = 0; x < this._grid[y].length; x++) {
-  //         if (y == 23) this._grid[y][x] = B;
-  //         if (y == 22 && x % 2 == 0) this._grid[y][x] = B;
-  //       }
-  //     }
-  //   }
-  // }
-
   getToken(): number {
     return this._token;
   }
-  // test fait
+
 
   getPlayerName(): string {
     return this._player_name;
   }
-  // test fait
+
   getUuid(): string {
     return this._uuid;
   }
-  // test fait
+
   getGrid(): number[][] {
     return this._grid;
   }
-  // test fait
+
   getSpectrum(): number[][] {
     return this._spectrum;
   }
-  // test fait
+
   getTetrominos(): Tetromino[] {
     return this._tetrominos;
   }
-  // test fait
+
   getIsMaster(): boolean {
     return this._isMaster;
   }
-  // test fait
+
   setIsMaster(right: boolean): void {
     this._isMaster = right;
   }
-  // test fait
+
   addTetromino(tetromino: Tetromino): void {
     this._tetrominos.push(tetromino);
   }
-  // test fait
+
   setGridToZero(): void {
     this._grid = new Array(24).fill(null).map(() => new Array(10).fill(E));
   }
-  // test fait
+
   setTetrominosToZero(): void {
     this._tetrominos = [];
   }
-  // test fait
+
 
   setToken(num: number): void {
     this._token = num;
   }
-  // test fait
 
-  // print2DArray = (arr: any) => {
-  //   console.log('[');
-  //   for (let i = 0; i < arr.length; i++) {
-  //     console.log('  [' + arr[i].join(',') + ']');
-  //   }
-  //   console.log(']');
-  // };
 
   initTetrominoInsideGrid(): void {
     const t = this._tetrominos[0];
@@ -124,7 +99,7 @@ export class Player {
       this.moveDownTetromino();
     }
   }
-  //test fait
+
 
   action(action: string) {
     if (action == 'left') {
@@ -139,7 +114,7 @@ export class Player {
       this.fallTetromino();
     }
   }
-  //test fait
+
 
   private isPartOfTetromino(num: number): boolean {
     return (
@@ -152,35 +127,7 @@ export class Player {
       num == Z
     );
   }
-  //test fait
 
-  // private fallPositionYTetromino(): number {
-  //   let endY = 24;
-  //   let startX = 10;
-  //   let endX = 0;
-  //   for (let y = 0; y < this._grid.length; y++) {
-  //     for (let x = 0; this._grid[y].length > x; x++) {
-  //       if (this.isPartOfTetromino(this._grid[y][x]) && x < startX) {
-  //         startX = x;
-  //       }
-  //       if (this.isPartOfTetromino(this._grid[y][x]) && x >= endX) {
-  //         endX = x + 1;
-  //       }
-  //     }
-  //   }
-  //   for (let y = 0; y < this._grid.length; y++) {
-  //     for (let x = startX; endX > x; x++) {
-  //       if (
-  //         (this._grid[y][x] == B || this._grid[y][x] == UNBREAKABLE_BRICK) &&
-  //         this.checkIfBrick(x)
-  //       ) {
-  //         endY = y;
-  //         return endY - 1;
-  //       }
-  //     }
-  //   }
-  //   return endY - 1;
-  // }
 
   checkIfBrick(num: number): boolean {
     for (let y = 0; y < this._grid.length; y++) {
@@ -190,7 +137,7 @@ export class Player {
     }
     return false;
   }
-  //test fait
+
 
   fallSpectrum(): void {
     for (let y = 0; y < this._grid.length; y++) {
@@ -228,26 +175,7 @@ export class Player {
       }
     }
   }
-  //test fait
 
-  // isCollisionSpectrum(cy: number, cx: number): boolean {
-  //   for (let y = 0; y < this._grid.length; y++) {
-  //     for (let x = 0; this._grid[y].length > x; x++) {
-  //       // console.log(this._grid[y][x]);
-  //       if (
-  //         (this._grid[y][x] == SPECTRUM || this._grid[y][x] == 11) &&
-  //         (y + cy > 23 ||
-  //           x + cx > 9 ||
-  //           x + cx < 0 ||
-  //           this._grid[y + cy][x + cx] == B ||
-  //           this._grid[y + cy][x + cx] == UNBREAKABLE_BRICK)
-  //       ) {
-  //         return true;
-  //       }
-  //     }
-  //   }
-  //   return false;
-  // }
 
   fallTetromino(num?: number): void {
     while (this.isCollisionMove(1, 0) == false) {
@@ -261,7 +189,7 @@ export class Player {
     }
     return undefined;
   }
-  // test fait
+
 
   moveDownTetromino(num?: number): void {
     if (this.isCollisionMove(1, 0)) return;
@@ -276,7 +204,7 @@ export class Player {
     if (this.isCollisionMove(1, 0)) this._token = 1;
     if (num == undefined) this.fallSpectrum();
   }
-  // test fait
+
 
   moveLeftTetromino(): void {
     if (this.isCollisionMove(0, -1)) return;
@@ -290,7 +218,7 @@ export class Player {
     }
     this.fallSpectrum();
   }
-  // test fait
+
 
   moveRightTetromino(): void {
     if (this.isCollisionMove(0, 1)) return;
@@ -304,7 +232,7 @@ export class Player {
     }
     this.fallSpectrum();
   }
-  // test fait
+
 
   rotateTetromino(): void {
     const lengthTetro = this._tetrominos[0].getLentgth();
@@ -343,10 +271,9 @@ export class Player {
     }
     this.fallSpectrum();
   }
-  // test fait
+
 
   isColisionRotate(p: any): boolean {
-    // const copie = this._grid.map((arr) => arr.slice());
     for (let y = p.startY, i = 0; y < p.endY; y++, i++) {
       for (let x = p.startX, z = 0; x < p.endX; x++, z++) {
         if (
@@ -364,7 +291,7 @@ export class Player {
     return false;
   }
 
-  // test fait
+
 
   isCollisionMove(cy: number, cx: number): boolean {
     for (let y = 0; y < this._grid.length; y++) {
@@ -384,10 +311,9 @@ export class Player {
     return false;
   }
 
-  // test fait
+
 
   isPlayerLost(): boolean {
-    // checker ceci apres un update soit finnis
     if (
       this._grid[3].some(
         (elem: number) => elem == B || elem == UNBREAKABLE_BRICK,
@@ -398,7 +324,7 @@ export class Player {
     return false;
   }
 
-  // test fait
+
 
   clearLines(): number {
     let nbrLineToDestroy = 0;
@@ -423,7 +349,7 @@ export class Player {
     return nbrLineToDestroy;
   }
 
-  // test fait
+
 
   updateGrid(touched: number): any {
     let transform: boolean = false;
@@ -464,13 +390,10 @@ export class Player {
     if (transform) {
       this.initTetrominoInsideGrid();
     }
-    // if (transform && nbrLineToAdd > 0) {
-    //   console.log({ nbrLineToAdd: nbrLineToAdd });
-    // }
     return { nbrLineToAdd: nbrLineToAdd - 1, touched: touched };
   }
 
-  // test fait
+
 
   addLine(nbrLine: number): void {
     for (let i = 0; i < nbrLine; i++) {
@@ -479,7 +402,7 @@ export class Player {
     }
   }
 
-  // test fait
+
 
   updateSpectrum(): void {
     for (let i = 0; i < this._spectrum.length; i++) {
@@ -497,5 +420,5 @@ export class Player {
     }
   }
 
-  // test fait
+
 }

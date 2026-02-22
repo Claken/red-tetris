@@ -59,9 +59,9 @@ export class WaitGame {
     }
 
     // Vérifier si le joueur est déjà dans la room
-    const waitPlayer = game.get_waitingPlayers().find((p) => p.getUuid() === uuid);
+    const waitPlayer = game.getWaitingPlayers().find((p) => p.getUuid() === uuid);
     const player = game.getPlayers().find((p) => p.getUuid() === uuid);
-    const lostPlayer = game.get_lostPlayers().find((p) => p.getUuid() === uuid);
+    const lostPlayer = game.getLostPlayers().find((p) => p.getUuid() === uuid);
 
     if (waitPlayer !== undefined || player !== undefined || lostPlayer !== undefined) {
       // Already in room — just ensure socket is joined and re-notify
@@ -71,14 +71,14 @@ export class WaitGame {
     }
 
     // Vérifier que le nom n'est pas déjà pris dans la room
-    const nameExists = game.get_waitingPlayers().some((p) => p.getPlayerName() === name);
+    const nameExists = game.getWaitingPlayers().some((p) => p.getPlayerName() === name);
     if (nameExists) {
       return { success: false, reason: 'name_taken' };
     }
 
     // Créer le joueur ; premier dans la room = host
     const newPlayer = new Player(name, uuid);
-    if (game.get_waitingPlayers().length === 0) {
+    if (game.getWaitingPlayers().length === 0) {
       newPlayer.setIsMaster(true);
     }
 
@@ -105,9 +105,9 @@ export class WaitGame {
     const infos = this.UUIDMapings.get(uuid);
 
     // Chercher le joueur dans les 3 listes possibles
-    const waitPlayer = game.get_waitingPlayers().find((p) => p.getUuid() === uuid);
+    const waitPlayer = game.getWaitingPlayers().find((p) => p.getUuid() === uuid);
     const playingPlayer = game.getPlayers().find((p) => p.getUuid() === uuid);
-    const lostPlayer = game.get_lostPlayers().find((p) => p.getUuid() === uuid);
+    const lostPlayer = game.getLostPlayers().find((p) => p.getUuid() === uuid);
 
     // Pas dans la room
     if (!waitPlayer && !playingPlayer && !lostPlayer) return;
@@ -121,9 +121,9 @@ export class WaitGame {
 
     // Retirer le joueur de la liste appropriée
     if (waitPlayer) {
-      const index = game.get_waitingPlayers().findIndex((p) => p.getUuid() === uuid);
+      const index = game.getWaitingPlayers().findIndex((p) => p.getUuid() === uuid);
       if (index !== -1) {
-        game.get_waitingPlayers().splice(index, 1);
+        game.getWaitingPlayers().splice(index, 1);
       }
     }
 
@@ -155,9 +155,9 @@ export class WaitGame {
 
     // Nettoyer la room si vide
     if (
-      game.get_waitingPlayers().length === 0 &&
+      game.getWaitingPlayers().length === 0 &&
       game.getPlayers().length === 0 &&
-      game.get_lostPlayers().length === 0
+      game.getLostPlayers().length === 0
     ) {
       this.games.delete(roomId);
       return;
@@ -177,61 +177,70 @@ export class WaitGame {
     const game = this.games.get(roomId);
     if (game === undefined) return { success: false, reason: 'no_room' };
 
-    if (game.getIsStarted()) return { success: false, reason: 'already_started' };
+    if (game.getIsStarted() || game.getIsStarting()) return { success: false, reason: 'already_started' };
+    game.setIsStarting(true);
 
     // Vérifier que c'est l'hôte qui demande
-    const host = game.get_waitingPlayers().find((p) => p.getIsMaster());
+    const host = game.getWaitingPlayers().find((p) => p.getIsMaster());
     if (host === undefined || host.getUuid() !== uuid) {
       return { success: false, reason: 'not_host' };
     }
 
-    if (game.get_waitingPlayers().length < 1) {
+    if (game.getWaitingPlayers().length < 1) {
       return { success: false, reason: 'no_players' };
     }
 
-    if (game.get_waitingPlayers().length === 1) {
+    if (game.getWaitingPlayers().length === 1) {
       // Mode solo : un seul joueur dans la room
       await game.startGame(this.UUIDMapings);
       const player = game.getPlayers()[0];
       const touch = { touch1: 1 };
       let gameIsOver = false;
       const intervalId = setInterval(() => {
-        if (!this.games.has(roomId)) {
+        try {
+          if (!this.games.has(roomId)) {
+            clearInterval(intervalId);
+            return;
+          }
+          const socketsId = this.UUIDMapings.get(player.getUuid())?.socketsId as string[];
+          game.gamePlay(player, touch, socketsId);
+          if (!gameIsOver) gameIsOver = game.endGame(this.UUIDMapings);
+          if (gameIsOver) {
+            clearInterval(intervalId);
+            game.changePlayerToWaiting(player.getUuid());
+            this._notifyRoomPlayersUpdate(game, roomId);
+          }
+        } catch (e) {
           clearInterval(intervalId);
-          return;
-        }
-        const socketsId = this.UUIDMapings.get(player.getUuid())?.socketsId as string[];
-        game.gamePlay(player, touch, socketsId);
-        if (!gameIsOver) gameIsOver = game.endGame(this.UUIDMapings);
-        if (gameIsOver) {
-          clearInterval(intervalId);
-          // Remettre le joueur en waiting pour le lobby
-          game.changePlayerToWaiting(player.getUuid());
-          this._notifyRoomPlayersUpdate(game, roomId);
+          console.error('Game loop error (solo lobby):', e);
         }
       }, 1000);
     } else {
       // Mode multi : 2+ joueurs
       await game.startGame(this.UUIDMapings);
       const intervalId = setInterval(() => {
-        if (!this.games.has(roomId)) {
-          clearInterval(intervalId);
-          return;
-        }
-        if (game.endGame(this.UUIDMapings)) {
-          clearInterval(intervalId);
-          // Move all players (winner + losers) back to waiting for the lobby
-          const uuidsToMove = [
-            ...game.getPlayers().map((p) => p.getUuid()),
-            ...game.get_lostPlayers().map((p) => p.getUuid()),
-          ];
-          for (const playerUuid of uuidsToMove) {
-            game.changePlayerToWaiting(playerUuid);
+        try {
+          if (!this.games.has(roomId)) {
+            clearInterval(intervalId);
+            return;
           }
-          this._notifyRoomPlayersUpdate(game, roomId);
-          return;
+          if (game.endGame(this.UUIDMapings)) {
+            clearInterval(intervalId);
+            const uuidsToMove = [
+              ...game.getPlayers().map((p) => p.getUuid()),
+              ...game.getLostPlayers().map((p) => p.getUuid()),
+            ];
+            for (const playerUuid of uuidsToMove) {
+              game.changePlayerToWaiting(playerUuid);
+            }
+            this._notifyRoomPlayersUpdate(game, roomId);
+            return;
+          }
+          game.gamePlayMulti(this.UUIDMapings);
+        } catch (e) {
+          clearInterval(intervalId);
+          console.error('Game loop error (multi lobby):', e);
         }
-        game.gamePlayMulti(this.UUIDMapings);
       }, 1000);
     }
 
@@ -246,10 +255,10 @@ export class WaitGame {
 
     if (game.getPlayers().length > 0) {
       newHost = game.getPlayers()[0];
-    } else if (game.get_lostPlayers().length > 0) {
-      newHost = game.get_lostPlayers()[0];
-    } else if (game.get_waitingPlayers().length > 0) {
-      newHost = game.get_waitingPlayers()[0];
+    } else if (game.getLostPlayers().length > 0) {
+      newHost = game.getLostPlayers()[0];
+    } else if (game.getWaitingPlayers().length > 0) {
+      newHost = game.getWaitingPlayers()[0];
     }
 
     if (newHost) {
@@ -266,7 +275,7 @@ export class WaitGame {
    * Notifier tous les joueurs d'une room
    */
   private _notifyRoomPlayersUpdate(game: Game, roomId: string): void {
-    const playersList = game.get_waitingPlayers().map((p) => ({
+    const playersList = game.getWaitingPlayers().map((p) => ({
       name: p.getPlayerName(),
       uuid: p.getUuid(),
       isHost: p.getIsMaster(),
@@ -275,7 +284,7 @@ export class WaitGame {
     this._server.to(roomId).emit('room_players_update', {
       roomId: roomId,
       players: playersList,
-      hostUuid: game.get_waitingPlayers().find((p) => p.getIsMaster())?.getUuid() || '',
+      hostUuid: game.getWaitingPlayers().find((p) => p.getIsMaster())?.getUuid() || '',
       isStarted: game.getIsStarted(),
     });
   }
@@ -313,12 +322,53 @@ export class WaitGame {
   }
 
   public deleteSocket(socketId: string): void {
-    this.UUIDMapings.forEach((value) => {
+    const uuidsToDelete: string[] = [];
+    this.UUIDMapings.forEach((value, uuid) => {
       const index = value.socketsId.indexOf(socketId);
       if (index !== -1) {
         value.socketsId.splice(index, 1);
       }
+      if (
+        value.socketsId.length === 0 &&
+        value.ownedRoomsId.length === 0 &&
+        value.otherRoomsId.length === 0 &&
+        value.lobbyRoomsId.length === 0
+      ) {
+        uuidsToDelete.push(uuid);
+      }
     });
+    for (const uuid of uuidsToDelete) {
+      this.UUIDMapings.delete(uuid);
+    }
+  }
+
+  public cleanupLegacyRooms(uuid: string): void {
+    const infos = this.UUIDMapings.get(uuid);
+    if (!infos) return;
+
+    const ownedRooms = [...infos.ownedRoomsId];
+    for (const roomId of ownedRooms) {
+      const game = this.games.get(roomId);
+      if (game) {
+        game.removePlayerFromAll(uuid);
+        if (game.isEmpty()) {
+          this.games.delete(roomId);
+        }
+      }
+    }
+    infos.ownedRoomsId = [];
+
+    const otherRooms = [...infos.otherRoomsId];
+    for (const roomId of otherRooms) {
+      const game = this.games.get(roomId);
+      if (game) {
+        game.removePlayerFromAll(uuid);
+        if (game.isEmpty()) {
+          this.games.delete(roomId);
+        }
+      }
+    }
+    infos.otherRoomsId = [];
   }
 
   public createGame(uuid: string, name: string, socketId: string) {
@@ -394,13 +444,13 @@ export class WaitGame {
     const game = this.games.get(roomId);
     if (game === undefined) return;
     const waitPlayer = game
-      .get_waitingPlayers()
+      .getWaitingPlayers()
       .find((player) => player.getUuid() === uuid);
     const player = game
       .getPlayers()
       .find((player) => player.getUuid() === uuid);
     const lostPlayer = game
-      .get_lostPlayers()
+      .getLostPlayers()
       .find((player) => player.getUuid() === uuid);
     if (
       player !== undefined ||
@@ -464,22 +514,27 @@ export class WaitGame {
     const touch = { touch1: 1 };
     let gameIsOver = false;
     const intervalId = setInterval(() => {
-      if (!this.games.has(roomName)) {
-        clearInterval(intervalId);
-        return;
-      }
-      const socketsId = this.UUIDMapings.get(uuid)?.socketsId as string[];
-
-      game.gamePlay(player, touch, socketsId);
-      if (gameIsOver == false) gameIsOver = game.endGame(this.UUIDMapings);
-      if (gameIsOver) {
-        clearInterval(intervalId);
-        for (let i = 0; i < socketsId.length; i++) {
-          const socket = this._server.sockets.sockets.get(socketsId[i]);
-          if (socket !== undefined) socket.leave(roomName);
+      try {
+        if (!this.games.has(roomName)) {
+          clearInterval(intervalId);
+          return;
         }
-        infos.ownedRoomsId.splice(infos.ownedRoomsId.indexOf(roomName), 1);
-        this.games.delete(roomName);
+        const socketsId = this.UUIDMapings.get(uuid)?.socketsId as string[];
+
+        game.gamePlay(player, touch, socketsId);
+        if (gameIsOver == false) gameIsOver = game.endGame(this.UUIDMapings);
+        if (gameIsOver) {
+          clearInterval(intervalId);
+          for (let i = 0; i < socketsId.length; i++) {
+            const socket = this._server.sockets.sockets.get(socketsId[i]);
+            if (socket !== undefined) socket.leave(roomName);
+          }
+          infos.ownedRoomsId.splice(infos.ownedRoomsId.indexOf(roomName), 1);
+          this.games.delete(roomName);
+        }
+      } catch (e) {
+        clearInterval(intervalId);
+        console.error('Game loop error (single):', e);
       }
     }, 1000);
   }
@@ -498,13 +553,13 @@ export class WaitGame {
     if (game === undefined) return;
 
     const player_lost = game
-      .get_lostPlayers()
+      .getLostPlayers()
       .find((player) => player.getUuid() === uuid);
     const player = game
       .getPlayers()
       .find((player) => player.getUuid() === uuid);
     const waitPlayer = game
-      .get_waitingPlayers()
+      .getWaitingPlayers()
       .find((player) => player.getUuid() === uuid);
 
     if (player === undefined && player_lost === undefined && waitPlayer === undefined) {
@@ -531,17 +586,14 @@ export class WaitGame {
     if (otherIdx !== -1) {
       infos.otherRoomsId.splice(otherIdx, 1);
     }
-    game.removeLostPlayer(uuid);
-    game.removePlayer(uuid);
-    // Aussi retirer de waitingPlayers
-    const waitIdx = game.get_waitingPlayers().findIndex((p) => p.getUuid() === uuid);
-    if (waitIdx !== -1) {
-      game.get_waitingPlayers().splice(waitIdx, 1);
+    game.removePlayerFromAll(uuid);
+    if (game.isEmpty()) {
+      this.games.delete(roomId);
     }
   }
 
   private clearGame(game: Game) {
-    const lostPlayers = game.get_lostPlayers();
+    const lostPlayers = game.getLostPlayers();
     const players = game.getPlayers();
 
     for (let i = 0; i < lostPlayers.length; i++) {
@@ -609,7 +661,7 @@ export class WaitGame {
         clearInterval(intervalId);
         game.changePlayerToWaiting(uuid);
         const player = game
-          .get_waitingPlayers()
+          .getWaitingPlayers()
           .find((player) => player.getUuid() === uuid);
         if (player?.getIsMaster() === true) {
           await new Promise((resolve) => {
@@ -629,17 +681,18 @@ export class WaitGame {
     socketId: string,
     roomId: string,
   ): Promise<void> {
-    console.log('start game');
     const socket = this._server.sockets.sockets.get(socketId);
     if (socket === undefined) return;
     if (!this.UUIDMapings.has(uuid)) return;
     const infos: ClientInfo = this.UUIDMapings.get(uuid) as ClientInfo;
     const game = this.games.get(roomId);
     if (game === undefined) return;
+    if (game.getIsStarted() || game.getIsStarting()) return;
+    game.setIsStarting(true);
 
     this.clearGame(game);
 
-    if (game.get_waitingPlayers().length <= 1) {
+    if (game.getWaitingPlayers().length <= 1) {
       this._server.to(socketId).emit('not_enough_person', {
         message: 'Not enough person to start the game',
       });
@@ -648,23 +701,27 @@ export class WaitGame {
 
     await game.startGame(this.UUIDMapings);
     const intervalId = setInterval(() => {
-      if (!this.games.has(roomId)) {
-        clearInterval(intervalId);
-        return;
-      }
-      if (game.endGame(this.UUIDMapings)) {
-        clearInterval(intervalId);
-        // Move all players (winner + losers) back to waiting
-        const uuidsToMove = [
-          ...game.getPlayers().map((p) => p.getUuid()),
-          ...game.get_lostPlayers().map((p) => p.getUuid()),
-        ];
-        for (const playerUuid of uuidsToMove) {
-          game.changePlayerToWaiting(playerUuid);
+      try {
+        if (!this.games.has(roomId)) {
+          clearInterval(intervalId);
+          return;
         }
-        return;
+        if (game.endGame(this.UUIDMapings)) {
+          clearInterval(intervalId);
+          const uuidsToMove = [
+            ...game.getPlayers().map((p) => p.getUuid()),
+            ...game.getLostPlayers().map((p) => p.getUuid()),
+          ];
+          for (const playerUuid of uuidsToMove) {
+            game.changePlayerToWaiting(playerUuid);
+          }
+          return;
+        }
+        game.gamePlayMulti(this.UUIDMapings);
+      } catch (e) {
+        clearInterval(intervalId);
+        console.error('Game loop error (multi legacy):', e);
       }
-      game.gamePlayMulti(this.UUIDMapings);
     }, 1000);
   }
 

@@ -218,7 +218,7 @@ describe('SocketGateway', () => {
     } as unknown as Player;
 
     const mockGameInstance = {
-      get_waitingPlayers: jest.fn().mockReturnValue([mockPlayer]),
+      getWaitingPlayers: jest.fn().mockReturnValue([mockPlayer]),
     } as unknown as Game;
 
     const mockWaitGame = {
@@ -249,7 +249,7 @@ describe('SocketGateway', () => {
     // Vérifie les appels attendus
     expect(mockManageSocket.getInfos).toHaveBeenCalledWith(data.uuid);
     expect(mockWaitGame.getGames).toHaveBeenCalled();
-    expect(mockGameInstance.get_waitingPlayers).toHaveBeenCalled();
+    expect(mockGameInstance.getWaitingPlayers).toHaveBeenCalled();
     expect(mockSocket.emit).toHaveBeenCalledWith('list_players_room', {
       roomId: data.roomId,
       players: ['Player1'],

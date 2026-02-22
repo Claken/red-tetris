@@ -3,14 +3,13 @@ import { Player } from '../player/player';
 import { ClientInfo } from '../../interfaces/clientInfo';
 import { MULTI, SINGLE } from '../../constantes/constantes';
 import { ManagePlayerTetromino } from '../managePlayerTetromino/managePlayerTetromino';
-import { B, UNBREAKABLE_BRICK } from '../../constantes/constantes';
-import { map } from 'rxjs';
 
 export class Game {
   private _players: Player[];
   private _playersLost: Player[] = [];
   private _waitingPlayers: Player[] = [];
   private _isStarted = false;
+  private _isStarting = false;
   private _initialPlayerCount = 0;
   private _roomId: string;
   private _type: number;
@@ -22,51 +21,52 @@ export class Game {
     this._server = server;
   }
 
-  public get_lostPlayers(): Player[] {
+  public getLostPlayers(): Player[] {
     return this._playersLost;
   }
 
-  // test fait
 
-  public get_waitingPlayers(): Player[] {
+  public getWaitingPlayers(): Player[] {
     return this._waitingPlayers;
   }
 
-  // test fait
 
   public getPlayers(): Player[] {
     return this._players;
   }
 
-  // test fait
 
   public getRoomId(): string {
     return this._roomId;
   }
 
-  // test fait
 
   public getType(): number {
     return this._type;
   }
 
-  // test fait
 
   public getIsStarted(): boolean {
     return this._isStarted;
   }
 
-  // test fait
 
   public setIsStarted(val: boolean): void {
     this._isStarted = val;
+  }
+
+  public getIsStarting(): boolean {
+    return this._isStarting;
+  }
+
+  public setIsStarting(val: boolean): void {
+    this._isStarting = val;
   }
 
   public getInitialPlayerCount(): number {
     return this._initialPlayerCount;
   }
 
-  // test fait
 
   public removeLostPlayer(playerUuid: string): void {
     this._playersLost = this._playersLost.filter(
@@ -74,7 +74,6 @@ export class Game {
     );
   }
 
-  // test fait
 
   public removePlayer(playerUuid: string): void {
     this._players = this._players.filter(
@@ -82,13 +81,31 @@ export class Game {
     );
   }
 
-  // test fait
 
   public addWaitingPlayer(player: Player): void {
     this._waitingPlayers.push(player);
   }
 
-  // test fait
+  public removeWaitingPlayer(playerUuid: string): void {
+    this._waitingPlayers = this._waitingPlayers.filter(
+      (player) => player.getUuid() != playerUuid,
+    );
+  }
+
+  public removePlayerFromAll(playerUuid: string): void {
+    this.removePlayer(playerUuid);
+    this.removeLostPlayer(playerUuid);
+    this.removeWaitingPlayer(playerUuid);
+  }
+
+  public isEmpty(): boolean {
+    return (
+      this._players.length === 0 &&
+      this._playersLost.length === 0 &&
+      this._waitingPlayers.length === 0
+    );
+  }
+
 
   public changePlayerToWaiting(playerUuid: string): void {
     const player = this._players.find(
@@ -112,7 +129,6 @@ export class Game {
     }
   }
 
-  // test fait
 
   public moveRight(playerUuid: string, socketId: string[]): void {
     const player: Player | undefined = this._players.find(
@@ -129,7 +145,6 @@ export class Game {
     }
   }
 
-  // test fait
 
   public moveLeft(playerUuid: string, socketId: string[]): void {
     const player: Player | undefined = this._players.find(
@@ -146,7 +161,6 @@ export class Game {
     }
   }
 
-  // test fait
 
   public rotate(playerUuid: string, socketId: string[]): void {
     const player: Player | undefined = this._players.find(
@@ -163,7 +177,6 @@ export class Game {
     }
   }
 
-  // test fait
 
   public moveDown(playerUuid: string, socketId: string[]): void {
     const player: Player | undefined = this._players.find(
@@ -180,7 +193,6 @@ export class Game {
     }
   }
 
-  // test fait
 
   public fallDown(playerUuid: string, socketId: string[]): void {
     const player: Player | undefined = this._players.find(
@@ -205,10 +217,10 @@ export class Game {
     }
   }
 
-  // test fait
 
   async startGame(UUIDMapings: Map<string, ClientInfo>): Promise<void> {
     this.setIsStarted(true);
+    this._isStarting = false;
     if (this._type === MULTI) {
       this._initialPlayerCount = this._waitingPlayers.length;
       this._players = this._waitingPlayers;
@@ -234,7 +246,6 @@ export class Game {
     }
   }
 
-  // test fait
 
   public async gamePlayMulti(UUIDMapings: Map<string, ClientInfo>) {
     for (let i = 0; i < this._players.length; i++) {
@@ -264,37 +275,8 @@ export class Game {
         listSpectrum,
       );
     }
-    // const promises = this._players.map((player) => {
-    //   player.moveDownTetromino();
-    //   console.log('tour de player 1' + player.getPlayerName());
-    //   const nbLine = player.updateGrid(0);
-    //   console.log({ nbLine });
-    //   console.log('tour de player 2' + player.getPlayerName());
-    //   // for (let i = 0; i < this._players.length; i++) {
-    //   //   // if (
-    //   //   //   nbLine.nbrLineToAdd > 0 &&
-    //   //   //   this._players[i].getUuid() != player.getUuid()
-    //   //   // ) {
-    //   //   if (nbLine.nbrLineToAdd > 0) {
-    //   //     console.log('add line');
-    //   //     this._players[i].addLine(nbLine.nbrLineToAdd);
-    //   //   }
-    //   //   // }
-    //   // }
-    //   player.updateSpectrum();
-    //   const listSpectrum: any = this._players
-    //     .filter((elem) => elem != player)
-    //     .map((elem) => elem.getSpectrum());
-    //   return this.sendGameToClient(
-    //     player,
-    //     UUIDMapings.get(player.getUuid())?.socketsId ?? [],
-    //     listSpectrum,
-    //   );
-    // });
-    // await Promise.all(promises);
   }
 
-  // test fait
 
   public endGame(UUIDMapings: Map<string, ClientInfo>): boolean {
     if (this._type === SINGLE) {
@@ -376,7 +358,6 @@ export class Game {
     return false;
   }
 
-  // test fait
 
   public async sendCounterToClient(
     player: Player,
@@ -412,11 +393,6 @@ export class Game {
           }
           currentTime--;
         } else {
-          // count down is over we can start the game
-          // this._server.to(this._room_id).emit('countdown', {
-          //   currentTime: currentTime,
-          //   roomId: this._room_id,
-          // });
           clearInterval(intervalId);
           resolve();
         }
@@ -424,7 +400,6 @@ export class Game {
     });
   }
 
-  // test fait
 
   public gamePlay(player: Player, touch: any, socketId: string[]): void {
     if (this._type === SINGLE) {
@@ -439,7 +414,6 @@ export class Game {
     }
   }
 
-  // test fait
 
   public sendGameToClient(
     player: Player,
@@ -475,5 +449,3 @@ export class Game {
     });
   }
 }
-
-// test fait

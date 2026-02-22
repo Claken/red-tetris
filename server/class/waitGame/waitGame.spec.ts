@@ -177,7 +177,7 @@ describe('WaitGame', () => {
 
       const games = waitGameInstance.getGames();
       const game = Array.from(games.values())[0];
-      const waitingPlayers = game.get_waitingPlayers();
+      const waitingPlayers = game.getWaitingPlayers();
 
       expect(waitingPlayers.length).toBe(1);
       expect(waitingPlayers[0].getIsMaster()).toBe(true);
@@ -224,9 +224,9 @@ describe('WaitGame', () => {
 
       // Create a mock game
       mockGame = {
-        get_waitingPlayers: jest.fn().mockReturnValue([]),
+        getWaitingPlayers: jest.fn().mockReturnValue([]),
         getPlayers: jest.fn().mockReturnValue([]),
-        get_lostPlayers: jest.fn().mockReturnValue([]),
+        getLostPlayers: jest.fn().mockReturnValue([]),
         addWaitingPlayer: jest.fn(),
       } as unknown as jest.Mocked<Game>;
     });
@@ -274,7 +274,7 @@ describe('WaitGame', () => {
       const roomId = 'test-room';
 
       // Mock game with existing players
-      mockGame.get_waitingPlayers.mockReturnValue([
+      mockGame.getWaitingPlayers.mockReturnValue([
         { getUuid: jest.fn().mockReturnValue(uuid) } as any,
       ]);
 
@@ -457,7 +457,7 @@ describe('WaitGame', () => {
       const games = waitGameInstance.getGames();
       const game = Array.from(games.values())[0];
       const players = game.getPlayers();
-      // const waitingPlayers = game.get_waitingPlayers();
+      // const waitingPlayers = game.getWaitingPlayers();
 
       // Verify player is master
       expect(players.length).toBe(1);
@@ -495,7 +495,7 @@ describe('WaitGame', () => {
 
       // Create a mock game
       mockGame = {
-        get_lostPlayers: jest.fn().mockReturnValue([]),
+        getLostPlayers: jest.fn().mockReturnValue([]),
         getPlayers: jest.fn().mockReturnValue([]),
         changePlayerToWaiting: jest.fn(),
         removeLostPlayer: jest.fn(),
@@ -637,7 +637,7 @@ describe('WaitGame', () => {
 
       // Create a mock game
       mockGame = {
-        get_lostPlayers: jest.fn().mockReturnValue([]),
+        getLostPlayers: jest.fn().mockReturnValue([]),
         getPlayers: jest.fn().mockReturnValue([]),
         getRoomId: jest.fn().mockReturnValue('room1'),
         changePlayerToWaiting: jest.fn(),
@@ -669,7 +669,7 @@ describe('WaitGame', () => {
         getIsMaster: jest.fn().mockReturnValue(true),
       } as any;
 
-      mockGame.get_lostPlayers.mockReturnValue([player]);
+      mockGame.getLostPlayers.mockReturnValue([player]);
       mockGame.getPlayers.mockReturnValue([player]);
 
       // Access the private method using Jest
@@ -694,7 +694,7 @@ describe('WaitGame', () => {
         getIsMaster: jest.fn().mockReturnValue(false),
       } as any;
 
-      mockGame.get_lostPlayers.mockReturnValue([player]);
+      mockGame.getLostPlayers.mockReturnValue([player]);
       mockGame.getPlayers.mockReturnValue([]);
 
       waitGameInstance.addSocket(uuid, 'socket1');
@@ -721,7 +721,7 @@ describe('WaitGame', () => {
         getIsMaster: jest.fn().mockReturnValue(false),
       } as any;
 
-      mockGame.get_lostPlayers.mockReturnValue([]);
+      mockGame.getLostPlayers.mockReturnValue([]);
       mockGame.getPlayers.mockReturnValue([player]);
 
       waitGameInstance.addSocket(uuid, 'socket1');
@@ -753,7 +753,7 @@ describe('WaitGame', () => {
         getIsMaster: jest.fn().mockReturnValue(false),
       } as any;
 
-      mockGame.get_lostPlayers.mockReturnValue([player1]);
+      mockGame.getLostPlayers.mockReturnValue([player1]);
       mockGame.getPlayers.mockReturnValue([player2]);
 
       waitGameInstance.addSocket(uuid1, 'socket1');

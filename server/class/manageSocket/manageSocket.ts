@@ -13,12 +13,12 @@ export class ManageSocket {
     try {
       this.userSockets.set(uuid, idTosocket);
     } catch (e: any) {
-      console.log(e);
+      console.error('Failed to add user:', e);
     }
     socket.emit('new-person', { uuid: uuid, name: name });
   }
 
-  // test fait
+
 
   public static getInstance(): ManageSocket {
     if (!ManageSocket._instance) {
@@ -27,33 +27,43 @@ export class ManageSocket {
     return ManageSocket._instance;
   }
 
-  // test fait
+
 
   public getInfos(uuid: string): IdentifierToSocket | undefined {
     return this.userSockets.get(uuid);
   }
-  // test fait
+
 
   public add(socket: Socket, name: string, uuid: string | undefined): void {
-    if (uuid == undefined || !this.userSockets.has(uuid)) {
+    if (uuid == undefined) {
       this.addNewUser(name, socket);
+    } else if (!this.userSockets.has(uuid)) {
+      this.userSockets.set(uuid, { name: name, sockets: [socket] });
+      socket.emit('new-person', { uuid: uuid, name: name });
     } else {
       this.userSockets.get(uuid)?.sockets.push(socket);
     }
   }
-  // test fait
+
   public IdentifierToSocket(uuid: string): IdentifierToSocket | undefined {
     return this.userSockets.get(uuid);
   }
 
-  // test fait
+
 
   public deleteSocket(socket: Socket): void {
-    this.userSockets.forEach((value) => {
+    const uuidsToDelete: string[] = [];
+    this.userSockets.forEach((value, uuid) => {
       if (value.sockets.find((elem) => elem.id === socket.id)) {
         value.sockets = value.sockets.filter((elem) => elem.id !== socket.id);
+        if (value.sockets.length === 0) {
+          uuidsToDelete.push(uuid);
+        }
       }
     });
+    for (const uuid of uuidsToDelete) {
+      this.userSockets.delete(uuid);
+    }
   }
-  // test fait
+
 }
