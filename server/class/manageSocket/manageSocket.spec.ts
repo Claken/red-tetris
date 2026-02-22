@@ -4,6 +4,10 @@ import { IdentifierToSocket } from '../../interfaces/identifierToSocket';
 import { v4 as uuidv4 } from 'uuid';
 
 describe('ManageSocket', () => {
+  beforeEach(() => {
+    (ManageSocket as any)._instance = undefined;
+  });
+
   it('should be created successfully', () => {
     const manageSocket = ManageSocket.getInstance();
     expect(manageSocket).toBeInstanceOf(ManageSocket);
@@ -121,7 +125,7 @@ describe('ManageSocket', () => {
       const userEntriesAfterDeletion = Array.from(
         (manageSocket as any).userSockets.entries(),
       ) as [string, IdentifierToSocket][];
-      expect(userEntriesAfterDeletion.length).toBe(initialSize);
+      expect(userEntriesAfterDeletion.length).toBe(initialSize - 1);
       const userSocketEntry = userEntriesAfterDeletion.find(
         ([uuid, userInfo]) => userInfo.sockets.some((s) => s.id === socket.id),
       );

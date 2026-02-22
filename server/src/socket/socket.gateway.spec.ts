@@ -474,4 +474,168 @@ describe('SocketGateway', () => {
       data.roomId,
     );
   });
+
+  it('should not add socket if name is undefined on connection', () => {
+    const noNameSocket = {
+      handshake: {
+        query: { uuid: 'uuid123' },
+      },
+      id: 'socketId456',
+      emit: jest.fn(),
+      join: jest.fn(),
+      on: jest.fn(),
+    } as unknown as Socket;
+
+    const mockManageSocketInstance = {
+      add: jest.fn(),
+    } as unknown as ManageSocket;
+
+    jest.spyOn(ManageSocket, 'getInstance').mockReturnValue(mockManageSocketInstance);
+
+    const gw = new SocketGateway(socketService);
+    gw.afterInit();
+    gw.handleConnection(noNameSocket);
+
+    expect(mockManageSocketInstance.add).not.toHaveBeenCalled();
+  });
+
+  it('should handle connection with uuid set to "undefined" string', () => {
+    const socketWithUndefinedUuid = {
+      handshake: {
+        query: { name: 'Player1', uuid: 'undefined' },
+      },
+      id: 'socketId789',
+      emit: jest.fn(),
+      join: jest.fn(),
+      on: jest.fn(),
+    } as unknown as Socket;
+
+    const mockWaitGameInstance = {
+      addSocket: jest.fn(),
+    } as unknown as WaitGame;
+
+    const mockManageSocketInstance = {
+      add: jest.fn(),
+    } as unknown as ManageSocket;
+
+    jest.spyOn(WaitGame, 'getInstance').mockImplementation(() => mockWaitGameInstance);
+    jest.spyOn(ManageSocket, 'getInstance').mockReturnValue(mockManageSocketInstance);
+
+    const gw = new SocketGateway(socketService);
+    gw.afterInit();
+    gw.handleConnection(socketWithUndefinedUuid);
+
+    expect(mockManageSocketInstance.add).toHaveBeenCalledWith(
+      socketWithUndefinedUuid,
+      'Player1',
+      undefined,
+    );
+    expect(mockWaitGameInstance.addSocket).not.toHaveBeenCalled();
+  });
+
+  it('should handle disconnect with lobby rooms cleanup', () => {
+    const disconnectSocket = {
+      id: 'socketId999',
+      emit: jest.fn(),
+      join: jest.fn(),
+      on: jest.fn(),
+      handshake: {
+        query: { uuid: 'uuid999', name: 'testPlayer' },
+      },
+    } as unknown as Socket;
+
+    const uuidMappings = new Map([
+      [
+        'uuid999',
+        {
+          socketsId: ['socketId999'],
+          ownedRoomsId: [],
+          otherRoomsId: [],
+          lobbyRoomsId: ['lobby1', 'lobby2'],
+          name: 'testPlayer',
+        },
+      ],
+    ]);
+
+    const mockWaitGameInstance = {
+      deleteSocket: jest.fn(),
+      getUUIDMapings: jest.fn().mockReturnValue(uuidMappings),
+      leaveRoom: jest.fn(),
+    } as unknown as WaitGame;
+
+    const mockManageSocketInstance = {
+      deleteSocket: jest.fn(),
+    } as unknown as ManageSocket;
+
+    jest.spyOn(WaitGame, 'getInstance').mockImplementation(() => mockWaitGameInstance);
+    jest.spyOn(ManageSocket, 'getInstance').mockReturnValue(mockManageSocketInstance);
+
+    const gw = new SocketGateway(socketService);
+    gw.afterInit();
+    gw.handleDisconnect(disconnectSocket);
+
+    expect(mockWaitGameInstance.leaveRoom).toHaveBeenCalledWith('uuid999', 'socketId999', 'lobby1');
+    expect(mockWaitGameInstance.leaveRoom).toHaveBeenCalledWith('uuid999', 'socketId999', 'lobby2');
+    expect(mockWaitGameInstance.deleteSocket).toHaveBeenCalledWith('socketId999');
+    expect(mockManageSocketInstance.deleteSocket).toHaveBeenCalledWith(disconnectSocket);
+  });
+
+  it('should find uuid from socket id if handshake uuid is undefined', () => {
+    const disconnectSocket = {
+      id: 'socketId888',
+      emit: jest.fn(),
+      join: jest.fn(),
+      on: jest.fn(),
+      handshake: {
+        query: { uuid: 'undefined', name: 'testPlayer' },
+      },
+    } as unknown as Socket;
+
+    const uuidMappings = new Map([
+      [
+        'foundUuid',
+        {
+          socketsId: ['socketId888'],
+          ownedRoomsId: [],
+          otherRoomsId: [],
+          lobbyRoomsId: [],
+          name: 'testPlayer',
+        },
+      ],
+    ]);
+
+    const mockWaitGameInstance = {
+      deleteSocket: jest.fn(),
+      getUUIDMapings: jest.fn().mockReturnValue(uuidMappings),
+      leaveRoom: jest.fn(),
+    } as unknown as WaitGame;
+
+    const mockManageSocketInstance = {
+      deleteSocket: jest.fn(),
+    } as unknown as ManageSocket;
+
+    jest.spyOn(WaitGame, 'getInstance').mockImplementation(() => mockWaitGameInstance);
+    jest.spyOn(ManageSocket, 'getInstance').mockReturnValue(mockManageSocketInstance);
+
+    const gw = new SocketGateway(socketService);
+    gw.afterInit();
+    gw.handleDisconnect(disconnectSocket);
+
+    expect(mockWaitGameInstance.deleteSocket).toHaveBeenCalledWith('socketId888');
+  });
+
+  it('should validate data correctly', () => {
+    const gw = new SocketGateway(socketService);
+    gw.afterInit();
+
+    const isValid = (gw as any).isValidData.bind(gw);
+
+    expect(isValid(undefined)).toBe(false);
+    expect(isValid({ uuid: 'test' }, 'uuid')).toBe(true);
+    expect(isValid({ uuid: undefined }, 'uuid')).toBe(false);
+    expect(isValid({ uuid: '' }, 'uuid')).toBe(false);
+    expect(isValid({ uuid: '  ' }, 'uuid')).toBe(false);
+    expect(isValid({ uuid: 123 }, 'uuid')).toBe(false);
+    expect(isValid({ uuid: 'test', roomId: 'room' }, 'uuid', 'roomId')).toBe(true);
+  });
 });

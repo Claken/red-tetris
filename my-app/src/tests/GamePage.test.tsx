@@ -278,7 +278,6 @@ describe('GamePage Component', () => {
 			</SocketContext.Provider>
 		);
 
-		// First trigger beforeGame to show the grid
 		await waitFor(() => {
 			mockSocket.__simulate('beforeGame', {
 				player: {
@@ -290,7 +289,6 @@ describe('GamePage Component', () => {
 			});
 		});
 
-		// Trigger endGame event with winner = false
 		await waitFor(() => {
 			mockSocket.__simulate('endGame', {
 				player: {
@@ -302,13 +300,275 @@ describe('GamePage Component', () => {
 			});
 		});
 
-		// Check if game over screen is displayed
 		await waitFor(() => {
 			expect(screen.getByText('GAME OVER')).toBeInTheDocument();
 			expect(screen.getByText('Back to lobby?')).toBeInTheDocument();
 			expect(screen.getByText('LOBBY')).toBeInTheDocument();
 			expect(screen.getByText('MENU')).toBeInTheDocument();
 		});
+	});
+
+	it('displays YOU WON when endGame with winner=true', async () => {
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+				<MemoryRouter>
+					<GamePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		await waitFor(() => {
+			mockSocket.__simulate('beforeGame', {
+				player: {
+					grid: Array(24).fill(null).map(() => Array(10).fill(0)),
+					tetrominos: [],
+					type: 100,
+					roomId: 'testRoom',
+				},
+			});
+		});
+
+		await waitFor(() => {
+			mockSocket.__simulate('endGame', {
+				player: { roomId: 'testRoom', uuid: 'testUuid', winner: true, type: 100 },
+			});
+		});
+
+		await waitFor(() => {
+			expect(screen.getByText('YOU WON')).toBeInTheDocument();
+		});
+	});
+
+	it('handles myGame socket event', async () => {
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+				<MemoryRouter>
+					<GamePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		await waitFor(() => {
+			mockSocket.__simulate('myGame', {
+				player: {
+					grid: Array(24).fill(null).map(() => Array(10).fill(0)),
+					tetrominos: [{ type: 'I', shape: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]] }],
+					type: 101,
+					roomId: 'testRoom',
+				},
+				listSpectrum: [],
+			});
+		});
+
+		await waitFor(() => {
+			expect(screen.getByTestId('grid-container')).toBeInTheDocument();
+		});
+	});
+
+	it('handles noGame event', async () => {
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+				<MemoryRouter>
+					<GamePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		await waitFor(() => {
+			mockSocket.__simulate('noGame', undefined);
+		});
+
+		expect(mockNavigate).toHaveBeenCalledWith('/');
+	});
+
+	it('handles room_join_failed with game_started', async () => {
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+				<MemoryRouter>
+					<GamePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		await waitFor(() => {
+			mockSocket.__simulate('room_join_failed', { roomId: 'testRoom', reason: 'game_started' });
+		});
+
+		expect(mockNavigate).toHaveBeenCalledWith('/');
+	});
+
+	it('handles room_join_failed with name_taken', async () => {
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+				<MemoryRouter>
+					<GamePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		await waitFor(() => {
+			mockSocket.__simulate('room_join_failed', { roomId: 'testRoom', reason: 'name_taken' });
+		});
+
+		expect(mockNavigate).toHaveBeenCalledWith('/');
+	});
+
+	it('handles room_players_update event', async () => {
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+				<MemoryRouter>
+					<GamePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		await waitFor(() => {
+			mockSocket.__simulate('room_players_update', {
+				roomId: 'testRoom',
+				players: [{ name: 'Player1', uuid: 'testUuid', isHost: true }],
+				hostUuid: 'testUuid',
+				isStarted: false,
+			});
+		});
+
+		await waitFor(() => {
+			expect(screen.getByText('Player1')).toBeInTheDocument();
+			expect(screen.getByText('HOST')).toBeInTheDocument();
+		});
+	});
+
+	it('handles room_start_failed event', async () => {
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+				<MemoryRouter>
+					<GamePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		await waitFor(() => {
+			mockSocket.__simulate('room_start_failed', { roomId: 'testRoom', reason: 'not_host' });
+		});
+	});
+
+	it('handles not_enough_person event', async () => {
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+				<MemoryRouter>
+					<GamePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		await waitFor(() => {
+			mockSocket.__simulate('not_enough_person', { message: 'Not enough players' });
+		});
+
+		expect(mockNavigate).toHaveBeenCalledWith('/');
+	});
+
+	it('handles Leave Room button click in lobby', () => {
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+				<MemoryRouter>
+					<GamePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		fireEvent.click(screen.getByText('Leave Room'));
+		expect(mockSocket.emit).toHaveBeenCalledWith('leaveRoom', { uuid: 'testUuid', roomId: 'testRoom' });
+		expect(mockNavigate).toHaveBeenCalledWith('/');
+	});
+
+	it('handles LOBBY button click after game over', async () => {
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+				<MemoryRouter>
+					<GamePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		await waitFor(() => {
+			mockSocket.__simulate('beforeGame', {
+				player: {
+					grid: Array(24).fill(null).map(() => Array(10).fill(0)),
+					tetrominos: [],
+					type: 101,
+					roomId: 'testRoom',
+				},
+			});
+		});
+
+		await waitFor(() => {
+			mockSocket.__simulate('endGame', {
+				player: { roomId: 'testRoom', uuid: 'testUuid', winner: false, type: 101 },
+			});
+		});
+
+		await waitFor(() => {
+			expect(screen.getByText('LOBBY')).toBeInTheDocument();
+		});
+
+		fireEvent.click(screen.getByText('LOBBY'));
+
+		await waitFor(() => {
+			expect(screen.getByText('Leave Room')).toBeInTheDocument();
+		});
+	});
+
+	it('handles countdown going to 0', async () => {
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+				<MemoryRouter>
+					<GamePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		await waitFor(() => {
+			mockSocket.__simulate('beforeGame', {
+				player: {
+					grid: Array(24).fill(null).map(() => Array(10).fill(0)),
+					tetrominos: [],
+					type: 101,
+					roomId: 'testRoom',
+				},
+			});
+		});
+
+		await waitFor(() => {
+			mockSocket.__simulate('countdown', { roomId: 'testRoom', currentTime: 0 });
+		});
+
+		expect(screen.queryByText('0')).not.toBeInTheDocument();
+	});
+
+	it('handles non-matching key press', async () => {
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+				<MemoryRouter>
+					<GamePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		await waitFor(() => {
+			mockSocket.__simulate('beforeGame', {
+				player: {
+					grid: Array(24).fill(null).map(() => Array(10).fill(0)),
+					tetrominos: [],
+					type: 101,
+					roomId: 'testRoom',
+				},
+			});
+		});
+
+		const gridElement = screen.getByTestId('grid-container');
+		mockSocket.emit.mockClear();
+		fireEvent.keyDown(gridElement, { key: 'a', code: 'KeyA' });
+		expect(mockSocket.emit).not.toHaveBeenCalled();
 	});
 });
 

@@ -64,7 +64,7 @@ describe('WaitGame', () => {
       waitGameInstance.deleteSocket('socket');
 
       val = waitGameInstance.getUUIDMapings().get('uuid')?.socketsId;
-      expect(val).toStrictEqual([]);
+      expect(val).toBeUndefined();
     });
   });
 
@@ -497,9 +497,12 @@ describe('WaitGame', () => {
       mockGame = {
         getLostPlayers: jest.fn().mockReturnValue([]),
         getPlayers: jest.fn().mockReturnValue([]),
+        getWaitingPlayers: jest.fn().mockReturnValue([]),
         changePlayerToWaiting: jest.fn(),
         removeLostPlayer: jest.fn(),
         removePlayer: jest.fn(),
+        removePlayerFromAll: jest.fn(),
+        isEmpty: jest.fn().mockReturnValue(false),
       } as unknown as jest.Mocked<Game>;
     });
 
@@ -603,8 +606,7 @@ describe('WaitGame', () => {
 
       expect(mockGame.changePlayerToWaiting).not.toHaveBeenCalled();
       expect(mockSocket.leave).toHaveBeenCalledWith(roomId);
-      expect(mockGame.removeLostPlayer).toHaveBeenCalledWith(uuid);
-      expect(mockGame.removePlayer).toHaveBeenCalledWith(uuid);
+      expect(mockGame.removePlayerFromAll).toHaveBeenCalledWith(uuid);
     });
   });
 
@@ -772,6 +774,188 @@ describe('WaitGame', () => {
 
       // Restore the original method
       clearGameSpy.mockRestore();
+    });
+  });
+
+  describe('joinRoom', () => {
+    let mockServer: jest.Mocked<Server>;
+    let waitGameInstance: WaitGame;
+    let mockSocket: any;
+
+    beforeEach(() => {
+      mockSocket = {
+        join: jest.fn(),
+        leave: jest.fn(),
+        emit: jest.fn(),
+      };
+
+      mockServer = {
+        sockets: {
+          sockets: new Map([['socket1', mockSocket]]),
+        },
+        to: jest.fn().mockReturnValue({ emit: jest.fn() }),
+        emit: jest.fn(),
+      } as unknown as jest.Mocked<Server>;
+
+      (WaitGame as any)._instance = null;
+      waitGameInstance = WaitGame.getInstance(mockServer);
+    });
+
+    it('should return no_socket if socket not found', () => {
+      const result = waitGameInstance.joinRoom('uuid1', 'Player1', 'badSocket', 'room1');
+      expect(result).toEqual({ success: false, reason: 'no_socket' });
+    });
+
+    it('should create a new room if it does not exist', () => {
+      const result = waitGameInstance.joinRoom('uuid1', 'Player1', 'socket1', 'room1');
+      expect(result).toEqual({ success: true });
+      expect(waitGameInstance.getGames().has('room1')).toBe(true);
+      expect(mockSocket.join).toHaveBeenCalledWith('room1');
+    });
+
+    it('should set first player as host', () => {
+      waitGameInstance.joinRoom('uuid1', 'Player1', 'socket1', 'room1');
+      const game = waitGameInstance.getGames().get('room1')!;
+      expect(game.getWaitingPlayers()[0].getIsMaster()).toBe(true);
+    });
+
+    it('should add second player without host status', () => {
+      const mockSocket2 = { join: jest.fn(), leave: jest.fn(), emit: jest.fn() };
+      mockServer.sockets.sockets.set('socket2', mockSocket2 as any);
+
+      waitGameInstance.joinRoom('uuid1', 'Player1', 'socket1', 'room1');
+      waitGameInstance.joinRoom('uuid2', 'Player2', 'socket2', 'room1');
+
+      const game = waitGameInstance.getGames().get('room1')!;
+      expect(game.getWaitingPlayers()).toHaveLength(2);
+      expect(game.getWaitingPlayers()[1].getIsMaster()).toBe(false);
+    });
+
+    it('should return name_taken if name already exists', () => {
+      const mockSocket2 = { join: jest.fn(), leave: jest.fn(), emit: jest.fn() };
+      mockServer.sockets.sockets.set('socket2', mockSocket2 as any);
+
+      waitGameInstance.joinRoom('uuid1', 'Player1', 'socket1', 'room1');
+      const result = waitGameInstance.joinRoom('uuid2', 'Player1', 'socket2', 'room1');
+      expect(result).toEqual({ success: false, reason: 'name_taken' });
+    });
+
+    it('should return success if player already in room', () => {
+      waitGameInstance.joinRoom('uuid1', 'Player1', 'socket1', 'room1');
+      const result = waitGameInstance.joinRoom('uuid1', 'Player1', 'socket1', 'room1');
+      expect(result).toEqual({ success: true });
+    });
+
+    it('should return game_started if game already started', () => {
+      waitGameInstance.joinRoom('uuid1', 'Player1', 'socket1', 'room1');
+      const game = waitGameInstance.getGames().get('room1')!;
+      game.setIsStarted(true);
+
+      const mockSocket2 = { join: jest.fn(), leave: jest.fn(), emit: jest.fn() };
+      mockServer.sockets.sockets.set('socket2', mockSocket2 as any);
+      const result = waitGameInstance.joinRoom('uuid2', 'Player2', 'socket2', 'room1');
+      expect(result).toEqual({ success: false, reason: 'game_started' });
+    });
+  });
+
+  describe('leaveRoom', () => {
+    let mockServer: jest.Mocked<Server>;
+    let waitGameInstance: WaitGame;
+    let mockSocket: any;
+
+    beforeEach(() => {
+      mockSocket = {
+        join: jest.fn(),
+        leave: jest.fn(),
+        emit: jest.fn(),
+      };
+
+      mockServer = {
+        sockets: {
+          sockets: new Map([['socket1', mockSocket]]),
+        },
+        to: jest.fn().mockReturnValue({ emit: jest.fn() }),
+        emit: jest.fn(),
+      } as unknown as jest.Mocked<Server>;
+
+      (WaitGame as any)._instance = null;
+      waitGameInstance = WaitGame.getInstance(mockServer);
+    });
+
+    it('should do nothing if game not found', () => {
+      waitGameInstance.leaveRoom('uuid1', 'socket1', 'nonexistent');
+      expect(mockSocket.leave).not.toHaveBeenCalled();
+    });
+
+    it('should remove player from room', () => {
+      waitGameInstance.joinRoom('uuid1', 'Player1', 'socket1', 'room1');
+      waitGameInstance.leaveRoom('uuid1', 'socket1', 'room1');
+
+      // Room should be deleted since it's empty
+      expect(waitGameInstance.getGames().has('room1')).toBe(false);
+      expect(mockSocket.leave).toHaveBeenCalledWith('room1');
+    });
+
+    it('should transfer host if host leaves', () => {
+      const mockSocket2 = { join: jest.fn(), leave: jest.fn(), emit: jest.fn() };
+      mockServer.sockets.sockets.set('socket2', mockSocket2 as any);
+
+      waitGameInstance.joinRoom('uuid1', 'Player1', 'socket1', 'room1');
+      waitGameInstance.joinRoom('uuid2', 'Player2', 'socket2', 'room1');
+
+      waitGameInstance.leaveRoom('uuid1', 'socket1', 'room1');
+
+      const game = waitGameInstance.getGames().get('room1')!;
+      expect(game.getWaitingPlayers()).toHaveLength(1);
+      expect(game.getWaitingPlayers()[0].getIsMaster()).toBe(true);
+    });
+
+    it('should not leave if player not in any list', () => {
+      waitGameInstance.joinRoom('uuid1', 'Player1', 'socket1', 'room1');
+      waitGameInstance.leaveRoom('uuid2', 'socket1', 'room1');
+      // Player1 should still be there
+      const game = waitGameInstance.getGames().get('room1')!;
+      expect(game.getWaitingPlayers()).toHaveLength(1);
+    });
+  });
+
+  describe('cleanupLegacyRooms', () => {
+    let mockServer: jest.Mocked<Server>;
+    let waitGameInstance: WaitGame;
+    let mockSocket: any;
+
+    beforeEach(() => {
+      mockSocket = {
+        join: jest.fn(),
+        leave: jest.fn(),
+        emit: jest.fn(),
+      };
+
+      mockServer = {
+        sockets: {
+          sockets: new Map([['socket1', mockSocket]]),
+        },
+        to: jest.fn().mockReturnValue({ emit: jest.fn() }),
+        emit: jest.fn(),
+      } as unknown as jest.Mocked<Server>;
+
+      (WaitGame as any)._instance = null;
+      waitGameInstance = WaitGame.getInstance(mockServer);
+    });
+
+    it('should do nothing if uuid not found', () => {
+      waitGameInstance.cleanupLegacyRooms('nonexistent');
+      // No error thrown
+    });
+
+    it('should clean up owned rooms', () => {
+      waitGameInstance.createGame('uuid1', 'Player1', 'socket1');
+      expect(waitGameInstance.getGames().size).toBe(1);
+
+      waitGameInstance.cleanupLegacyRooms('uuid1');
+
+      const infos = waitGameInstance.getUUIDMapings().get('uuid1');
+      expect(infos?.ownedRoomsId).toEqual([]);
     });
   });
 });

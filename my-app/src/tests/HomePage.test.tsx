@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { SocketProvider } from "../contexts/socketContext";
+import { SocketProvider, SocketContext } from "../contexts/socketContext";
 import HomePage from "../components/HomePage";
 import React, { createContext } from "react";
 import '@testing-library/jest-dom';
@@ -36,6 +36,27 @@ function createMockSocket() {
 			}
 		},
 		__getListeners: () => listeners,
+	};
+}
+
+// Mock socket where emit does NOT auto-trigger listeners (avoids corrupting state)
+function createSafeMockSocket() {
+	const listeners: Record<string, Function[]> = {};
+
+	return {
+		on: vi.fn((event: string, cb: Function) => {
+			listeners[event] = listeners[event] || [];
+			listeners[event].push(cb);
+		}),
+		off: vi.fn((event: string) => {
+			delete listeners[event];
+		}),
+		emit: vi.fn(),
+		__simulate: (event: string, data: any) => {
+			if (listeners[event]) {
+				listeners[event].forEach((cb) => cb(data));
+			}
+		},
 	};
 }
 
@@ -537,5 +558,345 @@ describe("HomePage Component", () => {
 		await waitFor(() => {
 			expect(screen.getByText("WELCOME TO RED TETRIS")).toBeInTheDocument();
 		});
+	});
+
+	it("handles Play with Anyone button click", () => {
+		const mockSessionStorage = {
+			getItem: vi.fn().mockImplementation((key) => {
+				if (key === "name") return "TestUser";
+				if (key === "uuid") return "12345";
+				return null;
+			}),
+			setItem: vi.fn(),
+			removeItem: vi.fn(),
+			clear: vi.fn(),
+			key: vi.fn(),
+			length: 0,
+		};
+		global.sessionStorage = mockSessionStorage;
+
+		render(
+			<MemoryRouter>
+				<SocketProvider>
+					<HomePage />
+				</SocketProvider>
+			</MemoryRouter>
+		);
+
+		const playButton = screen.getByText("Play with Anyone");
+		fireEvent.click(playButton);
+	});
+
+	it("handles My joined rooms button click", () => {
+		const mockSessionStorage = {
+			getItem: vi.fn().mockImplementation((key) => {
+				if (key === "name") return "TestUser";
+				if (key === "uuid") return "12345";
+				return null;
+			}),
+			setItem: vi.fn(),
+			removeItem: vi.fn(),
+			clear: vi.fn(),
+			key: vi.fn(),
+			length: 0,
+		};
+		global.sessionStorage = mockSessionStorage;
+
+		render(
+			<MemoryRouter>
+				<SocketProvider>
+					<HomePage />
+				</SocketProvider>
+			</MemoryRouter>
+		);
+
+		const joinedButton = screen.getByText("My joined rooms");
+		fireEvent.click(joinedButton);
+
+		expect(screen.getByText("MY JOINED ROOMS")).toBeInTheDocument();
+	});
+
+	it("handles socket events: getActiveRooms, getOtherRooms, getOthersRoomsJoined", async () => {
+		const mockSessionStorage = {
+			getItem: vi.fn().mockImplementation((key) => {
+				if (key === "name") return "TestUser";
+				if (key === "uuid") return "12345";
+				return null;
+			}),
+			setItem: vi.fn(),
+			removeItem: vi.fn(),
+			clear: vi.fn(),
+			key: vi.fn(),
+			length: 0,
+		};
+		global.sessionStorage = mockSessionStorage;
+
+		const mockSocket = createSafeMockSocket();
+
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket as any, setSocket: vi.fn() }}>
+				<MemoryRouter>
+					<HomePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		// Simulate socket events
+		await waitFor(() => {
+			mockSocket.__simulate("getActiveRooms", { activeRooms: ["room1"] });
+			mockSocket.__simulate("getOtherRooms", { otherRooms: [{ roomId: "otherRoom1", isStarted: false }] });
+			mockSocket.__simulate("getOthersRoomsJoined", { roomsJoined: ["joinedRoom1"] });
+		});
+
+		// Click "Go back to a game" to see active rooms
+		const goBackButton = screen.getByText("Go back to a game");
+		fireEvent.click(goBackButton);
+
+		await waitFor(() => {
+			expect(screen.getByText("room1")).toBeInTheDocument();
+		});
+	});
+
+	it("handles not_enough_person socket event", async () => {
+		const mockSessionStorage = {
+			getItem: vi.fn().mockImplementation((key) => {
+				if (key === "name") return "TestUser";
+				if (key === "uuid") return "12345";
+				return null;
+			}),
+			setItem: vi.fn(),
+			removeItem: vi.fn(),
+			clear: vi.fn(),
+			key: vi.fn(),
+			length: 0,
+		};
+		global.sessionStorage = mockSessionStorage;
+
+		const mockSocket = createSafeMockSocket();
+
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket as any, setSocket: vi.fn() }}>
+				<MemoryRouter>
+					<HomePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		await waitFor(() => {
+			mockSocket.__simulate("not_enough_person", { message: "Not enough players" });
+		});
+	});
+
+	it("handles clicking room in ACTIVE ROOMLIST", async () => {
+		const mockSessionStorage = {
+			getItem: vi.fn().mockImplementation((key) => {
+				if (key === "name") return "TestUser";
+				if (key === "uuid") return "12345";
+				return null;
+			}),
+			setItem: vi.fn(),
+			removeItem: vi.fn(),
+			clear: vi.fn(),
+			key: vi.fn(),
+			length: 0,
+		};
+		global.sessionStorage = mockSessionStorage;
+
+		const mockSocket = createSafeMockSocket();
+
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket as any, setSocket: vi.fn() }}>
+				<MemoryRouter>
+					<HomePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		// Populate active rooms
+		await waitFor(() => {
+			mockSocket.__simulate("getActiveRooms", { activeRooms: ["activeRoom1"] });
+		});
+
+		// Click "Go back to a game"
+		fireEvent.click(screen.getByText("Go back to a game"));
+
+		await waitFor(() => {
+			expect(screen.getByText("activeRoom1")).toBeInTheDocument();
+		});
+
+		// Click the room button
+		fireEvent.click(screen.getByText("activeRoom1"));
+	});
+
+	it("handles clicking room in OTHERS ROOMLIST opens popup", async () => {
+		const mockSessionStorage = {
+			getItem: vi.fn().mockImplementation((key) => {
+				if (key === "name") return "TestUser";
+				if (key === "uuid") return "12345";
+				return null;
+			}),
+			setItem: vi.fn(),
+			removeItem: vi.fn(),
+			clear: vi.fn(),
+			key: vi.fn(),
+			length: 0,
+		};
+		global.sessionStorage = mockSessionStorage;
+
+		const mockSocket = createSafeMockSocket();
+
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket as any, setSocket: vi.fn() }}>
+				<MemoryRouter>
+					<HomePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		// Populate other rooms
+		await waitFor(() => {
+			mockSocket.__simulate("getOtherRooms", { otherRooms: [{ roomId: "otherRoom1", isStarted: false }] });
+		});
+
+		// Click "Join a game"
+		fireEvent.click(screen.getByText("Join a game"));
+
+		await waitFor(() => {
+			expect(screen.getByText("otherRoom1")).toBeInTheDocument();
+		});
+
+		// Click the room to open popup
+		fireEvent.click(screen.getByText("otherRoom1"));
+
+		// Popup should show "Join this game" button
+		await waitFor(() => {
+			expect(screen.getByText("Join this game")).toBeInTheDocument();
+		});
+	});
+
+	it("handles clicking room in OTHERS ROOMLIST with started game", async () => {
+		const mockSessionStorage = {
+			getItem: vi.fn().mockImplementation((key) => {
+				if (key === "name") return "TestUser";
+				if (key === "uuid") return "12345";
+				return null;
+			}),
+			setItem: vi.fn(),
+			removeItem: vi.fn(),
+			clear: vi.fn(),
+			key: vi.fn(),
+			length: 0,
+		};
+		global.sessionStorage = mockSessionStorage;
+
+		const mockSocket = createSafeMockSocket();
+
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket as any, setSocket: vi.fn() }}>
+				<MemoryRouter>
+					<HomePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		// Populate other rooms with a started game
+		await waitFor(() => {
+			mockSocket.__simulate("getOtherRooms", { otherRooms: [{ roomId: "startedRoom", isStarted: true }] });
+		});
+
+		fireEvent.click(screen.getByText("Join a game"));
+
+		await waitFor(() => {
+			expect(screen.getByText("startedRoom")).toBeInTheDocument();
+		});
+
+		fireEvent.click(screen.getByText("startedRoom"));
+
+		await waitFor(() => {
+			expect(screen.getByText("THIS GAME HAS ALREADY STARTED")).toBeInTheDocument();
+			expect(screen.getByText("Join waiting list")).toBeInTheDocument();
+		});
+	});
+
+	it("handles list_players_room socket event and shows waiting list popup", async () => {
+		const mockSessionStorage = {
+			getItem: vi.fn().mockImplementation((key) => {
+				if (key === "name") return "TestUser";
+				if (key === "uuid") return "12345";
+				return null;
+			}),
+			setItem: vi.fn(),
+			removeItem: vi.fn(),
+			clear: vi.fn(),
+			key: vi.fn(),
+			length: 0,
+		};
+		global.sessionStorage = mockSessionStorage;
+
+		const mockSocket = createSafeMockSocket();
+
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket as any, setSocket: vi.fn() }}>
+				<MemoryRouter>
+					<HomePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		// Simulate list_players_room event
+		await waitFor(() => {
+			mockSocket.__simulate("list_players_room", {
+				roomId: "myRoom1",
+				players: ["Alice", "Bob"],
+			});
+		});
+
+		// Should show the waiting list popup with player names
+		await waitFor(() => {
+			expect(screen.getByText("Alice")).toBeInTheDocument();
+			expect(screen.getByText("Bob")).toBeInTheDocument();
+			expect(screen.getByText("Launch a game")).toBeInTheDocument();
+		});
+	});
+
+	it("handles clicking room in MY JOINED ROOMS", async () => {
+		const mockSessionStorage = {
+			getItem: vi.fn().mockImplementation((key) => {
+				if (key === "name") return "TestUser";
+				if (key === "uuid") return "12345";
+				return null;
+			}),
+			setItem: vi.fn(),
+			removeItem: vi.fn(),
+			clear: vi.fn(),
+			key: vi.fn(),
+			length: 0,
+		};
+		global.sessionStorage = mockSessionStorage;
+
+		const mockSocket = createSafeMockSocket();
+
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket as any, setSocket: vi.fn() }}>
+				<MemoryRouter>
+					<HomePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		// Populate joined rooms
+		await waitFor(() => {
+			mockSocket.__simulate("getOthersRoomsJoined", { roomsJoined: ["joinedRoom1"] });
+		});
+
+		// Click "My joined rooms"
+		fireEvent.click(screen.getByText("My joined rooms"));
+
+		await waitFor(() => {
+			expect(screen.getByText("joinedRoom1")).toBeInTheDocument();
+		});
+
+		// Click the room
+		fireEvent.click(screen.getByText("joinedRoom1"));
 	});
 });

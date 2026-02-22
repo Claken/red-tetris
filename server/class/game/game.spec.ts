@@ -31,6 +31,7 @@ describe('Game Class', () => {
 
   afterEach(() => {
     jest.useRealTimers();
+    jest.restoreAllMocks();
   });
 
   it('should create a Game instance', () => {
@@ -434,7 +435,7 @@ describe('Game Class', () => {
 
   describe('sendCounterToClient', () => {
     it('should send "beforeGame" and "countdown" events', async () => {
-      const serverMock = {
+      const localServerMock = {
         to: jest.fn().mockReturnValue({
           emit: jest.fn(),
         }),
@@ -454,18 +455,20 @@ describe('Game Class', () => {
           'tetromino5',
         ]);
 
-      const roomId = 'test-room-id';
-      const game = new Game([playerMock], roomId, SINGLE, serverMock);
+      const localRoomId = 'test-room-id';
+      const game = new Game([playerMock], localRoomId, SINGLE, localServerMock);
 
       const socketIdMock = ['socketId1'];
 
+      // fake timers are already set in beforeEach
       const promise = game.sendCounterToClient(playerMock, socketIdMock);
 
-      jest.useFakeTimers();
-      jest.advanceTimersByTime(5000);
+      // Advance enough for all intervals (4 at time=4, then 3,2,1,0, then resolve)
+      jest.advanceTimersByTime(7000);
 
-      await expect(promise).resolves.not.toThrow();
-      jest.useRealTimers();
+      await promise;
+
+      expect(localServerMock.to).toHaveBeenCalled();
     });
   });
 
@@ -508,6 +511,286 @@ describe('Game Class', () => {
       const socketIdMock = ['socketId1'];
 
       game2.sendGameToClient(playerMock, socketIdMock);
+    });
+  });
+
+  describe('getIsStarting / setIsStarting', () => {
+    it('should get and set isStarting', () => {
+      const game = new Game([], roomId, SINGLE, serverMock);
+      expect(game.getIsStarting()).toBe(false);
+      game.setIsStarting(true);
+      expect(game.getIsStarting()).toBe(true);
+    });
+  });
+
+  describe('getInitialPlayerCount', () => {
+    it('should return 0 by default', () => {
+      const game = new Game([], roomId, SINGLE, serverMock);
+      expect(game.getInitialPlayerCount()).toBe(0);
+    });
+  });
+
+  describe('removeWaitingPlayer', () => {
+    it('should remove a waiting player by uuid', () => {
+      const game = new Game([], roomId, SINGLE, serverMock);
+      const player = new Player('p1', 'uuid1');
+      game.addWaitingPlayer(player);
+      expect(game.getWaitingPlayers()).toHaveLength(1);
+      game.removeWaitingPlayer('uuid1');
+      expect(game.getWaitingPlayers()).toHaveLength(0);
+    });
+  });
+
+  describe('removePlayerFromAll', () => {
+    it('should remove player from all lists', () => {
+      const player = new Player('p1', 'uuid1');
+      const game = new Game([player], roomId, SINGLE, serverMock);
+      game.getLostPlayers().push(new Player('p1', 'uuid1'));
+      game.addWaitingPlayer(new Player('p1', 'uuid1'));
+
+      game.removePlayerFromAll('uuid1');
+
+      expect(game.getPlayers()).toHaveLength(0);
+      expect(game.getLostPlayers()).toHaveLength(0);
+      expect(game.getWaitingPlayers()).toHaveLength(0);
+    });
+  });
+
+  describe('isEmpty', () => {
+    it('should return true when all lists are empty', () => {
+      const game = new Game([], roomId, SINGLE, serverMock);
+      expect(game.isEmpty()).toBe(true);
+    });
+
+    it('should return false when players exist', () => {
+      const game = new Game([new Player('p1', 'uuid1')], roomId, SINGLE, serverMock);
+      expect(game.isEmpty()).toBe(false);
+    });
+
+    it('should return false when waiting players exist', () => {
+      const game = new Game([], roomId, SINGLE, serverMock);
+      game.addWaitingPlayer(new Player('p1', 'uuid1'));
+      expect(game.isEmpty()).toBe(false);
+    });
+
+    it('should return false when lost players exist', () => {
+      const game = new Game([], roomId, SINGLE, serverMock);
+      game.getLostPlayers().push(new Player('p1', 'uuid1'));
+      expect(game.isEmpty()).toBe(false);
+    });
+  });
+
+  describe('changePlayerToWaiting - from lost players', () => {
+    it('should move a lost player to waiting', () => {
+      const game = new Game([], roomId, SINGLE, serverMock);
+      const player = new Player('p1', 'uuid1');
+      game.getLostPlayers().push(player);
+
+      game.changePlayerToWaiting('uuid1');
+
+      expect(game.getWaitingPlayers()).toHaveLength(1);
+      expect(game.getWaitingPlayers()[0]).toBe(player);
+      expect(game.getLostPlayers()).toHaveLength(0);
+    });
+
+    it('should do nothing if player not in any list', () => {
+      const game = new Game([], roomId, SINGLE, serverMock);
+      game.changePlayerToWaiting('nonexistent');
+      expect(game.getWaitingPlayers()).toHaveLength(0);
+    });
+  });
+
+  describe('fallDown - with penalty lines', () => {
+    it('should add penalty lines to other players', () => {
+      const player1 = new Player('p1', 'uuid1');
+      const player2 = new Player('p2', 'uuid2');
+      jest.spyOn(player1, 'fallTetromino').mockImplementation(() => 2 as any);
+      jest.spyOn(player1, 'updateSpectrum').mockImplementation();
+      jest.spyOn(player2, 'addLine').mockImplementation();
+      jest.spyOn(player2, 'getSpectrum').mockReturnValue([[0]]);
+
+      const game = new Game([player1, player2], roomId, MULTI, serverMock);
+      game.fallDown('uuid1', ['socketId1']);
+
+      expect(player2.addLine).toHaveBeenCalledWith(2);
+    });
+
+    it('should not add penalty lines when nbLine is 0', () => {
+      const player1 = new Player('p1', 'uuid1');
+      const player2 = new Player('p2', 'uuid2');
+      jest.spyOn(player1, 'fallTetromino').mockImplementation(() => 0 as any);
+      jest.spyOn(player1, 'updateSpectrum').mockImplementation();
+      jest.spyOn(player2, 'addLine').mockImplementation();
+      jest.spyOn(player2, 'getSpectrum').mockReturnValue([[0]]);
+
+      const game = new Game([player1, player2], roomId, MULTI, serverMock);
+      game.fallDown('uuid1', ['socketId1']);
+
+      expect(player2.addLine).not.toHaveBeenCalled();
+    });
+
+    it('should do nothing if player not found', () => {
+      const game = new Game([], roomId, MULTI, serverMock);
+      game.fallDown('nonexistent', ['socketId1']);
+      // No error
+    });
+  });
+
+  describe('endGame - MULTI solo in room', () => {
+    it('should end game for solo player in MULTI room', () => {
+      const player = new Player('p1', 'uuid1');
+      player.isPlayerLost = jest.fn().mockReturnValue(true);
+      const game = new Game([player], roomId, MULTI, serverMock);
+      // Simulate startGame with 1 player by setting _initialPlayerCount
+      (game as any)._initialPlayerCount = 1;
+
+      const UUIDMapings = new Map<string, ClientInfo>();
+      UUIDMapings.set('uuid1', {
+        socketsId: ['socket1'],
+        ownedRoomsId: [],
+        otherRoomsId: [],
+        lobbyRoomsId: [],
+        name: 'p1',
+      });
+
+      const result = game.endGame(UUIDMapings);
+      expect(result).toBe(true);
+      expect(serverMock.to).toHaveBeenCalledWith(['socket1']);
+    });
+
+    it('should return false if solo player in MULTI room has not lost', () => {
+      const player = new Player('p1', 'uuid1');
+      player.isPlayerLost = jest.fn().mockReturnValue(false);
+      const game = new Game([player], roomId, MULTI, serverMock);
+      (game as any)._initialPlayerCount = 1;
+
+      const UUIDMapings = new Map<string, ClientInfo>();
+      const result = game.endGame(UUIDMapings);
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('endGame - returns false when game not over', () => {
+    it('should return false when SINGLE player has not lost', () => {
+      const player = new Player('p1', 'uuid1');
+      player.isPlayerLost = jest.fn().mockReturnValue(false);
+      const game = new Game([player], roomId, SINGLE, serverMock);
+
+      const result = game.endGame(new Map());
+      expect(result).toBe(false);
+    });
+
+    it('should return false when MULTI players are still alive', () => {
+      const player1 = new Player('p1', 'uuid1');
+      const player2 = new Player('p2', 'uuid2');
+      player1.isPlayerLost = jest.fn().mockReturnValue(false);
+      player2.isPlayerLost = jest.fn().mockReturnValue(false);
+      const game = new Game([player1, player2], roomId, MULTI, serverMock);
+      (game as any)._initialPlayerCount = 2;
+
+      const UUIDMapings = new Map<string, ClientInfo>();
+      UUIDMapings.set('uuid1', {
+        socketsId: ['s1'], ownedRoomsId: [], otherRoomsId: [], lobbyRoomsId: [], name: 'p1',
+      });
+      UUIDMapings.set('uuid2', {
+        socketsId: ['s2'], ownedRoomsId: [], otherRoomsId: [], lobbyRoomsId: [], name: 'p2',
+      });
+
+      const result = game.endGame(UUIDMapings);
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('sendGameToClient - SINGLE type', () => {
+    it('should emit to roomId for SINGLE games', () => {
+      const player = new Player('p1', 'uuid1');
+      jest.spyOn(player, 'getGrid').mockReturnValue([[]]);
+      jest.spyOn(player, 'getTetrominos').mockReturnValue([1, 2, 3, 4, 5, 6] as any);
+
+      const game = new Game([player], roomId, SINGLE, serverMock);
+      game.sendGameToClient(player, ['socketId1']);
+
+      expect(serverMock.to).toHaveBeenCalledWith(roomId);
+    });
+  });
+
+  describe('sendGameToClient - empty socketId for MULTI', () => {
+    it('should return early if socketId is empty for MULTI', () => {
+      const player = new Player('p1', 'uuid1');
+      const game = new Game([player], roomId, MULTI, serverMock);
+      game.sendGameToClient(player, []);
+
+      // Should not emit since socketId is empty
+      expect(serverMock.to).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('sendGameToClient - MULTI with socketId', () => {
+    it('should emit to socketId for MULTI games', () => {
+      const player = new Player('p1', 'uuid1');
+      jest.spyOn(player, 'getGrid').mockReturnValue([[]]);
+      jest.spyOn(player, 'getTetrominos').mockReturnValue([1, 2, 3, 4, 5, 6] as any);
+
+      const game = new Game([player], roomId, MULTI, serverMock);
+      game.sendGameToClient(player, ['socketId1'], []);
+
+      expect(serverMock.to).toHaveBeenCalledWith(['socketId1']);
+    });
+  });
+
+  describe('gamePlayMulti - token handling', () => {
+    it('should set token to 0 when token is 1', async () => {
+      const sendSpy = jest.spyOn(Game.prototype, 'sendGameToClient').mockImplementation();
+      const player = new Player('p1', 'uuid1');
+      jest.spyOn(player, 'moveDownTetromino').mockImplementation();
+      jest.spyOn(player, 'getToken').mockReturnValue(1);
+      jest.spyOn(player, 'setToken').mockImplementation();
+      jest.spyOn(player, 'updateSpectrum').mockImplementation();
+      jest.spyOn(player, 'getSpectrum').mockReturnValue([[0]]);
+
+      const game = new Game([player], roomId, MULTI, serverMock);
+      const UUIDMapings = new Map<string, ClientInfo>();
+      UUIDMapings.set('uuid1', {
+        socketsId: ['s1'], ownedRoomsId: [], otherRoomsId: [], lobbyRoomsId: [], name: 'p1',
+      });
+
+      await game.gamePlayMulti(UUIDMapings);
+      expect(player.setToken).toHaveBeenCalledWith(0);
+      sendSpy.mockRestore();
+    });
+  });
+
+  describe('startGame - MULTI type', () => {
+    it('should move waiting players to active players for MULTI', async () => {
+      const sendCounterSpy = jest.spyOn(Game.prototype, 'sendCounterToClient').mockResolvedValue();
+      const sendGameSpy = jest.spyOn(Game.prototype, 'sendGameToClient').mockImplementation();
+
+      const player1 = new Player('p1', 'uuid1');
+      const player2 = new Player('p2', 'uuid2');
+      jest.spyOn(player1, 'initTetrominoInsideGrid').mockImplementation();
+      jest.spyOn(player2, 'initTetrominoInsideGrid').mockImplementation();
+
+      const game = new Game([], roomId, MULTI, serverMock);
+      game.addWaitingPlayer(player1);
+      game.addWaitingPlayer(player2);
+
+      const UUIDMapings = new Map<string, ClientInfo>();
+      UUIDMapings.set('uuid1', {
+        socketsId: ['s1'], ownedRoomsId: [], otherRoomsId: [], lobbyRoomsId: [], name: 'p1',
+      });
+      UUIDMapings.set('uuid2', {
+        socketsId: ['s2'], ownedRoomsId: [], otherRoomsId: [], lobbyRoomsId: [], name: 'p2',
+      });
+
+      await game.startGame(UUIDMapings);
+
+      expect(game.getPlayers()).toHaveLength(2);
+      expect(game.getWaitingPlayers()).toHaveLength(0);
+      expect(game.getIsStarted()).toBe(true);
+      expect(game.getInitialPlayerCount()).toBe(2);
+
+      sendCounterSpy.mockRestore();
+      sendGameSpy.mockRestore();
     });
   });
 });
