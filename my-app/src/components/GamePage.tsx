@@ -42,6 +42,7 @@ function GamePage() {
 	const isCustomRoom = isLegacyNav && multiGame;
 	const isSolo = isLegacyNav && !multiGame;
 	const [countdown, setCountdown] = useState<number | null>(null);
+	const [decisionCountdown, setDecisionCountdown] = useState<number | null>(null);
 	const roomId = routeParam.room;
 	const playerNameFromUrl = routeParam.player_name;
 	// UUID: prefer sessionStorage, fallback will be set by new-person event
@@ -95,15 +96,18 @@ function GamePage() {
 
 	const goBackToHome = () => {
 		if (isLegacyNav) {
-			// Only emit notRetryGame if the game is over, not during active play
-			// (during active play the player stays in _players so they can rejoin via "Go back to a game")
 			if (partyDone) {
 				socket?.emit("notRetryGame", { uuid: uuid, roomId: roomId });
 			}
 		} else {
-			socket?.emit("leaveRoom", { uuid: uuid, roomId: roomId });
+			if (partyDone) {
+				socket?.emit("playerDecision", { uuid, roomId, decision: 'menu' });
+			} else {
+				socket?.emit("leaveRoom", { uuid: uuid, roomId: roomId });
+			}
 		}
 		setPartyDone(false);
+		setDecisionCountdown(null);
 		setPhase('lobby');
 		navigate("/");
 	}
@@ -112,11 +116,14 @@ function GamePage() {
 		setPartyDone(false);
 		setWinner(false);
 		setGrid(emptyGrid);
+		setDecisionCountdown(null);
 		setPhase('lobby');
 	}
 
 	const retryGame = () => {
 		if (isPlayWithAnyone) {
+			socket?.emit("playerDecision", { uuid, roomId, decision: 'lobby' });
+			setDecisionCountdown(null);
 			goBackToLobby();
 		} else if (isCustomRoom) {
 			socket?.emit("retryGame", { uuid: uuid, roomId: roomId });
@@ -161,6 +168,11 @@ function GamePage() {
 		if (!isLegacyNav && socket && uuid && roomId) {
 			socket.emit("joinRoom", { uuid, roomId });
 		}
+		return () => {
+			if (!isLegacyNav && socket && uuid && roomId) {
+				socket.emit("leaveRoom", { uuid, roomId });
+			}
+		};
 	}, [socket, uuid, roomId]);
 
 	// ==================== ROOM EVENTS ====================
@@ -197,8 +209,7 @@ function GamePage() {
 			if (data.roomId === roomId) {
 				setPlayers(data.players);
 				setIsHost(data.hostUuid === uuid);
-				// If game ended, go back to lobby
-				if (!data.isStarted && phase === 'gameover') {
+				if (!data.isStarted && phase === 'gameover' && !isPlayWithAnyone) {
 					goBackToLobby();
 				}
 			}
@@ -320,6 +331,59 @@ function GamePage() {
 		};
 	}, [socket]);
 
+	// ==================== DECISION PHASE EVENTS ====================
+
+	useEffect(() => {
+		socket?.on("awaiting_decisions", (data) => {
+			if (data.roomId === roomId) {
+				setDecisionCountdown(data.timeout);
+			}
+		});
+		return () => {
+			socket?.off("awaiting_decisions");
+		};
+	}, [socket, roomId]);
+
+	useEffect(() => {
+		if (decisionCountdown === null || decisionCountdown <= 0) return;
+		const timer = setTimeout(() => {
+			setDecisionCountdown((prev) => (prev !== null ? prev - 1 : null));
+		}, 1000);
+		return () => clearTimeout(timer);
+	}, [decisionCountdown]);
+
+	useEffect(() => {
+		socket?.on("kicked_from_room", (data) => {
+			if (data.roomId === roomId) {
+				Toastify({
+					text: "You have been removed (timeout)",
+					duration: 3000,
+					close: true,
+				}).showToast();
+				setPartyDone(false);
+				setDecisionCountdown(null);
+				setPhase('lobby');
+				navigate("/");
+			}
+		});
+		return () => {
+			socket?.off("kicked_from_room");
+		};
+	}, [socket, roomId]);
+
+	useEffect(() => {
+		socket?.on("decision_phase_ended", (data) => {
+			if (data.roomId === roomId) {
+				setDecisionCountdown(null);
+				if (phase === 'gameover') {
+					goBackToLobby();
+				}
+			}
+		});
+		return () => {
+			socket?.off("decision_phase_ended");
+		};
+	}, [socket, roomId, phase]);
 
 	// ==================== LOBBY UI ====================
 
@@ -364,9 +428,9 @@ function GamePage() {
 								backgroundSize: '12px 12px'
 							}}
 							onClick={() => socket?.emit('startRoom', { uuid: uuid, roomId: roomId })}
-							disabled={players.length < 2}
+							disabled={players.length < 2 || decisionCountdown !== null}
 						>
-							{players.length < 2 ? 'Waiting for players...' : 'Start Game'}
+							{decisionCountdown !== null ? 'Waiting for decisions...' : players.length < 2 ? 'Waiting for players...' : 'Start Game'}
 						</button>
 					) : (
 						<div className="flex items-center space-x-3 text-gray-400">
@@ -479,7 +543,11 @@ function GamePage() {
 												{winner ? "YOU WON" : "GAME OVER"}
 											</h1>
 											<h1 className="text-white text-3xl font-bold text-center">
-												{isPlayWithAnyone ? "Back to lobby?" : "Retry?"}
+												{isPlayWithAnyone
+													? (decisionCountdown !== null && decisionCountdown > 0
+														? `Choose now! (${decisionCountdown}s)`
+														: "Back to lobby?")
+													: "Retry?"}
 											</h1>
 											<div className="flex flex-row justify-center items-center space-x-5">
 												<button

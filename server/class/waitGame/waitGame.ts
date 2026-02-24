@@ -53,8 +53,8 @@ export class WaitGame {
       this.games.set(roomId, game);
     }
 
-    // Bloquer le join si la partie est en cours
-    if (game.getIsStarted()) {
+    // Bloquer le join si la partie est en cours ou en phase de décision
+    if (game.getIsStarted() || game.getAwaitingDecisions()) {
       return { success: false, reason: 'game_started' };
     }
 
@@ -153,12 +153,23 @@ export class WaitGame {
       }
     }
 
+    // Si en phase de décision, retirer des pending
+    if (game.getAwaitingDecisions() && game.getPendingDecisionUuids().has(uuid)) {
+      game.getPendingDecisionUuids().delete(uuid);
+      if (game.getPendingDecisionUuids().size === 0) {
+        game.clearDecisionTimeout();
+        game.setAwaitingDecisions(false);
+        this._server.to(roomId).emit('decision_phase_ended', { roomId });
+      }
+    }
+
     // Nettoyer la room si vide
     if (
       game.getWaitingPlayers().length === 0 &&
       game.getPlayers().length === 0 &&
       game.getLostPlayers().length === 0
     ) {
+      game.clearDecisionTimeout();
       this.games.delete(roomId);
       return;
     }
@@ -178,6 +189,7 @@ export class WaitGame {
     if (game === undefined) return { success: false, reason: 'no_room' };
 
     if (game.getIsStarted() || game.getIsStarting()) return { success: false, reason: 'already_started' };
+    if (game.getAwaitingDecisions()) return { success: false, reason: 'awaiting_decisions' };
     game.setIsStarting(true);
 
     // Vérifier que c'est l'hôte qui demande
@@ -226,14 +238,7 @@ export class WaitGame {
           }
           if (game.endGame(this.UUIDMapings)) {
             clearInterval(intervalId);
-            const uuidsToMove = [
-              ...game.getPlayers().map((p) => p.getUuid()),
-              ...game.getLostPlayers().map((p) => p.getUuid()),
-            ];
-            for (const playerUuid of uuidsToMove) {
-              game.changePlayerToWaiting(playerUuid);
-            }
-            this._notifyRoomPlayersUpdate(game, roomId);
+            this._startDecisionPhase(game, roomId);
             return;
           }
           game.gamePlayMulti(this.UUIDMapings);
@@ -275,7 +280,18 @@ export class WaitGame {
    * Notifier tous les joueurs d'une room
    */
   private _notifyRoomPlayersUpdate(game: Game, roomId: string): void {
-    const playersList = game.getWaitingPlayers().map((p) => ({
+    const rawPlayers = (game.getIsStarted() || game.getAwaitingDecisions())
+      ? [...game.getWaitingPlayers(), ...game.getPlayers(), ...game.getLostPlayers()]
+      : game.getWaitingPlayers();
+
+    const seen = new Set<string>();
+    const allPlayers = rawPlayers.filter((p) => {
+      if (seen.has(p.getUuid())) return false;
+      seen.add(p.getUuid());
+      return true;
+    });
+
+    const playersList = allPlayers.map((p) => ({
       name: p.getPlayerName(),
       uuid: p.getUuid(),
       isHost: p.getIsMaster(),
@@ -284,7 +300,7 @@ export class WaitGame {
     this._server.to(roomId).emit('room_players_update', {
       roomId: roomId,
       players: playersList,
-      hostUuid: game.getWaitingPlayers().find((p) => p.getIsMaster())?.getUuid() || '',
+      hostUuid: allPlayers.find((p) => p.getIsMaster())?.getUuid() || '',
       isStarted: game.getIsStarted(),
     });
   }
@@ -723,6 +739,132 @@ export class WaitGame {
         console.error('Game loop error (multi legacy):', e);
       }
     }, 1000);
+  }
+
+  // ==================== DECISION PHASE (Play with Anyone) ====================
+
+  private _startDecisionPhase(game: Game, roomId: string): void {
+    const allUuids = [
+      ...game.getPlayers().map((p) => p.getUuid()),
+      ...game.getLostPlayers().map((p) => p.getUuid()),
+    ];
+
+    game.setAwaitingDecisions(true);
+    game.getPendingDecisionUuids().clear();
+    for (const uuid of allUuids) {
+      game.getPendingDecisionUuids().add(uuid);
+    }
+
+    this._notifyRoomPlayersUpdate(game, roomId);
+    this._server.to(roomId).emit('awaiting_decisions', {
+      roomId,
+      timeout: 5,
+    });
+
+    const timeoutId = setTimeout(() => {
+      this._processDecisionTimeout(game, roomId);
+    }, 5000);
+    game.setDecisionTimeoutId(timeoutId);
+  }
+
+  private _processDecisionTimeout(game: Game, roomId: string): void {
+    if (!game.getAwaitingDecisions()) return;
+
+    const pendingUuids = [...game.getPendingDecisionUuids()];
+    for (const uuid of pendingUuids) {
+      const player =
+        game.getPlayers().find((p) => p.getUuid() === uuid) ||
+        game.getLostPlayers().find((p) => p.getUuid() === uuid);
+
+      if (player && player.getIsMaster()) {
+        game.changePlayerToWaiting(uuid);
+      } else {
+        this._kickPlayerFromRoom(uuid, game, roomId);
+      }
+    }
+
+    game.getPendingDecisionUuids().clear();
+    game.setAwaitingDecisions(false);
+    game.setDecisionTimeoutId(null);
+
+    if (game.isEmpty()) {
+      this.games.delete(roomId);
+      return;
+    }
+
+    this._server.to(roomId).emit('decision_phase_ended', { roomId });
+    this._notifyRoomPlayersUpdate(game, roomId);
+  }
+
+  private _kickPlayerFromRoom(uuid: string, game: Game, roomId: string): void {
+    const infos = this.UUIDMapings.get(uuid);
+
+    const wasHost =
+      game.getPlayers().find((p) => p.getUuid() === uuid)?.getIsMaster() ||
+      game.getLostPlayers().find((p) => p.getUuid() === uuid)?.getIsMaster() ||
+      game.getWaitingPlayers().find((p) => p.getUuid() === uuid)?.getIsMaster() ||
+      false;
+
+    game.removePlayerFromAll(uuid);
+
+    if (wasHost) {
+      this._transferHostInRoom(game, roomId);
+    }
+
+    if (infos) {
+      for (const sid of infos.socketsId) {
+        const socket = this._server.sockets.sockets.get(sid);
+        if (socket) {
+          socket.leave(roomId);
+        }
+      }
+      const idx = infos.lobbyRoomsId.indexOf(roomId);
+      if (idx !== -1) {
+        infos.lobbyRoomsId.splice(idx, 1);
+      }
+      this._server.to(infos.socketsId).emit('kicked_from_room', { roomId });
+    }
+  }
+
+  public playerDecision(uuid: string, socketId: string, roomId: string, decision: string): void {
+    const game = this.games.get(roomId);
+    if (!game) return;
+
+    if (game.getAwaitingDecisions() && game.getPendingDecisionUuids().has(uuid)) {
+      game.getPendingDecisionUuids().delete(uuid);
+
+      if (decision === 'lobby') {
+        game.changePlayerToWaiting(uuid);
+      } else {
+        this._kickPlayerFromRoom(uuid, game, roomId);
+      }
+
+      if (game.getPendingDecisionUuids().size === 0) {
+        game.clearDecisionTimeout();
+        game.setAwaitingDecisions(false);
+
+        if (game.isEmpty()) {
+          this.games.delete(roomId);
+          return;
+        }
+
+        this._server.to(roomId).emit('decision_phase_ended', { roomId });
+      }
+
+      if (!game.isEmpty()) {
+        this._notifyRoomPlayersUpdate(game, roomId);
+      }
+      return;
+    }
+
+    // Early decision (game still ongoing, loser deciding before game fully ends)
+    if (game.getIsStarted()) {
+      if (decision === 'lobby') {
+        game.changePlayerToWaiting(uuid);
+      } else {
+        this.leaveRoom(uuid, socketId, roomId);
+      }
+    }
   }
 
   private async pageToGo(

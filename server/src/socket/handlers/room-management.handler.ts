@@ -47,4 +47,11 @@ export function registerRoomManagementHandlers(socket: Socket, ctx: HandlerConte
       socket.emit('room_start_failed', { reason: result.reason, roomId: data.roomId });
     }
   });
+
+  socket.on('playerDecision', (data) => {
+    if (!isValidData(data, 'uuid', 'roomId', 'decision')) return;
+    const infos = manageSocket.getInfos(data.uuid);
+    if (infos == undefined) return;
+    waitGame.playerDecision(data.uuid, socket.id, data.roomId, data.decision);
+  });
 }

@@ -14,6 +14,9 @@ export class Game {
   private _roomId: string;
   private _type: number;
   private _server: Server;
+  private _awaitingDecisions = false;
+  private _pendingDecisionUuids: Set<string> = new Set();
+  private _decisionTimeoutId: ReturnType<typeof setTimeout> | null = null;
   constructor(players: Player[], roomId: string, type: number, server: Server) {
     this._players = players;
     this._roomId = roomId;
@@ -61,6 +64,29 @@ export class Game {
 
   public setIsStarting(val: boolean): void {
     this._isStarting = val;
+  }
+
+  public getAwaitingDecisions(): boolean {
+    return this._awaitingDecisions;
+  }
+
+  public setAwaitingDecisions(val: boolean): void {
+    this._awaitingDecisions = val;
+  }
+
+  public getPendingDecisionUuids(): Set<string> {
+    return this._pendingDecisionUuids;
+  }
+
+  public setDecisionTimeoutId(id: ReturnType<typeof setTimeout> | null): void {
+    this._decisionTimeoutId = id;
+  }
+
+  public clearDecisionTimeout(): void {
+    if (this._decisionTimeoutId) {
+      clearTimeout(this._decisionTimeoutId);
+      this._decisionTimeoutId = null;
+    }
   }
 
   public getInitialPlayerCount(): number {
@@ -221,6 +247,7 @@ export class Game {
   async startGame(UUIDMapings: Map<string, ClientInfo>): Promise<void> {
     this.setIsStarted(true);
     this._isStarting = false;
+    this._playersLost = [];
     if (this._type === MULTI) {
       this._initialPlayerCount = this._waitingPlayers.length;
       this._players = this._waitingPlayers;
