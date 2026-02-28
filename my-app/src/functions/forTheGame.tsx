@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const cellColorMainGrid = (cell: number) => {
 	switch (cell) {
 		case (1): // turquoise
@@ -62,9 +60,8 @@ export const displayTetromino = (tetromino: any) => {
 
 export const displaySpectrums = (specList: any, left: boolean) => {
 		const idx = 6;
-		const rightOrLeft = (index: any): boolean => {
-			console.log("index == " + index);
-			if (left) {
+	const rightOrLeft = (index: any): boolean => {
+		if (left) {
 				return index < idx;
 			}
 			return index >= idx;

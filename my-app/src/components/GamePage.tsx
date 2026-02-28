@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSocket } from "../contexts/socketContext";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import React from "react";
@@ -18,7 +18,7 @@ function GamePage() {
 	const socketContext = useSocket();
 
 	if (!socketContext) {
-		throw new Error('ConnectPage must be used within a SocketProvider');
+		throw new Error('GamePage must be used within a SocketProvider');
 	}
 
 	const { socket, setSocket } = socketContext;
@@ -54,8 +54,9 @@ function GamePage() {
 	const emptyGrid = Array.from({ length: numRows }, () => Array(numCols).fill(0));
 
 	const [grid, setGrid] = useState<number[][]>(emptyGrid);
-	const [tetrominos, setTetro] = useState();
-	const [specList, setSpecList] = useState();
+	const [tetrominos, setTetro] = useState<any[]>();
+	const [specList, setSpecList] = useState<any[]>();
+	const [score, setScore] = useState<number>(0);
 
 	const GameStartedToast = Toastify({
 		text: "Game already in progress, cannot join",
@@ -133,6 +134,7 @@ function GamePage() {
 			socket?.emit("startSingleTetrisGame", { name: playerNameFromUrl || sessionStorage.getItem("name"), uuid: uuid });
 			setPartyDone(false);
 			setWaiting(true);
+			setScore(0);
 		}
 	}
 
@@ -163,17 +165,28 @@ function GamePage() {
 		};
 	}, [socket]);
 
+	// Keep a ref with latest values for the unmount cleanup
+	const cleanupRef = useRef({ socket, uuid, roomId, isLegacyNav });
+	useEffect(() => {
+		cleanupRef.current = { socket, uuid, roomId, isLegacyNav };
+	});
+
 	// Join room once we have socket + uuid (only for new room-based flow, not legacy)
 	useEffect(() => {
 		if (!isLegacyNav && socket && uuid && roomId) {
 			socket.emit("joinRoom", { uuid, roomId });
 		}
+	}, [socket, uuid, roomId]);
+
+	// Unmount-only cleanup: leave room when navigating away
+	useEffect(() => {
 		return () => {
-			if (!isLegacyNav && socket && uuid && roomId) {
-				socket.emit("leaveRoom", { uuid, roomId });
+			const { socket: s, uuid: u, roomId: r, isLegacyNav: legacy } = cleanupRef.current;
+			if (!legacy && s && u && r) {
+				s.emit("leaveRoom", { uuid: u, roomId: r });
 			}
 		};
-	}, [socket, uuid, roomId]);
+	}, []);
 
 	// ==================== ROOM EVENTS ====================
 
@@ -282,6 +295,9 @@ function GamePage() {
 				setTetro(data.player.tetrominos);
 				setMultiGame(data.player.type === 100 ? true : false);
 				setSpecList(data.listSpectrum);
+				if (data.player.score !== undefined) {
+					setScore(data.player.score);
+				}
 			}
 		});
 		return () => {
@@ -296,6 +312,9 @@ function GamePage() {
 				setMultiGame(data.player.type === 100 ? true : false);
 				if (data.player.uuid === uuid) {
 					setWinner(data.player.winner);
+				}
+				if (data.player.score !== undefined) {
+					setScore(data.player.score);
 				}
 				setGrid(emptyGrid);
 				setPartyDone(true);
@@ -402,10 +421,10 @@ function GamePage() {
 					</div>
 
 					<div className="w-full max-h-56 overflow-y-auto space-y-2">
-						{players.map((p, i) => (
-							<div
-								key={i}
-								className="flex items-center justify-between bg-gray-700 rounded-lg px-4 py-2"
+					{players.map((p) => (
+						<div
+							key={p.uuid}
+							className="flex items-center justify-between bg-gray-700 rounded-lg px-4 py-2"
 							>
 								<span className="text-white font-medium truncate">{p.name}</span>
 								{p.isHost && (
@@ -505,6 +524,12 @@ function GamePage() {
 						<div className="mr-4">
 							<div className="p-4 bg-gray-900 border-4 border-gray-700 rounded-lg">
 								<div className="flex flex-col items-center space-y-4">
+									{isSolo && (
+										<div className="text-center">
+											<div className="text-gray-400 text-xs font-bold">SCORE</div>
+											<div className="text-white text-2xl font-bold">{score}</div>
+										</div>
+									)}
 									<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={goBackToHome}>Menu</button>
 								</div>
 							</div>
@@ -520,7 +545,7 @@ function GamePage() {
 										row.map((cell, colIndex) => (
 											<div
 												key={`${rowIndex}-${colIndex}`}
-												className={`w-4 h-4 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-6 lg:h-6 lx:w-8 lx:h-8 border border-[#414868] ${cellColorMainGrid(cell)}`}
+												className={`w-4 h-4 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-6 lg:h-6 xl:w-8 xl:h-8 border border-[#414868] ${cellColorMainGrid(cell)}`}
 											></div>
 										))
 									)}
@@ -542,6 +567,12 @@ function GamePage() {
 											<h1 className="text-white text-5xl font-bold text-center">
 												{winner ? "YOU WON" : "GAME OVER"}
 											</h1>
+											{isSolo && (
+												<div className="text-center">
+													<span className="text-gray-400 text-lg font-bold">SCORE: </span>
+													<span className="text-white text-3xl font-bold">{score}</span>
+												</div>
+											)}
 											<h1 className="text-white text-3xl font-bold text-center">
 												{isPlayWithAnyone
 													? (decisionCountdown !== null && decisionCountdown > 0

@@ -208,25 +208,23 @@ export class WaitGame {
       const player = game.getPlayers()[0];
       const touch = { touch1: 1 };
       let gameIsOver = false;
-      const intervalId = setInterval(() => {
+      const gameLoop = () => {
         try {
-          if (!this.games.has(roomId)) {
-            clearInterval(intervalId);
-            return;
-          }
+          if (!this.games.has(roomId)) return;
           const socketsId = this.UUIDMapings.get(player.getUuid())?.socketsId as string[];
           game.gamePlay(player, touch, socketsId);
           if (!gameIsOver) gameIsOver = game.endGame(this.UUIDMapings);
           if (gameIsOver) {
-            clearInterval(intervalId);
             game.changePlayerToWaiting(player.getUuid());
             this._notifyRoomPlayersUpdate(game, roomId);
+            return;
           }
+          setTimeout(gameLoop, player.getDropInterval());
         } catch (e) {
-          clearInterval(intervalId);
           console.error('Game loop error (solo lobby):', e);
         }
-      }, 1000);
+      };
+      setTimeout(gameLoop, player.getDropInterval());
     } else {
       // Mode multi : 2+ joueurs
       await game.startGame(this.UUIDMapings);
@@ -529,30 +527,28 @@ export class WaitGame {
     await game.startGame(this.UUIDMapings);
     const touch = { touch1: 1 };
     let gameIsOver = false;
-    const intervalId = setInterval(() => {
+    const gameLoop = () => {
       try {
-        if (!this.games.has(roomName)) {
-          clearInterval(intervalId);
-          return;
-        }
+        if (!this.games.has(roomName)) return;
         const socketsId = this.UUIDMapings.get(uuid)?.socketsId as string[];
 
         game.gamePlay(player, touch, socketsId);
-        if (gameIsOver == false) gameIsOver = game.endGame(this.UUIDMapings);
+        if (!gameIsOver) gameIsOver = game.endGame(this.UUIDMapings);
         if (gameIsOver) {
-          clearInterval(intervalId);
           for (let i = 0; i < socketsId.length; i++) {
             const socket = this._server.sockets.sockets.get(socketsId[i]);
             if (socket !== undefined) socket.leave(roomName);
           }
           infos.ownedRoomsId.splice(infos.ownedRoomsId.indexOf(roomName), 1);
           this.games.delete(roomName);
+          return;
         }
+        setTimeout(gameLoop, player.getDropInterval());
       } catch (e) {
-        clearInterval(intervalId);
         console.error('Game loop error (single):', e);
       }
-    }, 1000);
+    };
+    setTimeout(gameLoop, player.getDropInterval());
   }
 
   public notRetryGame(

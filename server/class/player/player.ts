@@ -21,6 +21,7 @@ export class Player {
   private _tetrominos: Tetromino[];
   private _isMaster: boolean;
   private _token: number;
+  private _score: number;
   constructor(player_name: string, uuid: string) {
     this._uuid = uuid;
     this._player_name = player_name;
@@ -29,6 +30,7 @@ export class Player {
     this._tetrominos = [];
     this._isMaster = false;
     this._token = 0;
+    this._score = 0;
   }
 
   getToken(): number {
@@ -79,6 +81,19 @@ export class Player {
 
   setToken(num: number): void {
     this._token = num;
+  }
+
+  getScore(): number {
+    return this._score;
+  }
+
+  resetScore(): void {
+    this._score = 0;
+  }
+
+  getDropInterval(): number {
+    const level = Math.floor(this._score / 500);
+    return Math.max(100, 1000 - level * 100);
   }
 
 
@@ -235,6 +250,7 @@ export class Player {
 
 
   rotateTetromino(): void {
+    if (this._tetrominos.length === 0) return;
     const lengthTetro = this._tetrominos[0].getLentgth();
     this._tetrominos[0].rotateTetromino();
     const shape = this._tetrominos[0].getShape();
@@ -346,7 +362,20 @@ export class Player {
     for (let i = 0; i < nbrLineToDestroy; i++) {
       this._grid.unshift(new Array(10).fill(E));
     }
+    if (nbrLineToDestroy > 0) {
+      this._score += this._lineScoreValue(nbrLineToDestroy);
+    }
     return nbrLineToDestroy;
+  }
+
+  private _lineScoreValue(lines: number): number {
+    switch (lines) {
+      case 1: return 40;
+      case 2: return 100;
+      case 3: return 300;
+      case 4: return 1200;
+      default: return lines * 300;
+    }
   }
 
 

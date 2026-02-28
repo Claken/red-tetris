@@ -316,13 +316,13 @@ export class Game {
             roomId: this._roomId,
             type: this._type,
             winner: false,
+            score: this._players[0].getScore(),
           },
         });
         this.setIsStarted(false);
         return true;
       }
     } else if (this._type === MULTI && this._initialPlayerCount === 1) {
-      // Solo in a room: same as SINGLE but emit to player's sockets
       if (this._players[0].isPlayerLost()) {
         const socketIds =
           UUIDMapings.get(this._players[0].getUuid())?.socketsId ?? [];
@@ -456,6 +456,7 @@ export class Game {
           roomId: this._roomId,
           tetrominos: player.getTetrominos().slice(1, 6),
           type: this._type,
+          score: player.getScore(),
         },
       });
       return;
