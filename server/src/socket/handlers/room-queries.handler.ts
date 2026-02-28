@@ -1,5 +1,6 @@
 import { Socket } from 'socket.io';
 import { MULTI } from '../../../constantes/constantes';
+import { HighScoreStore } from '../../../class/highScoreStore/highScoreStore';
 import type { HandlerContext } from '../handler-context';
 
 export function registerRoomQueriesHandlers(socket: Socket, ctx: HandlerContext): void {
@@ -103,5 +104,9 @@ export function registerRoomQueriesHandlers(socket: Socket, ctx: HandlerContext)
       socket.join(infos.ownedRoomsId[i]);
     }
     socket.emit('getOthersRoomsJoined', { roomsJoined });
+  });
+
+  socket.on('getLeaderboard', () => {
+    socket.emit('leaderboard', { top5: HighScoreStore.getInstance().getTop5() });
   });
 }

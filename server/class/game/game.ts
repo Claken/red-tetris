@@ -3,6 +3,7 @@ import { Player } from '../player/player';
 import { ClientInfo } from '../../interfaces/clientInfo';
 import { MULTI, SINGLE } from '../../constantes/constantes';
 import { ManagePlayerTetromino } from '../managePlayerTetromino/managePlayerTetromino';
+import { HighScoreStore } from '../highScoreStore/highScoreStore';
 
 export class Game {
   private _players: Player[];
@@ -308,15 +309,20 @@ export class Game {
   public endGame(UUIDMapings: Map<string, ClientInfo>): boolean {
     if (this._type === SINGLE) {
       if (this._players[0].isPlayerLost()) {
+        const playerName = this._players[0].getPlayerName();
+        const finalScore = this._players[0].getScore();
+        const store = HighScoreStore.getInstance();
+        store.updateHighScore(playerName, finalScore);
         this._server.to(this._roomId).emit('endGame', {
           player: {
             grid: this._players[0].getGrid(),
-            name: this._players[0].getPlayerName(),
+            name: playerName,
             uuid: this._players[0].getUuid(),
             roomId: this._roomId,
             type: this._type,
             winner: false,
-            score: this._players[0].getScore(),
+            score: finalScore,
+            highScore: store.getHighScore(playerName),
           },
         });
         this.setIsStarted(false);
@@ -457,6 +463,7 @@ export class Game {
           tetrominos: player.getTetrominos().slice(1, 6),
           type: this._type,
           score: player.getScore(),
+          highScore: HighScoreStore.getInstance().getHighScore(player.getPlayerName()),
         },
       });
       return;

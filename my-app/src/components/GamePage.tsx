@@ -57,6 +57,7 @@ function GamePage() {
 	const [tetrominos, setTetro] = useState<any[]>();
 	const [specList, setSpecList] = useState<any[]>();
 	const [score, setScore] = useState<number>(0);
+	const [highScore, setHighScore] = useState<number>(0);
 
 	const GameStartedToast = Toastify({
 		text: "Game already in progress, cannot join",
@@ -298,6 +299,9 @@ function GamePage() {
 				if (data.player.score !== undefined) {
 					setScore(data.player.score);
 				}
+				if (data.player.highScore !== undefined) {
+					setHighScore(data.player.highScore);
+				}
 			}
 		});
 		return () => {
@@ -315,6 +319,9 @@ function GamePage() {
 				}
 				if (data.player.score !== undefined) {
 					setScore(data.player.score);
+				}
+				if (data.player.highScore !== undefined) {
+					setHighScore(data.player.highScore);
 				}
 				setGrid(emptyGrid);
 				setPartyDone(true);
@@ -528,6 +535,8 @@ function GamePage() {
 										<div className="text-center">
 											<div className="text-gray-400 text-xs font-bold">SCORE</div>
 											<div className="text-white text-2xl font-bold">{score}</div>
+											<div className="text-gray-500 text-xs font-bold mt-1">BEST</div>
+											<div className="text-yellow-400 text-sm font-bold">{highScore}</div>
 										</div>
 									)}
 									<button className="bg-red-500 hover:bg-red-700 active:bg-red-500 text-white font-bold py-2 px-4 rounded-full w-fit" onClick={goBackToHome}>Menu</button>
@@ -568,9 +577,18 @@ function GamePage() {
 												{winner ? "YOU WON" : "GAME OVER"}
 											</h1>
 											{isSolo && (
-												<div className="text-center">
-													<span className="text-gray-400 text-lg font-bold">SCORE: </span>
-													<span className="text-white text-3xl font-bold">{score}</span>
+												<div className="text-center space-y-1">
+													<div>
+														<span className="text-gray-400 text-lg font-bold">SCORE: </span>
+														<span className="text-white text-3xl font-bold">{score}</span>
+													</div>
+													{score >= highScore && score > 0 && (
+														<div className="text-yellow-400 text-xl font-bold animate-pulse">NEW RECORD!</div>
+													)}
+													<div>
+														<span className="text-gray-500 text-sm font-bold">BEST: </span>
+														<span className="text-yellow-400 text-lg font-bold">{highScore}</span>
+													</div>
 												</div>
 											)}
 											<h1 className="text-white text-3xl font-bold text-center">

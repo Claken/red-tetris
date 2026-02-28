@@ -23,6 +23,8 @@ function HomePage() {
 	const [listOtherRooms, setListOtherRooms] = useState([]);
 	const [waitingList, setWaitingList] = useState<string[]>([]);
 
+	const [leaderboard, setLeaderboard] = useState<{ name: string; score: number }[]>([]);
+
 	const [listButtonClicked, setListButtonClicked] = useState<boolean>(false);
 	const [listButtonClickedActive, setListButtonClickedActive] =
 		useState<boolean>(false);
@@ -315,7 +317,17 @@ function HomePage() {
 			socket.emit("getCreateRooms", { uuid: uuid });
 			socket.emit("getOtherRooms", { uuid: uuid });
 			socket.emit("getOthersRoomsJoined", { uuid: uuid });
+			socket.emit("getLeaderboard");
 		}
+	}, [socket]);
+
+	useEffect(() => {
+		socket?.on("leaderboard", (data) => {
+			if (data.top5) setLeaderboard(data.top5);
+		});
+		return () => {
+			socket?.off("leaderboard");
+		};
 	}, [socket]);
 
 	useEffect(() => {
@@ -625,6 +637,29 @@ function HomePage() {
 								</button>
 							</div>
 						</div>
+						{leaderboard.length > 0 && (
+							<div className="mt-4 border-4 border-gray-700 bg-gray-900 w-64 rounded-lg overflow-hidden">
+								<div className="text-white font-bold text-lg py-2 bg-gray-800 border-b-2 border-gray-700">
+									TOP 5
+								</div>
+								<div className="flex flex-col">
+									{leaderboard.map((entry, i) => (
+										<div
+											key={entry.name}
+											className={`flex items-center justify-between px-4 py-2 ${i % 2 === 0 ? 'bg-gray-900' : 'bg-gray-800'}`}
+										>
+											<div className="flex items-center space-x-2">
+												<span className={`font-bold text-sm ${i === 0 ? 'text-yellow-400' : i === 1 ? 'text-gray-300' : i === 2 ? 'text-orange-400' : 'text-gray-500'}`}>
+													#{i + 1}
+												</span>
+												<span className="text-white text-sm font-medium truncate max-w-[100px]">{entry.name}</span>
+											</div>
+											<span className="text-white text-sm font-bold">{entry.score}</span>
+										</div>
+									))}
+								</div>
+							</div>
+						)}
 					</div>
 				</div>
 			)}
