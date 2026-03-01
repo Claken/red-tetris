@@ -1,14 +1,14 @@
-import React, { Dispatch } from 'react';
+import React, { Dispatch, useEffect } from 'react';
 import "../index.css"
-import { io, Socket } from 'socket.io-client'
+import { Socket } from 'socket.io-client'
 
-function ConnectPage({ name, setName, uuid, setUuid, socket, setSocket }: {
+function ConnectPage({ name, setName, uuid, setUuid, socket, connectSocket }: {
 	name: string,
 	setName: Dispatch<React.SetStateAction<string>>,
 	uuid: string | undefined,
 	setUuid: Dispatch<React.SetStateAction<string | undefined>>,
 	socket: Socket | undefined,
-	setSocket: React.Dispatch<React.SetStateAction<Socket | undefined>>;
+	connectSocket: (name: string, uuid?: string) => void;
 }
 ) {
 
@@ -18,16 +18,19 @@ function ConnectPage({ name, setName, uuid, setUuid, socket, setSocket }: {
 	};
 
 	const handleSubmit = () => {
-		const newSocket = io("http://localhost:3000", {
-			query: { name: name, uuid: uuid },
-		});
-		newSocket.on("new-person", (data) => {
+		connectSocket(name, uuid);
+	}
+
+	useEffect(() => {
+		socket?.on("new-person", (data) => {
 			sessionStorage.setItem("uuid", data.uuid);
 			setUuid(data.uuid);
 			sessionStorage.setItem("name", data.name);
 		});
-		setSocket(newSocket);
-	}
+		return () => {
+			socket?.off("new-person");
+		};
+	}, [socket]);
 
 	return (
 		<div data-testid="connect-page" className="flex items-center justify-center h-screen bg-[#1a1b26]">

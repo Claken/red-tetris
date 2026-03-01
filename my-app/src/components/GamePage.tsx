@@ -4,14 +4,8 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import React from "react";
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
-import { io } from "socket.io-client";
 import { cellColorMainGrid, displayTetromino, displaySpectrums } from "../functions/forTheGame";
-
-interface RoomPlayer {
-	name: string;
-	uuid: string;
-	isHost: boolean;
-}
+import { Tetromino, Spectrum, RoomPlayer, GameLocationState } from "../interfaces/game.types";
 
 function GamePage() {
 
@@ -21,14 +15,14 @@ function GamePage() {
 		throw new Error('GamePage must be used within a SocketProvider');
 	}
 
-	const { socket, setSocket } = socketContext;
+	const { socket, connectSocket } = socketContext;
 
 	const navigate = useNavigate();
 	const location = useLocation();
 	const routeParam = useParams();
 
 	// Legacy flows (solo, created rooms, old multi) skip the lobby entirely
-	const isLegacyNav = !!(location.state as any)?.legacy;
+	const isLegacyNav = !!(location.state as GameLocationState)?.legacy;
 	const [phase, setPhase] = useState<'lobby' | 'playing' | 'gameover'>(isLegacyNav ? 'playing' : 'lobby');
 	const [players, setPlayers] = useState<RoomPlayer[]>([]);
 	const [isHost, setIsHost] = useState<boolean>(false);
@@ -54,8 +48,8 @@ function GamePage() {
 	const emptyGrid = Array.from({ length: numRows }, () => Array(numCols).fill(0));
 
 	const [grid, setGrid] = useState<number[][]>(emptyGrid);
-	const [tetrominos, setTetro] = useState<any[]>();
-	const [specList, setSpecList] = useState<any[]>();
+	const [tetrominos, setTetro] = useState<Tetromino[]>();
+	const [specList, setSpecList] = useState<Spectrum[]>();
 	const [score, setScore] = useState<number>(0);
 	const [highScore, setHighScore] = useState<number>(0);
 
@@ -147,10 +141,7 @@ function GamePage() {
 			const storedUuid = sessionStorage.getItem("uuid");
 			// Use player name from URL, or fallback to sessionStorage
 			const nameToUse = playerNameFromUrl || storedName || "Player";
-			const newSocket = io("http://localhost:3000", {
-				query: { name: nameToUse, uuid: storedUuid || undefined },
-			});
-			setSocket(newSocket);
+			connectSocket(nameToUse, storedUuid || undefined);
 		}
 	}, []);
 
@@ -637,7 +628,7 @@ function GamePage() {
 							</div>
 							<div className="p-8 bg-gray-900 border-4 border-gray-700 rounded-lg w-32 h-[420px] overflow-auto">
 								<div className="flex flex-col items-center space-y-4">
-									{tetrominos && tetrominos.length > 0 && tetrominos.map((tetro: any, index: number) => (
+									{tetrominos && tetrominos.length > 0 && tetrominos.map((tetro: Tetromino, index: number) => (
 										<div key={index} className="items-center">
 											{displayTetromino(tetro)}
 										</div>

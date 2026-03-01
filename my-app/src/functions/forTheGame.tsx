@@ -43,7 +43,9 @@ export const getTetroColor = (type: string) => {
 	}
 }
 
-export const displayTetromino = (tetromino: any) => {
+import { Tetromino, Spectrum } from '../interfaces/game.types';
+
+export const displayTetromino = (tetromino: Tetromino) => {
 		const tetroColor = getTetroColor(tetromino.type);
 		return tetromino.shape.map((row: number[], rowIndex: number) => (
 			<div data-testid={rowIndex} key={rowIndex} className="flex">
@@ -58,9 +60,9 @@ export const displayTetromino = (tetromino: any) => {
 		));
 	};
 
-export const displaySpectrums = (specList: any, left: boolean) => {
+export const displaySpectrums = (specList: Spectrum[], left: boolean) => {
 		const idx = 6;
-	const rightOrLeft = (index: any): boolean => {
+	const rightOrLeft = (index: number): boolean => {
 		if (left) {
 				return index < idx;
 			}
@@ -69,7 +71,7 @@ export const displaySpectrums = (specList: any, left: boolean) => {
 
 		return (
 			<div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-x-2 xl:gap-x-4">
-				{specList.map((spectrum: any, index: number) => (
+				{specList.map((spectrum: Spectrum, index: number) => (
 					<div key={index} className="w-[60px] sm:w-[70px] md:w-[80px]">
 						{rightOrLeft(index) && <div className="">
 							<h3 className="text-xs sm:text-sm md:text-lg text-white text-center truncate font-semibold mb-1 sm:mb-2">{spectrum.name}</h3>

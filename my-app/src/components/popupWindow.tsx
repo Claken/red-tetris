@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 interface PopupProps {
   show: boolean;
   title: string;
-  children: any;
+  children: ReactNode;
   onClose: () => void;
 }
 

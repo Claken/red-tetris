@@ -5,29 +5,16 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ConnectPage from '../components/ConnectPage';
 import { Socket } from 'socket.io-client';
-import { DefaultEventsMap } from "@socket.io/component-emitter";
-
-// Mock socket.io-client
-vi.mock('socket.io-client', async () => {
-	const actual = await vi.importActual('socket.io-client');
-	return {
-		...actual,
-		io: vi.fn(),
-	};
-});
-
-import { io } from 'socket.io-client';
 
 describe('ConnectPage Component', () => {
 	let setName: Dispatch<React.SetStateAction<string>>;
 	let setUuid: Dispatch<React.SetStateAction<string | undefined>>;
-	let setSocket: Dispatch<React.SetStateAction<Socket<DefaultEventsMap, DefaultEventsMap> | undefined>>
+	let connectSocket: ReturnType<typeof vi.fn>;
 
 	beforeEach(() => {
-		// Mock des fonctions d'état
 		setName = vi.fn();
 		setUuid = vi.fn();
-		setSocket = vi.fn();
+		connectSocket = vi.fn();
 		vi.clearAllMocks();
 	});
 
@@ -39,7 +26,7 @@ describe('ConnectPage Component', () => {
 				uuid={undefined}
 				setUuid={setUuid}
 				socket={undefined}
-				setSocket={setSocket}
+				connectSocket={connectSocket}
 			/>
 		);
 
@@ -59,7 +46,7 @@ describe('ConnectPage Component', () => {
 				uuid={undefined}
 				setUuid={setUuid}
 				socket={undefined}
-				setSocket={setSocket}
+				connectSocket={connectSocket}
 			/>
 		);
 
@@ -71,11 +58,7 @@ describe('ConnectPage Component', () => {
 		expect(setName).toHaveBeenCalledWith('P'); // Appelé avec chaque caractère
 	});
 
-	it('calls setSocket on button click', () => {
-		const onMock = vi.fn();
-		const mockNewSocket = { on: onMock, io: { uri: 'http://localhost:3000' } } as any;
-		(io as any).mockReturnValue(mockNewSocket);
-
+	it('calls connectSocket on button click', () => {
 		render(
 			<ConnectPage
 				name="Player1"
@@ -83,15 +66,15 @@ describe('ConnectPage Component', () => {
 				uuid="1234"
 				setUuid={setUuid}
 				socket={undefined}
-				setSocket={setSocket}
+				connectSocket={connectSocket}
 			/>
 		);
 
 		const button = screen.getByText('CONFIRM');
 		fireEvent.click(button);
 
-		// Vérifie que setSocket a été appelé
-		expect(setSocket).toHaveBeenCalled();
+		// Vérifie que connectSocket a été appelé avec les bons arguments
+		expect(connectSocket).toHaveBeenCalledWith('Player1', '1234');
 	});
 
 	it('handles "new-person" socket event correctly', () => {
@@ -103,10 +86,10 @@ describe('ConnectPage Component', () => {
 			clear: vi.fn(),
 		});
 
-		// Mock io() to return a fake socket
+		// Provide a mock socket to trigger the useEffect listener
 		const onMock = vi.fn();
-		const mockNewSocket = { on: onMock, io: { uri: 'http://localhost:3000' } } as any;
-		(io as any).mockReturnValue(mockNewSocket);
+		const offMock = vi.fn();
+		const mockSocket = { on: onMock, off: offMock } as unknown as Socket;
 
 		render(
 			<ConnectPage
@@ -114,16 +97,12 @@ describe('ConnectPage Component', () => {
 				setName={setName}
 				uuid="1234"
 				setUuid={setUuid}
-				socket={undefined}
-				setSocket={setSocket}
+				socket={mockSocket}
+				connectSocket={connectSocket}
 			/>
 		);
 
-		// Click CONFIRM to trigger handleSubmit which creates the socket and registers the listener
-		const button = screen.getByText('CONFIRM');
-		fireEvent.click(button);
-
-		// Now the "new-person" listener should have been registered on the new socket
+		// The useEffect should have registered the new-person listener
 		expect(onMock).toHaveBeenCalledWith("new-person", expect.any(Function));
 		const newPersonCallback = onMock.mock.calls.find(call => call[0] === "new-person")![1];
 

@@ -72,7 +72,7 @@ describe('GamePage - handleKeydown', () => {
 	it('should call socket.emit with "moveRight" when ArrowRight is pressed', async () => {
 		// Simulate beforeGame event to get out of waiting state
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket, connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<GamePage />
 				</MemoryRouter>
@@ -99,7 +99,7 @@ describe('GamePage - handleKeydown', () => {
 
 	it('should call socket.emit with "moveLeft" when ArrowLeft is pressed', async () => {
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket, connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<GamePage />
 				</MemoryRouter>
@@ -125,7 +125,7 @@ describe('GamePage - handleKeydown', () => {
 
 	it('should call socket.emit with "rotate" when ArrowUp is pressed', async () => {
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket, connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<GamePage />
 				</MemoryRouter>
@@ -151,7 +151,7 @@ describe('GamePage - handleKeydown', () => {
 
 	it('should call socket.emit with "moveDown" when ArrowDown is pressed', async () => {
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket, connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<GamePage />
 				</MemoryRouter>
@@ -177,7 +177,7 @@ describe('GamePage - handleKeydown', () => {
 
 	it('should call socket.emit with "fallDown" when Space is pressed', async () => {
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket, connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<GamePage />
 				</MemoryRouter>
@@ -236,7 +236,7 @@ describe('GamePage Component', () => {
 
 	it('displays countdown when countdown event is received', async () => {
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket, connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<GamePage />
 				</MemoryRouter>
@@ -271,7 +271,7 @@ describe('GamePage Component', () => {
 
 	it('displays game over screen with retry buttons when endGame event is received', async () => {
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket, connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<GamePage />
 				</MemoryRouter>
@@ -310,7 +310,7 @@ describe('GamePage Component', () => {
 
 	it('displays YOU WON when endGame with winner=true', async () => {
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket, connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<GamePage />
 				</MemoryRouter>
@@ -341,7 +341,7 @@ describe('GamePage Component', () => {
 
 	it('handles myGame socket event', async () => {
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket, connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<GamePage />
 				</MemoryRouter>
@@ -367,7 +367,7 @@ describe('GamePage Component', () => {
 
 	it('handles noGame event', async () => {
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket, connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<GamePage />
 				</MemoryRouter>
@@ -383,7 +383,7 @@ describe('GamePage Component', () => {
 
 	it('handles room_join_failed with game_started', async () => {
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket, connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<GamePage />
 				</MemoryRouter>
@@ -399,7 +399,7 @@ describe('GamePage Component', () => {
 
 	it('handles room_join_failed with name_taken', async () => {
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket, connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<GamePage />
 				</MemoryRouter>
@@ -415,7 +415,7 @@ describe('GamePage Component', () => {
 
 	it('handles room_players_update event', async () => {
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket, connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<GamePage />
 				</MemoryRouter>
@@ -439,7 +439,7 @@ describe('GamePage Component', () => {
 
 	it('handles room_start_failed event', async () => {
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket, connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<GamePage />
 				</MemoryRouter>
@@ -453,7 +453,7 @@ describe('GamePage Component', () => {
 
 	it('handles not_enough_person event', async () => {
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket, connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<GamePage />
 				</MemoryRouter>
@@ -469,7 +469,7 @@ describe('GamePage Component', () => {
 
 	it('handles Leave Room button click in lobby', () => {
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket, connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<GamePage />
 				</MemoryRouter>
@@ -483,7 +483,7 @@ describe('GamePage Component', () => {
 
 	it('handles LOBBY button click after game over', async () => {
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket, connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<GamePage />
 				</MemoryRouter>
@@ -520,7 +520,7 @@ describe('GamePage Component', () => {
 
 	it('handles countdown going to 0', async () => {
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket, connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<GamePage />
 				</MemoryRouter>
@@ -547,7 +547,7 @@ describe('GamePage Component', () => {
 
 	it('handles non-matching key press', async () => {
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket, connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<GamePage />
 				</MemoryRouter>

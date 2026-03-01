@@ -4,7 +4,7 @@ import "../index.css";
 import ConnectPage from "./ConnectPage";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { io } from "socket.io-client";
+import { OtherRoom, LeaderboardEntry } from "../interfaces/game.types";
 import Popup from "./popupWindow";
 import Toastify from "toastify-js";
 import "toastify-js/src/toastify.css";
@@ -18,12 +18,12 @@ function HomePage() {
 			? undefined
 			: sessionStorage.getItem("uuid")?.toString()
 	);
-	const [listRoomsAc, setListRoomsAc] = useState([]);
-	const [listRoomsCreate, setListRoomsCreate] = useState([]);
-	const [listOtherRooms, setListOtherRooms] = useState([]);
+	const [listRoomsAc, setListRoomsAc] = useState<string[]>([]);
+	const [listRoomsCreate, setListRoomsCreate] = useState<string[]>([]);
+	const [listOtherRooms, setListOtherRooms] = useState<OtherRoom[]>([]);
 	const [waitingList, setWaitingList] = useState<string[]>([]);
 
-	const [leaderboard, setLeaderboard] = useState<{ name: string; score: number }[]>([]);
+	const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
 
 	const [listButtonClicked, setListButtonClicked] = useState<boolean>(false);
 	const [listButtonClickedActive, setListButtonClickedActive] =
@@ -34,7 +34,7 @@ function HomePage() {
 		useState<boolean>(false);
 	const [listButtonClickedJoined, setListButtonClickedJoined] =
 		useState<boolean>(false);
-	const [listRoomsJoined, setListRoomsJoined] = useState([]);
+	const [listRoomsJoined, setListRoomsJoined] = useState<string[]>([]);
 
 	const [showPopup, setShowPopup] = useState<boolean>(false);
 	const [popupTitle, setPopupTitle] = useState<string>("");
@@ -50,7 +50,7 @@ function HomePage() {
 		throw new Error("ConnectPage must be used within a SocketProvider");
 	}
 
-	const { socket, setSocket } = socketContext;
+	const { socket, connectSocket } = socketContext;
 
 	const togglePopup = () => {
 		setShowPopup((prev) => {
@@ -169,7 +169,7 @@ function HomePage() {
 		setListButtonClickedSpec,
 		title,
 	}: {
-		listRooms: never[];
+		listRooms: string[] | OtherRoom[];
 		setListButtonClickedSpec: Dispatch<React.SetStateAction<boolean>>;
 		title: string;
 	}) => {
@@ -182,7 +182,7 @@ function HomePage() {
 					<div className="w-full max-w-4xl max-h-[720px] shadow-lg p-8 bg-gray-900 border-4 border-gray-700 rounded-lg m-4 overflow-auto">
 						<div className="grid grid-cols-4 gap-4 auto-rows-fr">
 							{title != "OTHERS ROOMLIST"
-								? listRooms.map((room: string, index: number) => {
+								? (listRooms as string[]).map((room: string, index: number) => {
 									return (
 										<div
 											key={index}
@@ -212,7 +212,7 @@ function HomePage() {
 										</div>
 									);
 								})
-								: listRooms.map((array: any, index: number) => {
+								: (listRooms as OtherRoom[]).map((room: OtherRoom, index: number) => {
 									return (
 										<div
 											key={index}
@@ -222,19 +222,19 @@ function HomePage() {
 												className="text-white truncate font-bold py-2 px-4 rounded-full w-full h-full flex items-center justify-center"
 												onClick={(e) => {
 													e.preventDefault();
-													const newRoom = array.roomId;
+													const newRoom = room.roomId;
 													setPopupTitle(newRoom);
 													setPopupChild(
 														childForOtherRooms(
 															newRoom,
 															setListButtonClickedSpec,
-															array.isStarted
+															room.isStarted
 														)
 													);
 													togglePopup();
 												}}
 											>
-												{array.roomId}
+												{room.roomId}
 											</button>
 										</div>
 									);
@@ -301,13 +301,6 @@ function HomePage() {
 		if (newUuid && newName) {
 			setUuid(newUuid);
 			setName(newName);
-			if (socket === undefined && newUuid && newName) {
-				setSocket(
-					io("http://localhost:3000", {
-						query: { name: newName, uuid: newUuid },
-					})
-				);
-			}
 		}
 	}, [uuid]);
 
@@ -671,7 +664,7 @@ function HomePage() {
 			uuid={uuid}
 			setUuid={setUuid}
 			socket={socket}
-			setSocket={setSocket}
+			connectSocket={connectSocket}
 		/>
 	);
 }

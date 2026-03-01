@@ -634,7 +634,7 @@ describe("HomePage Component", () => {
 		const mockSocket = createSafeMockSocket();
 
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket as any, setSocket: vi.fn() }}>
+			<SocketContext.Provider value={{ socket: mockSocket as any, setSocket: vi.fn(), connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<HomePage />
 				</MemoryRouter>
@@ -675,7 +675,7 @@ describe("HomePage Component", () => {
 		const mockSocket = createSafeMockSocket();
 
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket as any, setSocket: vi.fn() }}>
+			<SocketContext.Provider value={{ socket: mockSocket as any, setSocket: vi.fn(), connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<HomePage />
 				</MemoryRouter>
@@ -705,7 +705,7 @@ describe("HomePage Component", () => {
 		const mockSocket = createSafeMockSocket();
 
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket as any, setSocket: vi.fn() }}>
+			<SocketContext.Provider value={{ socket: mockSocket as any, setSocket: vi.fn(), connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<HomePage />
 				</MemoryRouter>
@@ -746,7 +746,7 @@ describe("HomePage Component", () => {
 		const mockSocket = createSafeMockSocket();
 
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket as any, setSocket: vi.fn() }}>
+			<SocketContext.Provider value={{ socket: mockSocket as any, setSocket: vi.fn(), connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<HomePage />
 				</MemoryRouter>
@@ -792,7 +792,7 @@ describe("HomePage Component", () => {
 		const mockSocket = createSafeMockSocket();
 
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket as any, setSocket: vi.fn() }}>
+			<SocketContext.Provider value={{ socket: mockSocket as any, setSocket: vi.fn(), connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<HomePage />
 				</MemoryRouter>
@@ -836,7 +836,7 @@ describe("HomePage Component", () => {
 		const mockSocket = createSafeMockSocket();
 
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket as any, setSocket: vi.fn() }}>
+			<SocketContext.Provider value={{ socket: mockSocket as any, setSocket: vi.fn(), connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<HomePage />
 				</MemoryRouter>
@@ -877,7 +877,7 @@ describe("HomePage Component", () => {
 		const mockSocket = createSafeMockSocket();
 
 		render(
-			<SocketContext.Provider value={{ socket: mockSocket as any, setSocket: vi.fn() }}>
+			<SocketContext.Provider value={{ socket: mockSocket as any, setSocket: vi.fn(), connectSocket: vi.fn(), disconnectSocket: vi.fn() }}>
 				<MemoryRouter>
 					<HomePage />
 				</MemoryRouter>
