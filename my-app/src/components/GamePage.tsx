@@ -9,14 +9,18 @@ import { Tetromino, Spectrum, RoomPlayer, GameLocationState } from "../interface
 
 function GamePage() {
 
+	// Get the socket context
 	const socketContext = useSocket();
 
+	// If the socket context is not found, throw an error
 	if (!socketContext) {
 		throw new Error('GamePage must be used within a SocketProvider');
 	}
 
+	// Get the socket and connectSocket function from the socket context
 	const { socket, connectSocket } = socketContext;
 
+	// Get the navigate function from the useNavigate hook
 	const navigate = useNavigate();
 	const location = useLocation();
 	const routeParam = useParams();
@@ -42,35 +46,40 @@ function GamePage() {
 	// UUID: prefer sessionStorage, fallback will be set by new-person event
 	const [uuid, setUuid] = useState<string | null>(sessionStorage.getItem("uuid"));
 
-
+	// Set the number of rows and columns for the grid
 	const numRows = 20;
 	const numCols = 10;
 	const emptyGrid = Array.from({ length: numRows }, () => Array(numCols).fill(0));
 
+		
 	const [grid, setGrid] = useState<number[][]>(emptyGrid);
 	const [tetrominos, setTetro] = useState<Tetromino[]>();
 	const [specList, setSpecList] = useState<Spectrum[]>();
 	const [score, setScore] = useState<number>(0);
 	const [highScore, setHighScore] = useState<number>(0);
 
+	// Notification for when a game is already in progress
 	const GameStartedToast = Toastify({
 		text: "Game already in progress, cannot join",
 		duration: 3000,
 		close: true,
 	});
 
+	// Notification for when a player name is already taken in this room
 	const NameTakenToast = Toastify({
 		text: "This player name is already taken in this room",
 		duration: 3000,
 		close: true,
 	});
 
+	// Notification for when no game is found
 	const NoGame = Toastify({
 		text: "No game found",
 		duration: 3000,
 		close: true,
 	});
 
+	// Handle keydown events
 	const handleKeydown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 		if (e.key === "ArrowRight") {
 			socket?.emit("moveRight", { uuid: uuid, roomId: roomId });
@@ -85,6 +94,7 @@ function GamePage() {
 		}
 	};
 
+	// Set the grid with the right size
 	const setGridWithRightSize = (grid: number[][]) => {
 		const newGrid = grid.slice(4, 24);
 		setGrid(newGrid);
@@ -116,6 +126,10 @@ function GamePage() {
 		setPhase('lobby');
 	}
 
+	// Retry the game
+	// If the game is played with anyone, emit a playerDecision event to go back to the lobby
+	// If the game is played in a custom room, emit a retryGame event to retry the game
+	// If the game is played solo, emit a startSingleTetrisGame event to start a new game
 	const retryGame = () => {
 		if (isPlayWithAnyone) {
 			socket?.emit("playerDecision", { uuid, roomId, decision: 'lobby' });
@@ -135,6 +149,7 @@ function GamePage() {
 
 	// ==================== SOCKET CONNECTION ====================
 
+	// If the socket is not connected, connect to the socket
 	useEffect(() => {
 		if (socket === undefined) {
 			const storedName = sessionStorage.getItem("name");
@@ -182,6 +197,8 @@ function GamePage() {
 
 	// ==================== ROOM EVENTS ====================
 
+	// Handle room joined event
+	// If the room id is the same as the room id in the state, set the phase to lobby
 	useEffect(() => {
 		socket?.on("room_joined", (data) => {
 			if (data.roomId === roomId) {
@@ -193,6 +210,10 @@ function GamePage() {
 		};
 	}, [socket, roomId]);
 
+	// Handle room join failed event
+	// If the game is already started, show a notification
+	// If the player name is already taken in this room, show a notification
+	// Navigate to the home page
 	useEffect(() => {
 		socket?.on("room_join_failed", (data) => {
 			if (data.roomId === roomId) {
@@ -209,6 +230,10 @@ function GamePage() {
 		};
 	}, [socket, roomId]);
 
+	// Handle room players update event
+	// If the room id is the same as the room id in the state, update the players list
+	// If the host uuid is the same as the uuid in the state, set the isHost state to true
+	// If the game is not started and the phase is gameover and the game is not played with anyone, go back to the lobby
 	useEffect(() => {
 		socket?.on("room_players_update", (data) => {
 			if (data.roomId === roomId) {
@@ -224,6 +249,8 @@ function GamePage() {
 		};
 	}, [socket, roomId, uuid, phase]);
 
+	// Handle room host changed event
+	// If the room id is the same as the room id in the state, set the isHost state to true if the new host uuid is the same as the uuid in the state
 	useEffect(() => {
 		socket?.on("room_host_changed", (data) => {
 			if (data.roomId === roomId) {
@@ -235,6 +262,9 @@ function GamePage() {
 		};
 	}, [socket, roomId, uuid]);
 
+	// Handle room start failed event
+	// If the room id is the same as the room id in the state, show a notification with the reason
+	// If the reason is not known, show a notification with "unknown error"
 	useEffect(() => {
 		socket?.on("room_start_failed", (data) => {
 			if (data.roomId === roomId) {
@@ -252,6 +282,10 @@ function GamePage() {
 
 	// ==================== GAME EVENTS ====================
 
+	// Handle countdown event
+	// If the room id is the same as the room id in the state, set the phase to playing
+	// Set the waiting state to false
+	// Set the countdown state to the current time
 	useEffect(() => {
 		socket?.on("countdown", (data) => {
 			if (data.roomId === roomId) {
@@ -265,6 +299,12 @@ function GamePage() {
 		}
 	}, [socket, roomId]);
 
+	// Handle beforeGame event
+	// If the room id is the same as the room id in the state, set the phase to playing
+	// Set the waiting state to false
+	// Set the grid with the right size
+	// Set the tetrominos
+	// Set the multiGame state to true if the game type is 100
 	useEffect(() => {
 		socket?.on("beforeGame", (data) => {
 			setPhase('playing');
@@ -278,6 +318,14 @@ function GamePage() {
 		}
 	}, [socket]);
 
+	// Handle myGame event
+	// If the room id is the same as the room id in the state, set the phase to playing
+	// Set the waiting state to false
+	// Set the grid with the right size
+	// Set the tetrominos
+	// Set the multiGame state to true if the game type is 100
+	// Set the spectrum list
+	// Set the score if it is defined
 	useEffect(() => {
 		socket?.on("myGame", (data) => {
 			if (data.player.roomId === roomId) {

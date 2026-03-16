@@ -2,6 +2,13 @@ import React, { Dispatch, useEffect } from 'react';
 import "../index.css"
 import { Socket } from 'socket.io-client'
 
+// Props for the ConnectPage component
+// name: string - the name of the user
+// setName: Dispatch<React.SetStateAction<string>> - the function to set the name of the user
+// uuid: string | undefined - the UUID of the user
+// setUuid: Dispatch<React.SetStateAction<string | undefined>> - the function to set the UUID of the user
+// socket: Socket | undefined - the socket connection
+// connectSocket: (name: string, uuid?: string) => void - the function to connect to the socket
 function ConnectPage({ name, setName, uuid, setUuid, socket, connectSocket }: {
 	name: string,
 	setName: Dispatch<React.SetStateAction<string>>,
@@ -12,15 +19,18 @@ function ConnectPage({ name, setName, uuid, setUuid, socket, connectSocket }: {
 }
 ) {
 
+	//  Set user name
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		event.preventDefault();
 		setName(event.target.value);
 	};
 
+	// Handle submit button click
 	const handleSubmit = () => {
 		connectSocket(name, uuid);
 	}
 
+	// Handle new-person event (first connection, server assigns UUID)
 	useEffect(() => {
 		socket?.on("new-person", (data) => {
 			sessionStorage.setItem("uuid", data.uuid);
@@ -32,6 +42,7 @@ function ConnectPage({ name, setName, uuid, setUuid, socket, connectSocket }: {
 		};
 	}, [socket]);
 
+	// Render the component
 	return (
 		<div data-testid="connect-page" className="flex items-center justify-center h-screen bg-[#1a1b26]">
 			<div className="flex flex-col justify-center items-center border-4 border-gray-700 rounded-lg bg-gray-900">
