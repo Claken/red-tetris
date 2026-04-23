@@ -1,37 +1,58 @@
-
-import React, { Dispatch } from 'react';
+import React, { Dispatch, useState } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Provider } from '../store/reactReduxLite';
 import ConnectPage from '../components/ConnectPage';
-import { Socket } from 'socket.io-client';
-import { DefaultEventsMap } from "@socket.io/component-emitter";
+import { createTestStore } from './testStore';
+import { connectSocket } from '../store/socketActions';
+
+function Wrapper({
+	name,
+	setName,
+	uuid,
+	setUuid,
+	store,
+}: {
+	name: string;
+	setName: Dispatch<React.SetStateAction<string>>;
+	uuid: string | undefined;
+	setUuid: Dispatch<React.SetStateAction<string | undefined>>;
+	store: ReturnType<typeof createTestStore>["store"];
+}) {
+	return (
+		<Provider store={store}>
+			<ConnectPage
+				name={name}
+				setName={setName}
+				uuid={uuid}
+				setUuid={setUuid}
+			/>
+		</Provider>
+	);
+}
 
 describe('ConnectPage Component', () => {
 	let setName: Dispatch<React.SetStateAction<string>>;
 	let setUuid: Dispatch<React.SetStateAction<string | undefined>>;
-	let setSocket: Dispatch<React.SetStateAction<Socket<DefaultEventsMap, DefaultEventsMap> | undefined>>
 
 	beforeEach(() => {
-		// Mock state setter functions
 		setName = vi.fn();
 		setUuid = vi.fn();
-		setSocket = vi.fn();
 	});
 
 	it('renders the component correctly', () => {
+		const { store } = createTestStore();
 		render(
-			<ConnectPage
+			<Wrapper
 				name=""
 				setName={setName}
 				uuid={undefined}
 				setUuid={setUuid}
-				socket={undefined}
-				setSocket={setSocket}
+				store={store}
 			/>
 		);
 
-		// Verify the title and main elements are rendered
 		const textWelcome = screen.getByText('WELCOME TO RED TETRIS');
 		expect(document.body.contains(textWelcome)).toBe(true);
 
@@ -40,47 +61,47 @@ describe('ConnectPage Component', () => {
 	});
 
 	it('updates the name state when typing in the input', async () => {
+		const { store } = createTestStore();
 		render(
-			<ConnectPage
+			<Wrapper
 				name=""
 				setName={setName}
 				uuid={undefined}
 				setUuid={setUuid}
-				socket={undefined}
-				setSocket={setSocket}
+				store={store}
 			/>
 		);
 
 		const input = screen.getByPlaceholderText('Player name');
 		await userEvent.type(input, 'Player1');
 
-		// Verify that setName is called with the expected value
-		expect(setName).toHaveBeenCalledTimes(7); // "Player1" has 7 characters
-		expect(setName).toHaveBeenCalledWith('P'); // Called once per typed character
+		expect(setName).toHaveBeenCalledTimes(7);
+		expect(setName).toHaveBeenCalledWith('P');
 	});
 
-	it('calls setSocket on button click', () => {
+	it('dispatches connectSocket on button click', () => {
+		const { store } = createTestStore();
+		const dispatchSpy = vi.spyOn(store, 'dispatch');
+
 		render(
-			<ConnectPage
+			<Wrapper
 				name="Player1"
 				setName={setName}
 				uuid="1234"
 				setUuid={setUuid}
-				socket={undefined}
-				setSocket={setSocket}
+				store={store}
 			/>
 		);
 
 		const button = screen.getByText('CONFIRM');
 		fireEvent.click(button);
 
-		// Verify that setSocket was called
-		expect(setSocket).toHaveBeenCalled();
-		expect(setSocket.mock.calls[0][0].io.uri).toBe('http://localhost:3000');
+		expect(dispatchSpy).toHaveBeenCalledWith(
+			connectSocket({ name: 'Player1', uuid: '1234' })
+		);
 	});
 
 	it('handles "new-person" socket event correctly', () => {
-		// Mock sessionStorage
 		vi.stubGlobal('sessionStorage', {
 			setItem: vi.fn(),
 			getItem: vi.fn(),
@@ -88,31 +109,22 @@ describe('ConnectPage Component', () => {
 			clear: vi.fn(),
 		});
 
-		// Fake socket with mocked `.on()` to capture the callback
-		const onMock = vi.fn();
-		const mockSocket = { on: onMock } as any;
+		const { store, simulate } = createTestStore();
 
 		render(
-			<ConnectPage
+			<Wrapper
 				name="Player1"
 				setName={setName}
 				uuid="1234"
 				setUuid={setUuid}
-				socket={mockSocket}
-				setSocket={setSocket}
+				store={store}
 			/>
 		);
 
-		// simulate `socket.on` registering the "new-person" listener
-		expect(onMock).toHaveBeenCalledWith("new-person", expect.any(Function));
-		const newPersonCallback = onMock.mock.calls.find(call => call[0] === "new-person")[1];
+		simulate('new-person', { uuid: 'mock-uuid', name: 'MockName' });
 
-		// simulate reception of the event
-		const mockData = { uuid: "mock-uuid", name: "MockName" };
-		newPersonCallback(mockData);
-
-		expect(sessionStorage.setItem).toHaveBeenCalledWith("uuid", "mock-uuid");
-		expect(sessionStorage.setItem).toHaveBeenCalledWith("name", "MockName");
-		expect(setUuid).toHaveBeenCalledWith("mock-uuid");
+		expect(sessionStorage.setItem).toHaveBeenCalledWith('uuid', 'mock-uuid');
+		expect(sessionStorage.setItem).toHaveBeenCalledWith('name', 'MockName');
+		expect(setUuid).toHaveBeenCalledWith('mock-uuid');
 	});
 });

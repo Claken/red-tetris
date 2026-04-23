@@ -1,19 +1,35 @@
-import { createContext, useState, ReactNode, useContext } from 'react';
-import { ISocketContext } from '../interfaces/socketContext.interface';
-import { Socket } from "socket.io-client";
-import React from 'react';
+import { ReactNode } from "react";
+import React from "react";
+import { useAppDispatch, useAppSelector } from "../store";
+import {
+	connectSocket as connectSocketAction,
+	socketEmit,
+} from "../store/socketActions";
+import { useSocketEvent } from "../store/useSocketEvent";
 
-export const SocketContext = createContext<ISocketContext | undefined>(undefined);
+export interface SocketFacade {
+	emit: (event: string, payload?: unknown) => void;
+	connect: (name: string, uuid: string | undefined) => void;
+	connected: boolean;
+}
 
 export const SocketProvider = ({ children }: { children: ReactNode }) => {
-
-	const [socket, setSocket] = useState<Socket | undefined>(undefined);
-
-	return <SocketContext.Provider value={{ socket, setSocket }}>
-		{children}
-	</SocketContext.Provider>
+	return <>{children}</>;
 };
 
-export const useSocket = () => {
-	return useContext(SocketContext);
-}
+export const useSocket = (): SocketFacade => {
+	const dispatch = useAppDispatch();
+	const connected = useAppSelector((state) => state.socket.connected);
+
+	const emit = (event: string, payload?: unknown) => {
+		dispatch(socketEmit({ event, payload }));
+	};
+
+	const connect = (name: string, uuid: string | undefined) => {
+		dispatch(connectSocketAction({ name, uuid }));
+	};
+
+	return { emit, connect, connected };
+};
+
+export { useSocketEvent };

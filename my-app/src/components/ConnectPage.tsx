@@ -1,16 +1,15 @@
 import React, { Dispatch } from 'react';
 import "../index.css"
-import { io, Socket } from 'socket.io-client'
+import { useSocket, useSocketEvent } from "../contexts/socketContext";
 
-function ConnectPage({ name, setName, uuid, setUuid, socket, setSocket }: {
+function ConnectPage({ name, setName, uuid, setUuid }: {
 	name: string,
 	setName: Dispatch<React.SetStateAction<string>>,
 	uuid: string | undefined,
 	setUuid: Dispatch<React.SetStateAction<string | undefined>>,
-	socket: Socket | undefined,
-	setSocket: React.Dispatch<React.SetStateAction<Socket | undefined>>;
 }
 ) {
+	const { connect } = useSocket();
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		event.preventDefault();
@@ -18,14 +17,10 @@ function ConnectPage({ name, setName, uuid, setUuid, socket, setSocket }: {
 	};
 
 	const handleSubmit = () => {
-		setSocket(
-			io("http://localhost:3000", {
-				query: { name: name, uuid: uuid },
-			})
-		);
+		connect(name, uuid);
 	}
 
-	socket?.on("new-person", (data) => {
+	useSocketEvent<{ uuid: string; name: string }>("new-person", (data) => {
 		console.log("new-person");
 		console.log(data);
 		sessionStorage.setItem("uuid", data.uuid);

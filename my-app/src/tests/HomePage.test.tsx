@@ -1,44 +1,53 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { SocketProvider, SocketContext } from "../contexts/socketContext";
+import { Provider } from "../store/reactReduxLite";
 import HomePage from "../components/HomePage";
-import React, { createContext } from "react";
+import { SocketProvider } from "../contexts/socketContext";
+import { createTestStore } from "./testStore";
+import { socketEmit } from "../store/socketActions";
+import React from "react";
 import '@testing-library/jest-dom';
-import * as reactRouterDom from "react-router-dom";
 
-// Mock toastify-js at module level
 vi.mock("toastify-js", () => ({
 	default: vi.fn(() => ({
 		showToast: vi.fn(),
 	})),
 }));
 
-function createMockSocket() {
-	const listeners: Record<string, Function[]> = {};
+const setupSession = () => {
+	global.sessionStorage = {
+		getItem: vi.fn().mockImplementation((key) => {
+			if (key === "name") return "TestUser";
+			if (key === "uuid") return "12345";
+			return null;
+		}),
+		setItem: vi.fn(),
+		removeItem: vi.fn(),
+		clear: vi.fn(),
+		key: vi.fn(),
+		length: 0,
+	} as unknown as Storage;
+};
 
-	return {
-		on: vi.fn((event, cb) => {
-			listeners[event] = listeners[event] || [];
-			listeners[event].push(cb);
-		}),
-		off: vi.fn((event) => {
-			delete listeners[event];
-		}),
-		emit: vi.fn((event, data) => {
-			if (listeners[event]) {
-				listeners[event].forEach((cb) => cb(data));
-			}
-		}),
-		__simulate: (event: string, data: any) => {
-			if (listeners[event]) {
-				listeners[event].forEach((cb) => cb(data));
-			}
-		},
-		__getListeners: () => listeners,
-	};
-}
+const renderHome = (autoConnect = true) => {
+	const ctx = createTestStore({ autoConnect });
+	const utils = render(
+		<Provider store={ctx.store}>
+			<MemoryRouter>
+				<SocketProvider>
+					<HomePage />
+				</SocketProvider>
+			</MemoryRouter>
+		</Provider>
+	);
+	return { ...ctx, ...utils };
+};
 
+const expectEmitted = (store: ReturnType<typeof createTestStore>["store"], event: string, payload: unknown) => {
+	// Check that a socketEmit action with the expected event/payload was dispatched
+	// by spying on dispatch prior to render
+};
 
 describe("HomePage Component", () => {
 	beforeEach(() => {
@@ -50,295 +59,72 @@ describe("HomePage Component", () => {
 	});
 
 	it("renders the HomePage component with basic elements", () => {
-		// Mock sessionStorage
-		const mockSessionStorage = {
-			getItem: vi.fn().mockImplementation((key) => {
-				if (key === "name") return "TestUser";
-				if (key === "uuid") return "12345";
-				return null;
-			}),
-			setItem: vi.fn(),
-			removeItem: vi.fn(),
-			clear: vi.fn(),
-			key: vi.fn(),
-			length: 0,
-		};
+		setupSession();
+		renderHome();
 
-		global.sessionStorage = mockSessionStorage;
-
-		render(
-			<MemoryRouter>
-				<SocketProvider>
-					<HomePage />
-				</SocketProvider>
-			</MemoryRouter>
-		);
-
-		// Verify that the "RED TETRIS" title is present
-		const titleElement = screen.queryByText("RED TETRIS");
-		expect(titleElement).not.toBeNull();
-
-		// Verify that the "Solo game" button is present
-		const soloGameButton = screen.queryByText("Solo game");
-		expect(soloGameButton).not.toBeNull();
-
-		// Verify that the "Create a room" button is present
-		const createRoomButton = screen.queryByText("Create a room");
-		expect(createRoomButton).not.toBeNull();
-
-		// Verify that the "ALL MY ROOMS" button is present
-		const allMyRoomsButton = screen.queryByText("ALL MY ROOMS");
-		expect(allMyRoomsButton).not.toBeNull();
-
-		// Verify that the "Join a game" button is present
-		const joinGameButton = screen.queryByText("Join a game");
-		expect(joinGameButton).not.toBeNull();
-
-		// Verify that the "Go back to a game" button is present
-		const goBackToGameButton = screen.queryByText("Go back to a game");
-		expect(goBackToGameButton).not.toBeNull();
+		expect(screen.queryByText("RED TETRIS")).not.toBeNull();
+		expect(screen.queryByText("Solo game")).not.toBeNull();
+		expect(screen.queryByText("Create a room")).not.toBeNull();
+		expect(screen.queryByText("ALL MY ROOMS")).not.toBeNull();
+		expect(screen.queryByText("Join a game")).not.toBeNull();
+		expect(screen.queryByText("Go back to a game")).not.toBeNull();
 	});
 
 	it("toggles the popup state correctly", () => {
-		// Mock sessionStorage
-		const mockSessionStorage = {
-			getItem: vi.fn().mockImplementation((key) => {
-				if (key === "name") return "TestUser";
-				if (key === "uuid") return "12345";
-				return null;
-			}),
-			setItem: vi.fn(),
-			removeItem: vi.fn(),
-			clear: vi.fn(),
-			key: vi.fn(),
-			length: 0,
-		};
+		setupSession();
+		const { getByText } = renderHome();
 
-		global.sessionStorage = mockSessionStorage;
-
-		const { getByText } = render(
-			<MemoryRouter>
-				<SocketProvider>
-					<HomePage />
-				</SocketProvider>
-			</MemoryRouter>
-		);
-
-		// Simulate a click on the element that triggers togglePopup
-		const button = getByText("Create a room"); // Replace with the actual button label if needed
+		const button = getByText("Create a room");
 		fireEvent.click(button);
 
-		// Verify that the showPopup state changed
 		const popupElement = screen.queryByText("A new room has been created");
-		// console.log(popupElement)
 		expect(popupElement).toBeNull();
 
-		// Simulate another click to close the popup
 		fireEvent.click(button);
 
-		// Verify that the showPopup state changed again
 		expect(popupElement).toBeNull();
 	});
 
 	it("handles solo game button click correctly", () => {
-		// Mock sessionStorage
-		const mockSessionStorage = {
-			getItem: vi.fn().mockImplementation((key) => {
-				if (key === "name") return "TestUser";
-				if (key === "uuid") return "12345";
-				return null;
-			}),
-			setItem: vi.fn(),
-			removeItem: vi.fn(),
-			clear: vi.fn(),
-			key: vi.fn(),
-			length: 0,
-		};
+		setupSession();
+		const { store } = renderHome();
+		const dispatchSpy = vi.spyOn(store, "dispatch");
 
-		const mockNavigate = vi.fn();
-
-		global.sessionStorage = mockSessionStorage;
-
-		const { getByText } = render(
-			<MemoryRouter>
-				<SocketProvider>
-					<HomePage />
-				</SocketProvider>
-			</MemoryRouter>
-		);
-
-		// Simulate a click on the "Solo game" button
-		const soloGameButton = getByText("Solo game");
+		const soloGameButton = screen.getByText("Solo game");
 		fireEvent.click(soloGameButton);
 
-		// Verify that the user is redirected to the solo game page
-		const soloGamePage = screen.queryByText("Solo Game Page");
-		expect(soloGamePage).toBeNull();
+		expect(dispatchSpy).toHaveBeenCalledWith(
+			socketEmit({ event: "startSingleTetrisGame", payload: { name: "TestUser", uuid: "12345" } })
+		);
 	});
 
 	it("handles joining other rooms correctly", () => {
-		// Mock sessionStorage
-		const mockSessionStorage = {
-			getItem: vi.fn().mockImplementation((key) => {
-				if (key === "name") return "TestUser";
-				if (key === "uuid") return "12345";
-				return null;
-			}),
-			setItem: vi.fn(),
-			removeItem: vi.fn(),
-			clear: vi.fn(),
-			key: vi.fn(),
-			length: 0,
-		};
+		setupSession();
+		const { store } = renderHome();
+		const dispatchSpy = vi.spyOn(store, "dispatch");
 
-		global.sessionStorage = mockSessionStorage;
-
-		// Mock socket
-		const mockSocket = {
-			emit: vi.fn(),
-		};
-
-		const mockSocketContext = {
-			socket: mockSocket,
-			setSocket: vi.fn(),
-		};
-
-		render(
-			<MemoryRouter>
-				<SocketProvider value={mockSocketContext}>
-					<HomePage />
-				</SocketProvider>
-			</MemoryRouter>
-		);
-
-		// Simulate a click on the "Join a game" button
 		const joinGameButton = screen.getByText("Join a game");
 		fireEvent.click(joinGameButton);
 
-		// Simulate a click on an element that triggers childForOtherRooms
-		const roomButton = screen.getByText("TestUser"); // Replace with the actual button label if needed
-		fireEvent.click(roomButton);
-
-		// Verify that socket.emit is called with the expected arguments
-		// expect(mockSocket.emit).toHaveBeenCalledWith("joinGame", {
-		//   name: "TestUser",
-		//   uuid: "12345",
-		//   roomId: "Room 1",
-		// });
+		const headerName = screen.getByText("TestUser");
+		fireEvent.click(headerName);
 	});
 
 	it("handles starting multiplayer games correctly", () => {
+		setupSession();
+		renderHome();
 
-		// Mock sessionStorage
-		const mockSessionStorage = {
-			getItem: vi.fn().mockImplementation((key) => {
-				if (key === "name") return "TestUser";
-				if (key === "uuid") return "12345";
-				return null;
-			}),
-			setItem: vi.fn(),
-			removeItem: vi.fn(),
-			clear: vi.fn(),
-			key: vi.fn(),
-			length: 0,
-		};
-
-		global.sessionStorage = mockSessionStorage;
-
-		// Mock socket
-		const mockSocket = {
-			emit: vi.fn(),
-		};
-
-		const mockSocketContext = {
-			socket: mockSocket,
-			setSocket: vi.fn(),
-		};
-
-		const MockSocketPro = createContext(mockSocketContext);
-
-		render(
-			<MemoryRouter>
-				<SocketProvider>
-					<MockSocketPro.Provider value={mockSocketContext}>
-						<HomePage />
-					</MockSocketPro.Provider>
-				</SocketProvider>
-			</MemoryRouter>
-		);
-
-		// Simulate a click on the "ALL MY ROOMS" button
 		const allMyRoomsButton = screen.getByText("ALL MY ROOMS");
 		fireEvent.click(allMyRoomsButton);
-
-		// expect(mockSocket.emit).toHaveBeenCalledWith("getCreateRooms", {uuid: "12345",});
-
-		// Simulate a click on an element that triggers childForMyRooms
-		// const roomButton = screen.getByText("TestUser"); // Replace with the actual button label if needed
-		// fireEvent.click(roomButton);
-
-		// Verify that socket.emit is called with the expected arguments
-		// expect(mockSocket.emit).toHaveBeenCalledWith("startMultiGame", {
-		//   name: "TestUser",
-		//   uuid: "12345",
-		//   roomId: "TestUser",
-		// });
-
-		// // Verify that navigate is called with the correct route
-		// expect(mockNavigate).toHaveBeenCalledWith("TestUser/TestUser");
 	});
 
 	it("handles displaying room lists correctly", async () => {
-		// Mock sessionStorage
-		const mockSessionStorage = {
-			getItem: vi.fn().mockImplementation((key) => {
-				if (key === "name") return "TestUser";
-				if (key === "uuid") return "12345";
-				return null;
-			}),
-			setItem: vi.fn(),
-			removeItem: vi.fn(),
-			clear: vi.fn(),
-			key: vi.fn(),
-			length: 0,
-		};
+		setupSession();
+		renderHome();
 
-		global.sessionStorage = mockSessionStorage;
-
-		// Mock socket
-		const mockSocket = {
-			emit: vi.fn(),
-			on: vi.fn(),
-		};
-
-		const mockSocketContext = {
-			socket: mockSocket,
-			setSocket: vi.fn(),
-		};
-
-		const MockSocketPro = createContext(mockSocketContext);
-
-		// Mock navigate
-		const mockNavigate = vi.fn();
-
-		render(
-			<MemoryRouter>
-				<SocketProvider>
-					<MockSocketPro.Provider value={mockSocketContext}>
-						<HomePage />
-					</MockSocketPro.Provider>
-				</SocketProvider>
-			</MemoryRouter>
-		);
-
-		// Simulate a click on the "ALL MY ROOMS" button
 		const allMyRoomsButton = screen.getByText("ALL MY ROOMS");
 		fireEvent.click(allMyRoomsButton);
-		// await waitFor(() => {
-		//   expect(mockSocket.emit).toHaveBeenCalledWith("getCreateRooms", {uuid: "12345",});
-		// });
 
-		// Simulate a click on an element that triggers theRoomList
 		const myRoomListText = screen.getByText("MY ROOMLIST");
 		expect(document.body.contains(myRoomListText)).toBe(true);
 
@@ -361,153 +147,44 @@ describe("HomePage Component", () => {
 
 		const othersListText = screen.getByText("OTHERS ROOMLIST");
 		expect(document.body.contains(othersListText)).toBe(true);
-
 	});
 
 	it("handles pageToGo event correctly", () => {
-		// Mock sessionStorage
-		const mockSessionStorage = {
-			getItem: vi.fn().mockImplementation((key) => {
-				if (key === "name") return "TestUser";
-				if (key === "uuid") return "12345";
-				return null;
-			}),
-			setItem: vi.fn(),
-			removeItem: vi.fn(),
-			clear: vi.fn(),
-			key: vi.fn(),
-			length: 0,
-		};
+		setupSession();
+		const { simulate } = renderHome();
 
-		global.sessionStorage = mockSessionStorage;
-
-		// Mock socket
-		const mockSocket = {
-			on: vi.fn().mockImplementation((event, callback) => {
-				if (event === "pageToGo") {
-					mockSocket.emit = (eventName, data) => {
-						if (eventName === "pageToGo") {
-							callback(data);
-						}
-					};
-				}
-			}),
-			off: vi.fn(),
-			emit: vi.fn(),
-		};
-
-		const mockSocketContext = {
-			socket: mockSocket,
-			setSocket: vi.fn(),
-		};
-
-		// Mock navigate
-		const mockNavigate = vi.fn();
-
-		render(
-			<MemoryRouter>
-				<SocketProvider value={mockSocketContext}>
-					<HomePage />
-				</SocketProvider>
-			</MemoryRouter>
-		);
-
-		// Simulate emitting the pageToGo event
-		mockSocket.emit("pageToGo", {
+		simulate("pageToGo", {
 			pageInfos: { roomName: "Room 1", path: "/room1" },
 		});
-
-		// Verify that navigate is called with the correct route
-		// expect(mockNavigate).toHaveBeenCalledWith("/room1");
 	});
 
 	it("handles getCreateRooms socket event correctly", async () => {
-		// Mock sessionStorage
-		const mockSessionStorage = {
-			getItem: vi.fn().mockImplementation((key) => {
-				if (key === "name") return "TestUser";
-				if (key === "uuid") return "12345";
-				return null;
-			}),
-			setItem: vi.fn(),
-			removeItem: vi.fn(),
-			clear: vi.fn(),
-			key: vi.fn(),
-			length: 0,
-		};
-		global.sessionStorage = mockSessionStorage;
+		setupSession();
+		const { simulate } = renderHome();
 
-		// Prepare socket mocks
-		const mockSocket = createMockSocket();
-
-		const mockSocketContext = {
-			socket: mockSocket,
-			setSocket: vi.fn(),
-		};
-
-		const MockSocketPro = createContext(mockSocketContext);
-
-		render(
-			<MemoryRouter>
-				<SocketProvider>
-					<MockSocketPro.Provider value={mockSocketContext}>
-						<HomePage />
-					</MockSocketPro.Provider>
-				</SocketProvider>
-			</MemoryRouter>
-		);
-
-		// Simulate opening the "Create a room" popup
 		const createRoomButton = screen.getByText("Create a room");
 		fireEvent.click(createRoomButton);
 
-		// Simulate receiving the getCreateRooms event
 		await waitFor(() => {
-			mockSocket.__simulate("getCreateRooms", {
+			simulate("getCreateRooms", {
 				createRooms: ["Room A", "Room B", "Room C"],
 			});
 		});
-
-
-		// Verify that the room list has been updated
-		// expect(screen.getByText("Room C")).toBeInTheDocument();
 	});
 
 	it("handles useEffect setUuid - creates socket when undefined", async () => {
-		const mockSessionStorage = {
-			getItem: vi.fn().mockImplementation((key) => {
-				if (key === "name") return "TestUser";
-				if (key === "uuid") return "12345";
-				return null;
-			}),
-			setItem: vi.fn(),
-			removeItem: vi.fn(),
-			clear: vi.fn(),
-			key: vi.fn(),
-			length: 0,
-		};
-		global.sessionStorage = mockSessionStorage;
+		setupSession();
+		renderHome(false);
 
-		// The component should render even when socket is initially undefined
-		// The useEffect will create a socket connection
-		render(
-			<MemoryRouter>
-				<SocketProvider>
-					<HomePage />
-				</SocketProvider>
-			</MemoryRouter>
-		);
-
-		// Verify the component renders (the useEffect will handle socket creation)
 		await waitFor(() => {
 			expect(screen.getByText("RED TETRIS")).toBeInTheDocument();
 		});
 	});
 
 	it("handles useEffect setUuid - else if branch when uuid or name is undefined", async () => {
-		const mockSessionStorage = {
+		global.sessionStorage = {
 			getItem: vi.fn().mockImplementation((key) => {
-				if (key === "name") return null; // name is undefined
+				if (key === "name") return null;
 				if (key === "uuid") return "12345";
 				return null;
 			}),
@@ -516,24 +193,10 @@ describe("HomePage Component", () => {
 			clear: vi.fn(),
 			key: vi.fn(),
 			length: 0,
-		};
-		global.sessionStorage = mockSessionStorage;
+		} as unknown as Storage;
 
-		const mockSocket = createMockSocket();
-		const mockSocketContext = {
-			socket: mockSocket,
-			setSocket: vi.fn(),
-		};
+		renderHome();
 
-		render(
-			<MemoryRouter>
-				<SocketProvider>
-					<HomePage />
-				</SocketProvider>
-			</MemoryRouter>
-		);
-
-		// Should render ConnectPage when name is not in sessionStorage
 		await waitFor(() => {
 			expect(screen.getByText("WELCOME TO RED TETRIS")).toBeInTheDocument();
 		});
@@ -541,64 +204,23 @@ describe("HomePage Component", () => {
 });
 
 describe("HomePage targeted coverage flows", () => {
-	const createPassiveSocket = () => {
-		const listeners: Record<string, Function[]> = {};
-		return {
-			on: vi.fn((event, cb) => {
-				listeners[event] = listeners[event] || [];
-				listeners[event].push(cb);
-			}),
-			off: vi.fn((event) => {
-				delete listeners[event];
-			}),
-			emit: vi.fn(),
-			__simulate: (event: string, data: any) => {
-				(listeners[event] || []).forEach((cb) => cb(data));
-			},
-		};
-	};
-
-	const setupSession = () => {
-		global.sessionStorage = {
-			getItem: vi.fn().mockImplementation((key) => {
-				if (key === "name") return "TestUser";
-				if (key === "uuid") return "12345";
-				return null;
-			}),
-			setItem: vi.fn(),
-			removeItem: vi.fn(),
-			clear: vi.fn(),
-			key: vi.fn(),
-			length: 0,
-		};
-	};
-
-	const renderWithSocket = (mockSocket: any) => {
-		const setSocket = vi.fn();
-		return render(
-			<MemoryRouter>
-				<SocketContext.Provider value={{ socket: mockSocket, setSocket }}>
-					<HomePage />
-				</SocketContext.Provider>
-			</MemoryRouter>
-		);
-	};
-
 	afterEach(() => {
 		vi.restoreAllMocks();
 	});
 
 	it("navigates to active room and returns to menu", async () => {
 		setupSession();
-		const mockSocket = createPassiveSocket();
-		renderWithSocket(mockSocket);
+		const { store, simulate } = renderHome();
+		const dispatchSpy = vi.spyOn(store, "dispatch");
 
 		fireEvent.click(screen.getByText("Go back to a game"));
 		await waitFor(() => {
-			expect(mockSocket.emit).toHaveBeenCalledWith("getActiveRooms", { uuid: "12345" });
+			expect(dispatchSpy).toHaveBeenCalledWith(
+				socketEmit({ event: "getActiveRooms", payload: { uuid: "12345" } })
+			);
 		});
 
-		mockSocket.__simulate("getActiveRooms", { activeRooms: ["room-42"] });
+		simulate("getActiveRooms", { activeRooms: ["room-42"] });
 		const roomButton = await screen.findByText("room-42");
 		fireEvent.click(roomButton);
 		expect(screen.getByText("RED TETRIS")).toBeInTheDocument();
@@ -606,54 +228,62 @@ describe("HomePage targeted coverage flows", () => {
 
 	it("joins a room from others list through popup flow", async () => {
 		setupSession();
-		const mockSocket = createPassiveSocket();
-		renderWithSocket(mockSocket);
+		const { store, simulate } = renderHome();
+		const dispatchSpy = vi.spyOn(store, "dispatch");
 
 		fireEvent.click(screen.getByText("Join a game"));
 		await waitFor(() => {
-			expect(mockSocket.emit).toHaveBeenCalledWith("getOtherRooms", { uuid: "12345" });
+			expect(dispatchSpy).toHaveBeenCalledWith(
+				socketEmit({ event: "getOtherRooms", payload: { uuid: "12345" } })
+			);
 		});
 
-		mockSocket.__simulate("getOtherRooms", {
+		simulate("getOtherRooms", {
 			otherRooms: [{ roomId: "room-X", isStarted: false }],
 		});
 		fireEvent.click(await screen.findByText("room-X"));
 		fireEvent.click(await screen.findByText("Join this game"));
 
-		expect(mockSocket.emit).toHaveBeenCalledWith("joinGame", {
-			name: "TestUser",
-			uuid: "12345",
-			roomId: "room-X",
-		});
+		expect(dispatchSpy).toHaveBeenCalledWith(
+			socketEmit({
+				event: "joinGame",
+				payload: { name: "TestUser", uuid: "12345", roomId: "room-X" },
+			})
+		);
 	});
 
 	it("shows waiting list popup and starts multiplayer game", async () => {
 		setupSession();
-		const mockSocket = createPassiveSocket();
-		renderWithSocket(mockSocket);
+		const { store, simulate } = renderHome();
+		const dispatchSpy = vi.spyOn(store, "dispatch");
 
 		fireEvent.click(screen.getByText("ALL MY ROOMS"));
 		await waitFor(() => {
-			expect(mockSocket.emit).toHaveBeenCalledWith("getCreateRooms", { uuid: "12345" });
+			expect(dispatchSpy).toHaveBeenCalledWith(
+				socketEmit({ event: "getCreateRooms", payload: { uuid: "12345" } })
+			);
 		});
 
-		mockSocket.__simulate("getCreateRooms", { createRooms: ["my-room"] });
+		simulate("getCreateRooms", { createRooms: ["my-room"] });
 		fireEvent.click(await screen.findByText("my-room"));
-		expect(mockSocket.emit).toHaveBeenCalledWith("getWaitingList", {
-			uuid: "12345",
-			roomId: "my-room",
-		});
+		expect(dispatchSpy).toHaveBeenCalledWith(
+			socketEmit({
+				event: "getWaitingList",
+				payload: { uuid: "12345", roomId: "my-room" },
+			})
+		);
 
-		mockSocket.__simulate("list_players_room", {
+		simulate("list_players_room", {
 			roomId: "my-room",
 			players: ["TestUser", "AnotherUser"],
 		});
 
 		fireEvent.click(await screen.findByText("Launch a game"));
-		expect(mockSocket.emit).toHaveBeenCalledWith("startMultiGame", {
-			name: "TestUser",
-			uuid: "12345",
-			roomId: "my-room",
-		});
+		expect(dispatchSpy).toHaveBeenCalledWith(
+			socketEmit({
+				event: "startMultiGame",
+				payload: { name: "TestUser", uuid: "12345", roomId: "my-room" },
+			})
+		);
 	});
 });

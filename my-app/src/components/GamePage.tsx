@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { useSocket } from "../contexts/socketContext";
+import { useSocket, useSocketEvent } from "../contexts/socketContext";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import React from "react";
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
-import { io } from "socket.io-client";
 import { cellColorMainGrid, displayTetromino, displaySpectrums } from "../functions/forTheGame";
 
 interface RoomPlayer {
@@ -15,13 +14,7 @@ interface RoomPlayer {
 
 function GamePage() {
 
-	const socketContext = useSocket();
-
-	if (!socketContext) {
-		throw new Error('ConnectPage must be used within a SocketProvider');
-	}
-
-	const { socket, setSocket } = socketContext;
+	const { emit, connect, connected } = useSocket();
 
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -76,15 +69,15 @@ function GamePage() {
 
 	const handleKeydown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 		if (e.key === "ArrowRight") {
-			socket?.emit("moveRight", { uuid: uuid, roomId: roomId });
+			emit("moveRight", { uuid: uuid, roomId: roomId });
 		} else if (e.key === "ArrowLeft") {
-			socket?.emit("moveLeft", { uuid: uuid, roomId: roomId });
+			emit("moveLeft", { uuid: uuid, roomId: roomId });
 		} else if (e.key === "ArrowUp") {
-			socket?.emit("rotate", { uuid: uuid, roomId: roomId });
+			emit("rotate", { uuid: uuid, roomId: roomId });
 		} else if (e.key === "ArrowDown") {
-			socket?.emit("moveDown", { uuid: uuid, roomId: roomId });
+			emit("moveDown", { uuid: uuid, roomId: roomId });
 		} else if (e.key === " ") {
-			socket?.emit("fallDown", { uuid: uuid, roomId: roomId });
+			emit("fallDown", { uuid: uuid, roomId: roomId });
 		}
 	};
 
@@ -98,10 +91,10 @@ function GamePage() {
 			// Only emit notRetryGame if the game is over, not during active play
 			// (the old system just navigated away; the game loop handles its own cleanup)
 			if (partyDone) {
-				socket?.emit("notRetryGame", { uuid: uuid, roomId: roomId });
+				emit("notRetryGame", { uuid: uuid, roomId: roomId });
 			}
 		} else {
-			socket?.emit("leaveRoom", { uuid: uuid, roomId: roomId });
+			emit("leaveRoom", { uuid: uuid, roomId: roomId });
 		}
 		setPartyDone(false);
 		setPhase('lobby');
@@ -119,11 +112,11 @@ function GamePage() {
 		if (isPlayWithAnyone) {
 			goBackToLobby();
 		} else if (isCustomRoom) {
-			socket?.emit("retryGame", { uuid: uuid, roomId: roomId });
+			emit("retryGame", { uuid: uuid, roomId: roomId });
 			setPartyDone(false);
 			setWaiting(true);
 		} else if (isSolo) {
-			socket?.emit("startSingleTetrisGame", { name: name, uuid: uuid });
+			emit("startSingleTetrisGame", { name: name, uuid: uuid });
 			setPartyDone(false);
 			setWaiting(true);
 		}
@@ -132,182 +125,124 @@ function GamePage() {
 	// ==================== SOCKET CONNECTION ====================
 
 	useEffect(() => {
-		if (socket === undefined) {
+		if (!connected) {
 			const storedName = sessionStorage.getItem("name");
 			const storedUuid = sessionStorage.getItem("uuid");
 			// Use player name from URL, or fallback to sessionStorage
 			const nameToUse = playerNameFromUrl || storedName || "Player";
-			const newSocket = io("http://localhost:3000", {
-				query: { name: nameToUse, uuid: storedUuid || undefined },
-			});
-			setSocket(newSocket);
+			connect(nameToUse, storedUuid || undefined);
 		}
 	}, []);
 
 	// Handle new-person event (first connection, server assigns UUID)
-	useEffect(() => {
-		socket?.on("new-person", (data) => {
-			sessionStorage.setItem("uuid", data.uuid);
-			sessionStorage.setItem("name", data.name);
-			setUuid(data.uuid);
-		});
-		return () => {
-			socket?.off("new-person");
-		};
-	}, [socket]);
+	useSocketEvent<{ uuid: string; name: string }>("new-person", (data) => {
+		sessionStorage.setItem("uuid", data.uuid);
+		sessionStorage.setItem("name", data.name);
+		setUuid(data.uuid);
+	});
 
 	// Join room once we have socket + uuid (only for new room-based flow, not legacy)
 	useEffect(() => {
-		if (!isLegacyNav && socket && uuid && roomId) {
-			socket.emit("joinRoom", { uuid, roomId });
+		if (!isLegacyNav && connected && uuid && roomId) {
+			emit("joinRoom", { uuid, roomId });
 		}
-	}, [socket, uuid, roomId]);
+	}, [connected, uuid, roomId]);
 
 	// ==================== ROOM EVENTS ====================
 
-	useEffect(() => {
-		socket?.on("room_joined", (data) => {
-			if (data.roomId === roomId) {
-				setPhase('lobby');
-			}
-		});
-		return () => {
-			socket?.off("room_joined");
-		};
-	}, [socket, roomId]);
+	useSocketEvent<{ roomId: string }>("room_joined", (data) => {
+		if (data.roomId === roomId) {
+			setPhase('lobby');
+		}
+	});
 
-	useEffect(() => {
-		socket?.on("room_join_failed", (data) => {
-			if (data.roomId === roomId) {
-				if (data.reason === 'game_started') {
-					GameStartedToast.showToast();
-				} else if (data.reason === 'name_taken') {
-					NameTakenToast.showToast();
-				}
-				navigate("/");
+	useSocketEvent<{ roomId: string; reason: string }>("room_join_failed", (data) => {
+		if (data.roomId === roomId) {
+			if (data.reason === 'game_started') {
+				GameStartedToast.showToast();
+			} else if (data.reason === 'name_taken') {
+				NameTakenToast.showToast();
 			}
-		});
-		return () => {
-			socket?.off("room_join_failed");
-		};
-	}, [socket, roomId]);
+			navigate("/");
+		}
+	});
 
-	useEffect(() => {
-		socket?.on("room_players_update", (data) => {
-			if (data.roomId === roomId) {
-				setPlayers(data.players);
-				setIsHost(data.hostUuid === uuid);
-				// If game ended, go back to lobby
-				if (!data.isStarted && phase === 'gameover') {
-					goBackToLobby();
-				}
+	useSocketEvent<{ roomId: string; players: RoomPlayer[]; hostUuid: string; isStarted: boolean }>("room_players_update", (data) => {
+		if (data.roomId === roomId) {
+			setPlayers(data.players);
+			setIsHost(data.hostUuid === uuid);
+			// If game ended, go back to lobby
+			if (!data.isStarted && phase === 'gameover') {
+				goBackToLobby();
 			}
-		});
-		return () => {
-			socket?.off("room_players_update");
-		};
-	}, [socket, roomId, uuid, phase]);
+		}
+	});
 
-	useEffect(() => {
-		socket?.on("room_host_changed", (data) => {
-			if (data.roomId === roomId) {
-				setIsHost(data.newHostUuid === uuid);
-			}
-		});
-		return () => {
-			socket?.off("room_host_changed");
-		};
-	}, [socket, roomId, uuid]);
+	useSocketEvent<{ roomId: string; newHostUuid: string }>("room_host_changed", (data) => {
+		if (data.roomId === roomId) {
+			setIsHost(data.newHostUuid === uuid);
+		}
+	});
 
-	useEffect(() => {
-		socket?.on("room_start_failed", (data) => {
-			if (data.roomId === roomId) {
-				Toastify({
-					text: "Cannot start: " + (data.reason || "unknown error"),
-					duration: 3000,
-					close: true,
-				}).showToast();
-			}
-		});
-		return () => {
-			socket?.off("room_start_failed");
-		};
-	}, [socket, roomId]);
+	useSocketEvent<{ roomId: string; reason?: string }>("room_start_failed", (data) => {
+		if (data.roomId === roomId) {
+			Toastify({
+				text: "Cannot start: " + (data.reason || "unknown error"),
+				duration: 3000,
+				close: true,
+			}).showToast();
+		}
+	});
 
 	// ==================== GAME EVENTS ====================
 
-	useEffect(() => {
-		socket?.on("countdown", (data) => {
-			if (data.roomId === roomId) {
-				setPhase('playing');
-				setWaiting(false);
-				setCountdown(data.currentTime === 0 ? null : data.currentTime);
-			}
-		});
-		return () => {
-			socket?.off("countdown");
+	useSocketEvent<{ roomId: string; currentTime: number }>("countdown", (data) => {
+		if (data.roomId === roomId) {
+			setPhase('playing');
+			setWaiting(false);
+			setCountdown(data.currentTime === 0 ? null : data.currentTime);
 		}
-	}, [socket, roomId]);
+	});
 
-	useEffect(() => {
-		socket?.on("beforeGame", (data) => {
+	useSocketEvent<{ player: { grid: number[][]; tetrominos: any; type: number } }>("beforeGame", (data) => {
+		setPhase('playing');
+		setWaiting(false);
+		setGridWithRightSize(data.player.grid);
+		setTetro(data.player.tetrominos);
+		setIsPlayWithAnyone(!isLegacyNav);
+		setMultiGame(data.player.type === 100 ? true : false);
+		setIsCustomRoom(data.player.type === 100 && isLegacyNav);
+		setIsSolo(data.player.type !== 100 && isLegacyNav);
+	});
+
+	useSocketEvent<{ player: { roomId: string; grid: number[][]; tetrominos: any; type: number }; listSpectrum: any }>("myGame", (data) => {
+		if (data.player.roomId === roomId) {
 			setPhase('playing');
 			setWaiting(false);
 			setGridWithRightSize(data.player.grid);
 			setTetro(data.player.tetrominos);
-			setIsPlayWithAnyone(!isLegacyNav);
 			setMultiGame(data.player.type === 100 ? true : false);
-			setIsCustomRoom(data.player.type === 100 && isLegacyNav);
-			setIsSolo(data.player.type !== 100 && isLegacyNav);
-		});
-		return () => {
-			socket?.off("beforeGame");
+			setSpecList(data.listSpectrum);
 		}
-	}, [socket]);
+	});
 
-	useEffect(() => {
-		socket?.on("myGame", (data) => {
-			if (data.player.roomId === roomId) {
-				setPhase('playing');
-				setWaiting(false);
-				setGridWithRightSize(data.player.grid);
-				setTetro(data.player.tetrominos);
-				setMultiGame(data.player.type === 100 ? true : false);
-				setSpecList(data.listSpectrum);
+	useSocketEvent<{ player: { roomId: string; uuid: string; winner: boolean; type: number } }>("endGame", (data) => {
+		if (data.player.roomId === roomId) {
+			setWaiting(false);
+			setMultiGame(data.player.type === 100 ? true : false);
+			if (data.player.uuid === uuid) {
+				setWinner(data.player.winner);
 			}
-		});
-		return () => {
-			socket?.off("myGame");
+			setGrid(emptyGrid);
+			setPartyDone(true);
+			setPhase('gameover');
 		}
-	}, [socket, roomId]);
+	});
 
-	useEffect(() => {
-		socket?.on("endGame", (data) => {
-			if (data.player.roomId === roomId) {
-				setWaiting(false);
-				setMultiGame(data.player.type === 100 ? true : false);
-				if (data.player.uuid === uuid) {
-					setWinner(data.player.winner);
-				}
-				setGrid(emptyGrid);
-				setPartyDone(true);
-				setPhase('gameover');
-			}
-		});
-		return () => {
-			socket?.off("endGame");
-		}
-	}, [socket, roomId, uuid]);
-
-	useEffect(() => {
-		socket?.on("noGame", () => {
-			NoGame.showToast();
-			goBackToHome();
-		});
-		return () => {
-			socket?.off("noGame");
-		};
-	}, [socket]);
+	useSocketEvent<unknown>("noGame", () => {
+		NoGame.showToast();
+		goBackToHome();
+	});
 
 
 	// ==================== LOBBY UI ====================
@@ -352,7 +287,7 @@ function GamePage() {
 								`,
 								backgroundSize: '12px 12px'
 							}}
-							onClick={() => socket?.emit('startRoom', { uuid: uuid, roomId: roomId })}
+							onClick={() => emit('startRoom', { uuid: uuid, roomId: roomId })}
 							disabled={players.length < 2}
 						>
 							{players.length < 2 ? 'Waiting for players...' : 'Start Game'}

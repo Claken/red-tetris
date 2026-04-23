@@ -1,21 +1,22 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { Provider } from '../store/reactReduxLite';
 import { cellColorMainGrid, getTetroColor, displayTetromino, displaySpectrums } from '../functions/forTheGame';
 import GamePage from '../components/GamePage';
 import { MemoryRouter } from 'react-router-dom';
-import { SocketProvider, SocketContext } from '../contexts/socketContext';
+import { SocketProvider } from '../contexts/socketContext';
+import { createTestStore } from './testStore';
+import { socketEmit } from '../store/socketActions';
 import React from 'react';
 import '@testing-library/jest-dom';
 import * as reactRouterDom from 'react-router-dom';
 
-// Mock toastify-js at module level
 vi.mock("toastify-js", () => ({
 	default: vi.fn(() => ({
 		showToast: vi.fn(),
 	})),
 }));
 
-// Mock react-router-dom
 vi.mock('react-router-dom', async () => {
 	const actual = await vi.importActual('react-router-dom') as object;
 	return {
@@ -25,39 +26,24 @@ vi.mock('react-router-dom', async () => {
 	};
 });
 
-function createMockSocket() {
-	const listeners: Record<string, Function[]> = {};
-
-	return {
-		on: vi.fn((event, cb) => {
-			listeners[event] = listeners[event] || [];
-			listeners[event].push(cb);
-		}),
-		off: vi.fn((event) => {
-			delete listeners[event];
-		}),
-		emit: vi.fn((event, data) => {
-			if (listeners[event]) {
-				listeners[event].forEach((cb) => cb(data));
-			}
-		}),
-		__simulate: (event: string, data: any) => {
-			if (listeners[event]) {
-				listeners[event].forEach((cb) => cb(data));
-			}
-		},
-		__getListeners: () => listeners,
-	};
-}
+const renderGame = (autoConnect = true) => {
+	const ctx = createTestStore({ autoConnect });
+	const utils = render(
+		<Provider store={ctx.store}>
+			<MemoryRouter>
+				<SocketProvider>
+					<GamePage />
+				</SocketProvider>
+			</MemoryRouter>
+		</Provider>
+	);
+	return { ...ctx, ...utils };
+};
 
 describe('GamePage - handleKeydown', () => {
-	let mockSocket: ReturnType<typeof createMockSocket>;
-	let mockSetSocket: ReturnType<typeof vi.fn>;
 	let mockNavigate: ReturnType<typeof vi.fn>;
 
 	beforeEach(() => {
-		mockSocket = createMockSocket();
-		mockSetSocket = vi.fn();
 		mockNavigate = vi.fn();
 		sessionStorage.setItem('uuid', 'testUuid');
 		sessionStorage.setItem('name', 'testName');
@@ -69,23 +55,16 @@ describe('GamePage - handleKeydown', () => {
 		sessionStorage.clear();
 	});
 
-	it('should call socket.emit with "moveRight" when ArrowRight is pressed', async () => {
-		// Simulate beforeGame event to get out of waiting state
-		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
-				<MemoryRouter>
-					<GamePage />
-				</MemoryRouter>
-			</SocketContext.Provider>
-		);
+	it('should dispatch "moveRight" when ArrowRight is pressed', async () => {
+		const { store, simulate } = renderGame();
+		const dispatchSpy = vi.spyOn(store, 'dispatch');
 
-		// Simulate beforeGame to show the grid
 		await waitFor(() => {
-			mockSocket.__simulate('beforeGame', {
+			simulate('beforeGame', {
 				player: {
 					grid: Array(24).fill(null).map(() => Array(10).fill(0)),
 					tetrominos: [],
-					type: 101, // SINGLE
+					type: 101,
 					roomId: 'testRoom',
 				},
 			});
@@ -94,20 +73,17 @@ describe('GamePage - handleKeydown', () => {
 		const gridElement = screen.getByTestId('grid-container');
 		fireEvent.keyDown(gridElement, { key: 'ArrowRight', code: 'ArrowRight' });
 
-		expect(mockSocket.emit).toHaveBeenCalledWith('moveRight', { uuid: 'testUuid', roomId: 'testRoom' });
+		expect(dispatchSpy).toHaveBeenCalledWith(
+			socketEmit({ event: 'moveRight', payload: { uuid: 'testUuid', roomId: 'testRoom' } })
+		);
 	});
 
-	it('should call socket.emit with "moveLeft" when ArrowLeft is pressed', async () => {
-		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
-				<MemoryRouter>
-					<GamePage />
-				</MemoryRouter>
-			</SocketContext.Provider>
-		);
+	it('should dispatch "moveLeft" when ArrowLeft is pressed', async () => {
+		const { store, simulate } = renderGame();
+		const dispatchSpy = vi.spyOn(store, 'dispatch');
 
 		await waitFor(() => {
-			mockSocket.__simulate('beforeGame', {
+			simulate('beforeGame', {
 				player: {
 					grid: Array(24).fill(null).map(() => Array(10).fill(0)),
 					tetrominos: [],
@@ -120,20 +96,17 @@ describe('GamePage - handleKeydown', () => {
 		const gridElement = screen.getByTestId('grid-container');
 		fireEvent.keyDown(gridElement, { key: 'ArrowLeft', code: 'ArrowLeft' });
 
-		expect(mockSocket.emit).toHaveBeenCalledWith('moveLeft', { uuid: 'testUuid', roomId: 'testRoom' });
+		expect(dispatchSpy).toHaveBeenCalledWith(
+			socketEmit({ event: 'moveLeft', payload: { uuid: 'testUuid', roomId: 'testRoom' } })
+		);
 	});
 
-	it('should call socket.emit with "rotate" when ArrowUp is pressed', async () => {
-		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
-				<MemoryRouter>
-					<GamePage />
-				</MemoryRouter>
-			</SocketContext.Provider>
-		);
+	it('should dispatch "rotate" when ArrowUp is pressed', async () => {
+		const { store, simulate } = renderGame();
+		const dispatchSpy = vi.spyOn(store, 'dispatch');
 
 		await waitFor(() => {
-			mockSocket.__simulate('beforeGame', {
+			simulate('beforeGame', {
 				player: {
 					grid: Array(24).fill(null).map(() => Array(10).fill(0)),
 					tetrominos: [],
@@ -146,20 +119,17 @@ describe('GamePage - handleKeydown', () => {
 		const gridElement = screen.getByTestId('grid-container');
 		fireEvent.keyDown(gridElement, { key: 'ArrowUp', code: 'ArrowUp' });
 
-		expect(mockSocket.emit).toHaveBeenCalledWith('rotate', { uuid: 'testUuid', roomId: 'testRoom' });
+		expect(dispatchSpy).toHaveBeenCalledWith(
+			socketEmit({ event: 'rotate', payload: { uuid: 'testUuid', roomId: 'testRoom' } })
+		);
 	});
 
-	it('should call socket.emit with "moveDown" when ArrowDown is pressed', async () => {
-		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
-				<MemoryRouter>
-					<GamePage />
-				</MemoryRouter>
-			</SocketContext.Provider>
-		);
+	it('should dispatch "moveDown" when ArrowDown is pressed', async () => {
+		const { store, simulate } = renderGame();
+		const dispatchSpy = vi.spyOn(store, 'dispatch');
 
 		await waitFor(() => {
-			mockSocket.__simulate('beforeGame', {
+			simulate('beforeGame', {
 				player: {
 					grid: Array(24).fill(null).map(() => Array(10).fill(0)),
 					tetrominos: [],
@@ -172,20 +142,17 @@ describe('GamePage - handleKeydown', () => {
 		const gridElement = screen.getByTestId('grid-container');
 		fireEvent.keyDown(gridElement, { key: 'ArrowDown', code: 'ArrowDown' });
 
-		expect(mockSocket.emit).toHaveBeenCalledWith('moveDown', { uuid: 'testUuid', roomId: 'testRoom' });
+		expect(dispatchSpy).toHaveBeenCalledWith(
+			socketEmit({ event: 'moveDown', payload: { uuid: 'testUuid', roomId: 'testRoom' } })
+		);
 	});
 
-	it('should call socket.emit with "fallDown" when Space is pressed', async () => {
-		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
-				<MemoryRouter>
-					<GamePage />
-				</MemoryRouter>
-			</SocketContext.Provider>
-		);
+	it('should dispatch "fallDown" when Space is pressed', async () => {
+		const { store, simulate } = renderGame();
+		const dispatchSpy = vi.spyOn(store, 'dispatch');
 
 		await waitFor(() => {
-			mockSocket.__simulate('beforeGame', {
+			simulate('beforeGame', {
 				player: {
 					grid: Array(24).fill(null).map(() => Array(10).fill(0)),
 					tetrominos: [],
@@ -198,18 +165,16 @@ describe('GamePage - handleKeydown', () => {
 		const gridElement = screen.getByTestId('grid-container');
 		fireEvent.keyDown(gridElement, { key: ' ', code: 'Space' });
 
-		expect(mockSocket.emit).toHaveBeenCalledWith('fallDown', { uuid: 'testUuid', roomId: 'testRoom' });
+		expect(dispatchSpy).toHaveBeenCalledWith(
+			socketEmit({ event: 'fallDown', payload: { uuid: 'testUuid', roomId: 'testRoom' } })
+		);
 	});
 });
 
 describe('GamePage Component', () => {
-	let mockSocket: ReturnType<typeof createMockSocket>;
-	let mockSetSocket: ReturnType<typeof vi.fn>;
 	let mockNavigate: ReturnType<typeof vi.fn>;
 
 	beforeEach(() => {
-		mockSocket = createMockSocket();
-		mockSetSocket = vi.fn();
 		mockNavigate = vi.fn();
 		sessionStorage.setItem('uuid', 'testUuid');
 		sessionStorage.setItem('name', 'testName');
@@ -222,30 +187,16 @@ describe('GamePage Component', () => {
 	});
 
 	it('renders the GamePage component with lobby', () => {
-		render(
-			<MemoryRouter>
-				<SocketProvider>
-					<GamePage />
-				</SocketProvider>
-			</MemoryRouter>
-		);
-		// GamePage starts in lobby phase
+		renderGame();
 		expect(screen.getByText('RED TETRIS')).toBeInTheDocument();
 		expect(screen.getByText('Leave Room')).toBeInTheDocument();
 	});
 
 	it('displays countdown when countdown event is received', async () => {
-		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
-				<MemoryRouter>
-					<GamePage />
-				</MemoryRouter>
-			</SocketContext.Provider>
-		);
+		const { simulate } = renderGame();
 
-		// First trigger beforeGame to show the grid
 		await waitFor(() => {
-			mockSocket.__simulate('beforeGame', {
+			simulate('beforeGame', {
 				player: {
 					grid: Array(24).fill(null).map(() => Array(10).fill(0)),
 					tetrominos: [],
@@ -255,32 +206,23 @@ describe('GamePage Component', () => {
 			});
 		});
 
-		// Then trigger countdown event
 		await waitFor(() => {
-			mockSocket.__simulate('countdown', {
+			simulate('countdown', {
 				roomId: 'testRoom',
 				currentTime: 3,
 			});
 		});
 
-		// Check if countdown is displayed
 		await waitFor(() => {
 			expect(screen.getByText('3')).toBeInTheDocument();
 		});
 	});
 
 	it('displays game over screen with retry buttons when endGame event is received', async () => {
-		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
-				<MemoryRouter>
-					<GamePage />
-				</MemoryRouter>
-			</SocketContext.Provider>
-		);
+		const { simulate } = renderGame();
 
-		// First trigger beforeGame to show the grid
 		await waitFor(() => {
-			mockSocket.__simulate('beforeGame', {
+			simulate('beforeGame', {
 				player: {
 					grid: Array(24).fill(null).map(() => Array(10).fill(0)),
 					tetrominos: [],
@@ -290,9 +232,8 @@ describe('GamePage Component', () => {
 			});
 		});
 
-		// Trigger endGame event with winner = false
 		await waitFor(() => {
-			mockSocket.__simulate('endGame', {
+			simulate('endGame', {
 				player: {
 					roomId: 'testRoom',
 					uuid: 'testUuid',
@@ -302,7 +243,6 @@ describe('GamePage Component', () => {
 			});
 		});
 
-		// Check if game over screen is displayed
 		await waitFor(() => {
 			expect(screen.getByText('GAME OVER')).toBeInTheDocument();
 			expect(screen.getByText('Back to lobby?')).toBeInTheDocument();
@@ -412,13 +352,9 @@ describe('displaySpectrums', () => {
 });
 
 describe('GamePage targeted coverage flows', () => {
-	let mockSocket: ReturnType<typeof createMockSocket>;
-	let mockSetSocket: ReturnType<typeof vi.fn>;
 	let mockNavigate: ReturnType<typeof vi.fn>;
 
 	beforeEach(() => {
-		mockSocket = createMockSocket();
-		mockSetSocket = vi.fn();
 		mockNavigate = vi.fn();
 		sessionStorage.setItem('uuid', 'testUuid');
 		sessionStorage.setItem('name', 'testName');
@@ -431,16 +367,10 @@ describe('GamePage targeted coverage flows', () => {
 	});
 
 	it('navigates home when room join fails', async () => {
-		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
-				<MemoryRouter>
-					<GamePage />
-				</MemoryRouter>
-			</SocketContext.Provider>
-		);
+		const { simulate } = renderGame();
 
 		await waitFor(() => {
-			mockSocket.__simulate('room_join_failed', {
+			simulate('room_join_failed', {
 				roomId: 'testRoom',
 				reason: 'game_started',
 			});
@@ -450,15 +380,10 @@ describe('GamePage targeted coverage flows', () => {
 	});
 
 	it('allows host to start room when enough players', async () => {
-		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
-				<MemoryRouter>
-					<GamePage />
-				</MemoryRouter>
-			</SocketContext.Provider>
-		);
+		const { store, simulate } = renderGame();
+		const dispatchSpy = vi.spyOn(store, 'dispatch');
 
-		mockSocket.__simulate('room_players_update', {
+		simulate('room_players_update', {
 			roomId: 'testRoom',
 			hostUuid: 'testUuid',
 			isStarted: false,
@@ -472,24 +397,18 @@ describe('GamePage targeted coverage flows', () => {
 		expect(startButton).toBeEnabled();
 		fireEvent.click(startButton);
 
-		expect(mockSocket.emit).toHaveBeenCalledWith('startRoom', {
-			uuid: 'testUuid',
-			roomId: 'testRoom',
-		});
+		expect(dispatchSpy).toHaveBeenCalledWith(
+			socketEmit({ event: 'startRoom', payload: { uuid: 'testUuid', roomId: 'testRoom' } })
+		);
 	});
 
 	it('retries solo game from legacy gameover screen', async () => {
 		vi.spyOn(reactRouterDom, 'useLocation').mockReturnValue({ state: { legacy: true } } as any);
 
-		render(
-			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
-				<MemoryRouter>
-					<GamePage />
-				</MemoryRouter>
-			</SocketContext.Provider>
-		);
+		const { store, simulate } = renderGame();
+		const dispatchSpy = vi.spyOn(store, 'dispatch');
 
-		mockSocket.__simulate('beforeGame', {
+		simulate('beforeGame', {
 			player: {
 				grid: Array(24).fill(null).map(() => Array(10).fill(0)),
 				tetrominos: [],
@@ -498,7 +417,7 @@ describe('GamePage targeted coverage flows', () => {
 			},
 		});
 
-		mockSocket.__simulate('endGame', {
+		simulate('endGame', {
 			player: {
 				roomId: 'testRoom',
 				uuid: 'testUuid',
@@ -510,9 +429,8 @@ describe('GamePage targeted coverage flows', () => {
 		const retryButton = await screen.findByRole('button', { name: 'RETRY' });
 		fireEvent.click(retryButton);
 
-		expect(mockSocket.emit).toHaveBeenCalledWith('startSingleTetrisGame', {
-			name: '',
-			uuid: 'testUuid',
-		});
+		expect(dispatchSpy).toHaveBeenCalledWith(
+			socketEmit({ event: 'startSingleTetrisGame', payload: { name: '', uuid: 'testUuid' } })
+		);
 	});
 });
