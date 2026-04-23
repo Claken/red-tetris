@@ -6,11 +6,11 @@ export default defineConfig({
     setupFiles: ['./vitest.setup.ts'],
     environment: 'jsdom',
     coverage: {
-      provider: 'v8', // ou 'istanbul'
+      provider: 'v8', // or 'istanbul'
       reporter: ['text', 'json', 'html'],
-      all: true, // Inclut tous les fichiers, même ceux sans test
-      include: ['src/**/*.{ts,tsx}'], // Cible les fichiers source dans 'src'
-      exclude: ['node_modules', 'src/tests/*'], // Exclut les fichiers de test
+      all: true, // Include all files, even those without tests
+      include: ['src/**/*.{ts,tsx}'], // Target source files in 'src'
+      exclude: ['node_modules', 'src/tests/*'], // Exclude test files
       thresholds: {
         statements: 70,
         functions: 70,

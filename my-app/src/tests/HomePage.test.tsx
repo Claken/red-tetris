@@ -74,27 +74,27 @@ describe("HomePage Component", () => {
 			</MemoryRouter>
 		);
 
-		// Vérifiez que le titre "RED TETRIS" est présent
+		// Verify that the "RED TETRIS" title is present
 		const titleElement = screen.queryByText("RED TETRIS");
 		expect(titleElement).not.toBeNull();
 
-		// Vérifiez que le bouton "Solo game" est présent
+		// Verify that the "Solo game" button is present
 		const soloGameButton = screen.queryByText("Solo game");
 		expect(soloGameButton).not.toBeNull();
 
-		// Vérifiez que le bouton "Create a room" est présent
+		// Verify that the "Create a room" button is present
 		const createRoomButton = screen.queryByText("Create a room");
 		expect(createRoomButton).not.toBeNull();
 
-		// Vérifiez que le bouton "ALL MY ROOMS" est présent
+		// Verify that the "ALL MY ROOMS" button is present
 		const allMyRoomsButton = screen.queryByText("ALL MY ROOMS");
 		expect(allMyRoomsButton).not.toBeNull();
 
-		// Vérifiez que le bouton "Join a game" est présent
+		// Verify that the "Join a game" button is present
 		const joinGameButton = screen.queryByText("Join a game");
 		expect(joinGameButton).not.toBeNull();
 
-		// Vérifiez que le bouton "Go back to a game" est présent
+		// Verify that the "Go back to a game" button is present
 		const goBackToGameButton = screen.queryByText("Go back to a game");
 		expect(goBackToGameButton).not.toBeNull();
 	});
@@ -124,19 +124,19 @@ describe("HomePage Component", () => {
 			</MemoryRouter>
 		);
 
-		// Simuler un clic sur un élément qui déclenche togglePopup
-		const button = getByText("Create a room"); // Remplacez par le texte du bouton réel
+		// Simulate a click on the element that triggers togglePopup
+		const button = getByText("Create a room"); // Replace with the actual button label if needed
 		fireEvent.click(button);
 
-		// Vérifiez que l'état de showPopup a changé
+		// Verify that the showPopup state changed
 		const popupElement = screen.queryByText("A new room has been created");
 		// console.log(popupElement)
 		expect(popupElement).toBeNull();
 
-		// Simuler un autre clic pour fermer la popup
+		// Simulate another click to close the popup
 		fireEvent.click(button);
 
-		// Vérifiez que l'état de showPopup a changé à nouveau
+		// Verify that the showPopup state changed again
 		expect(popupElement).toBeNull();
 	});
 
@@ -167,11 +167,11 @@ describe("HomePage Component", () => {
 			</MemoryRouter>
 		);
 
-		// Simuler un clic sur le bouton "Solo game"
+		// Simulate a click on the "Solo game" button
 		const soloGameButton = getByText("Solo game");
 		fireEvent.click(soloGameButton);
 
-		// Vérifiez que l'utilisateur est redirigé vers la page de jeu solo
+		// Verify that the user is redirected to the solo game page
 		const soloGamePage = screen.queryByText("Solo Game Page");
 		expect(soloGamePage).toBeNull();
 	});
@@ -211,15 +211,15 @@ describe("HomePage Component", () => {
 			</MemoryRouter>
 		);
 
-		// Simuler un clic sur le bouton "Join a game"
+		// Simulate a click on the "Join a game" button
 		const joinGameButton = screen.getByText("Join a game");
 		fireEvent.click(joinGameButton);
 
-		// Simuler un clic sur un élément qui déclenche childForOtherRooms
-		const roomButton = screen.getByText("TestUser"); // Remplacez par le texte du bouton réel
+		// Simulate a click on an element that triggers childForOtherRooms
+		const roomButton = screen.getByText("TestUser"); // Replace with the actual button label if needed
 		fireEvent.click(roomButton);
 
-		// Vérifiez que l'événement socket.emit a été appelé avec les bons arguments
+		// Verify that socket.emit is called with the expected arguments
 		// expect(mockSocket.emit).toHaveBeenCalledWith("joinGame", {
 		//   name: "TestUser",
 		//   uuid: "12345",
@@ -267,24 +267,24 @@ describe("HomePage Component", () => {
 			</MemoryRouter>
 		);
 
-		// Simuler un clic sur le bouton "ALL MY ROOMS"
+		// Simulate a click on the "ALL MY ROOMS" button
 		const allMyRoomsButton = screen.getByText("ALL MY ROOMS");
 		fireEvent.click(allMyRoomsButton);
 
 		// expect(mockSocket.emit).toHaveBeenCalledWith("getCreateRooms", {uuid: "12345",});
 
-		// Simuler un clic sur un élément qui déclenche childForMyRooms
-		// const roomButton = screen.getByText("TestUser"); // Remplacez par le texte du bouton réel
+		// Simulate a click on an element that triggers childForMyRooms
+		// const roomButton = screen.getByText("TestUser"); // Replace with the actual button label if needed
 		// fireEvent.click(roomButton);
 
-		// Vérifiez que l'événement socket.emit a été appelé avec les bons arguments
+		// Verify that socket.emit is called with the expected arguments
 		// expect(mockSocket.emit).toHaveBeenCalledWith("startMultiGame", {
 		//   name: "TestUser",
 		//   uuid: "12345",
 		//   roomId: "TestUser",
 		// });
 
-		// // Vérifiez que navigate a été appelé avec la bonne route
+		// // Verify that navigate is called with the correct route
 		// expect(mockNavigate).toHaveBeenCalledWith("TestUser/TestUser");
 	});
 
@@ -331,14 +331,14 @@ describe("HomePage Component", () => {
 			</MemoryRouter>
 		);
 
-		// Simuler un clic sur le bouton "ALL MY ROOMS"
+		// Simulate a click on the "ALL MY ROOMS" button
 		const allMyRoomsButton = screen.getByText("ALL MY ROOMS");
 		fireEvent.click(allMyRoomsButton);
 		// await waitFor(() => {
 		//   expect(mockSocket.emit).toHaveBeenCalledWith("getCreateRooms", {uuid: "12345",});
 		// });
 
-		// Simuler un clic sur un élément qui déclenche theRoomList
+		// Simulate a click on an element that triggers theRoomList
 		const myRoomListText = screen.getByText("MY ROOMLIST");
 		expect(document.body.contains(myRoomListText)).toBe(true);
 
@@ -412,12 +412,12 @@ describe("HomePage Component", () => {
 			</MemoryRouter>
 		);
 
-		// Simuler l'émission de l'événement pageToGo
+		// Simulate emitting the pageToGo event
 		mockSocket.emit("pageToGo", {
 			pageInfos: { roomName: "Room 1", path: "/room1" },
 		});
 
-		// Vérifiez que navigate a été appelé avec la bonne route
+		// Verify that navigate is called with the correct route
 		// expect(mockNavigate).toHaveBeenCalledWith("/room1");
 	});
 
@@ -437,7 +437,7 @@ describe("HomePage Component", () => {
 		};
 		global.sessionStorage = mockSessionStorage;
 
-		// Préparer les mocks du socket
+		// Prepare socket mocks
 		const mockSocket = createMockSocket();
 
 		const mockSocketContext = {
@@ -457,11 +457,11 @@ describe("HomePage Component", () => {
 			</MemoryRouter>
 		);
 
-		// Simule l'ouverture du popup "Create a room"
+		// Simulate opening the "Create a room" popup
 		const createRoomButton = screen.getByText("Create a room");
 		fireEvent.click(createRoomButton);
 
-		// Simule la réception de l'événement getCreateRooms
+		// Simulate receiving the getCreateRooms event
 		await waitFor(() => {
 			mockSocket.__simulate("getCreateRooms", {
 				createRooms: ["Room A", "Room B", "Room C"],
@@ -469,7 +469,7 @@ describe("HomePage Component", () => {
 		});
 
 
-		// Vérifie que la liste des rooms a été mise à jour
+		// Verify that the room list has been updated
 		// expect(screen.getByText("Room C")).toBeInTheDocument();
 	});
 

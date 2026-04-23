@@ -13,7 +13,7 @@ describe('ConnectPage Component', () => {
 	let setSocket: Dispatch<React.SetStateAction<Socket<DefaultEventsMap, DefaultEventsMap> | undefined>>
 
 	beforeEach(() => {
-		// Mock des fonctions d'état
+		// Mock state setter functions
 		setName = vi.fn();
 		setUuid = vi.fn();
 		setSocket = vi.fn();
@@ -31,7 +31,7 @@ describe('ConnectPage Component', () => {
 			/>
 		);
 
-		// Vérifie que le titre et les éléments principaux sont rendus
+		// Verify the title and main elements are rendered
 		const textWelcome = screen.getByText('WELCOME TO RED TETRIS');
 		expect(document.body.contains(textWelcome)).toBe(true);
 
@@ -54,9 +54,9 @@ describe('ConnectPage Component', () => {
 		const input = screen.getByPlaceholderText('Player name');
 		await userEvent.type(input, 'Player1');
 
-		// Vérifie que la fonction setName a été appelée avec la bonne valeur
-		expect(setName).toHaveBeenCalledTimes(7); // "Player1" a 7 caractères
-		expect(setName).toHaveBeenCalledWith('P'); // Appelé avec chaque caractère
+		// Verify that setName is called with the expected value
+		expect(setName).toHaveBeenCalledTimes(7); // "Player1" has 7 characters
+		expect(setName).toHaveBeenCalledWith('P'); // Called once per typed character
 	});
 
 	it('calls setSocket on button click', () => {
@@ -74,7 +74,7 @@ describe('ConnectPage Component', () => {
 		const button = screen.getByText('CONFIRM');
 		fireEvent.click(button);
 
-		// Vérifie que setSocket a été appelé
+		// Verify that setSocket was called
 		expect(setSocket).toHaveBeenCalled();
 		expect(setSocket.mock.calls[0][0].io.uri).toBe('http://localhost:3000');
 	});
@@ -88,7 +88,7 @@ describe('ConnectPage Component', () => {
 			clear: vi.fn(),
 		});
 
-		// Fake socket avec mock du `.on()` pour capturer le callback
+		// Fake socket with mocked `.on()` to capture the callback
 		const onMock = vi.fn();
 		const mockSocket = { on: onMock } as any;
 
