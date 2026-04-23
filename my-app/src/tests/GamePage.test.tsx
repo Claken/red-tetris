@@ -410,3 +410,109 @@ describe('displaySpectrums', () => {
 	});
 
 });
+
+describe('GamePage targeted coverage flows', () => {
+	let mockSocket: ReturnType<typeof createMockSocket>;
+	let mockSetSocket: ReturnType<typeof vi.fn>;
+	let mockNavigate: ReturnType<typeof vi.fn>;
+
+	beforeEach(() => {
+		mockSocket = createMockSocket();
+		mockSetSocket = vi.fn();
+		mockNavigate = vi.fn();
+		sessionStorage.setItem('uuid', 'testUuid');
+		sessionStorage.setItem('name', 'testName');
+		vi.spyOn(reactRouterDom, 'useNavigate').mockReturnValue(mockNavigate);
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+		sessionStorage.clear();
+	});
+
+	it('navigates home when room join fails', async () => {
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+				<MemoryRouter>
+					<GamePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		await waitFor(() => {
+			mockSocket.__simulate('room_join_failed', {
+				roomId: 'testRoom',
+				reason: 'game_started',
+			});
+		});
+
+		expect(mockNavigate).toHaveBeenCalledWith('/');
+	});
+
+	it('allows host to start room when enough players', async () => {
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+				<MemoryRouter>
+					<GamePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		mockSocket.__simulate('room_players_update', {
+			roomId: 'testRoom',
+			hostUuid: 'testUuid',
+			isStarted: false,
+			players: [
+				{ name: 'Host', uuid: 'testUuid', isHost: true },
+				{ name: 'Guest', uuid: 'guestUuid', isHost: false },
+			],
+		});
+
+		const startButton = await screen.findByRole('button', { name: 'Start Game' });
+		expect(startButton).toBeEnabled();
+		fireEvent.click(startButton);
+
+		expect(mockSocket.emit).toHaveBeenCalledWith('startRoom', {
+			uuid: 'testUuid',
+			roomId: 'testRoom',
+		});
+	});
+
+	it('retries solo game from legacy gameover screen', async () => {
+		vi.spyOn(reactRouterDom, 'useLocation').mockReturnValue({ state: { legacy: true } } as any);
+
+		render(
+			<SocketContext.Provider value={{ socket: mockSocket, setSocket: mockSetSocket }}>
+				<MemoryRouter>
+					<GamePage />
+				</MemoryRouter>
+			</SocketContext.Provider>
+		);
+
+		mockSocket.__simulate('beforeGame', {
+			player: {
+				grid: Array(24).fill(null).map(() => Array(10).fill(0)),
+				tetrominos: [],
+				type: 101,
+				roomId: 'testRoom',
+			},
+		});
+
+		mockSocket.__simulate('endGame', {
+			player: {
+				roomId: 'testRoom',
+				uuid: 'testUuid',
+				winner: false,
+				type: 101,
+			},
+		});
+
+		const retryButton = await screen.findByRole('button', { name: 'RETRY' });
+		fireEvent.click(retryButton);
+
+		expect(mockSocket.emit).toHaveBeenCalledWith('startSingleTetrisGame', {
+			name: '',
+			uuid: 'testUuid',
+		});
+	});
+});

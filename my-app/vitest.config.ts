@@ -11,6 +11,11 @@ export default defineConfig({
       all: true, // Inclut tous les fichiers, même ceux sans test
       include: ['src/**/*.{ts,tsx}'], // Cible les fichiers source dans 'src'
       exclude: ['node_modules', 'src/tests/*'], // Exclut les fichiers de test
+      thresholds: {
+        statements: 70,
+        functions: 70,
+        lines: 70,
+      },
     },
   },
 });

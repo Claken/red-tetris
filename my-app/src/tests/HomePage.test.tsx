@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { SocketProvider } from "../contexts/socketContext";
+import { SocketProvider, SocketContext } from "../contexts/socketContext";
 import HomePage from "../components/HomePage";
 import React, { createContext } from "react";
 import '@testing-library/jest-dom';
@@ -536,6 +536,124 @@ describe("HomePage Component", () => {
 		// Should render ConnectPage when name is not in sessionStorage
 		await waitFor(() => {
 			expect(screen.getByText("WELCOME TO RED TETRIS")).toBeInTheDocument();
+		});
+	});
+});
+
+describe("HomePage targeted coverage flows", () => {
+	const createPassiveSocket = () => {
+		const listeners: Record<string, Function[]> = {};
+		return {
+			on: vi.fn((event, cb) => {
+				listeners[event] = listeners[event] || [];
+				listeners[event].push(cb);
+			}),
+			off: vi.fn((event) => {
+				delete listeners[event];
+			}),
+			emit: vi.fn(),
+			__simulate: (event: string, data: any) => {
+				(listeners[event] || []).forEach((cb) => cb(data));
+			},
+		};
+	};
+
+	const setupSession = () => {
+		global.sessionStorage = {
+			getItem: vi.fn().mockImplementation((key) => {
+				if (key === "name") return "TestUser";
+				if (key === "uuid") return "12345";
+				return null;
+			}),
+			setItem: vi.fn(),
+			removeItem: vi.fn(),
+			clear: vi.fn(),
+			key: vi.fn(),
+			length: 0,
+		};
+	};
+
+	const renderWithSocket = (mockSocket: any) => {
+		const setSocket = vi.fn();
+		return render(
+			<MemoryRouter>
+				<SocketContext.Provider value={{ socket: mockSocket, setSocket }}>
+					<HomePage />
+				</SocketContext.Provider>
+			</MemoryRouter>
+		);
+	};
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
+	it("navigates to active room and returns to menu", async () => {
+		setupSession();
+		const mockSocket = createPassiveSocket();
+		renderWithSocket(mockSocket);
+
+		fireEvent.click(screen.getByText("Go back to a game"));
+		await waitFor(() => {
+			expect(mockSocket.emit).toHaveBeenCalledWith("getActiveRooms", { uuid: "12345" });
+		});
+
+		mockSocket.__simulate("getActiveRooms", { activeRooms: ["room-42"] });
+		const roomButton = await screen.findByText("room-42");
+		fireEvent.click(roomButton);
+		expect(screen.getByText("RED TETRIS")).toBeInTheDocument();
+	});
+
+	it("joins a room from others list through popup flow", async () => {
+		setupSession();
+		const mockSocket = createPassiveSocket();
+		renderWithSocket(mockSocket);
+
+		fireEvent.click(screen.getByText("Join a game"));
+		await waitFor(() => {
+			expect(mockSocket.emit).toHaveBeenCalledWith("getOtherRooms", { uuid: "12345" });
+		});
+
+		mockSocket.__simulate("getOtherRooms", {
+			otherRooms: [{ roomId: "room-X", isStarted: false }],
+		});
+		fireEvent.click(await screen.findByText("room-X"));
+		fireEvent.click(await screen.findByText("Join this game"));
+
+		expect(mockSocket.emit).toHaveBeenCalledWith("joinGame", {
+			name: "TestUser",
+			uuid: "12345",
+			roomId: "room-X",
+		});
+	});
+
+	it("shows waiting list popup and starts multiplayer game", async () => {
+		setupSession();
+		const mockSocket = createPassiveSocket();
+		renderWithSocket(mockSocket);
+
+		fireEvent.click(screen.getByText("ALL MY ROOMS"));
+		await waitFor(() => {
+			expect(mockSocket.emit).toHaveBeenCalledWith("getCreateRooms", { uuid: "12345" });
+		});
+
+		mockSocket.__simulate("getCreateRooms", { createRooms: ["my-room"] });
+		fireEvent.click(await screen.findByText("my-room"));
+		expect(mockSocket.emit).toHaveBeenCalledWith("getWaitingList", {
+			uuid: "12345",
+			roomId: "my-room",
+		});
+
+		mockSocket.__simulate("list_players_room", {
+			roomId: "my-room",
+			players: ["TestUser", "AnotherUser"],
+		});
+
+		fireEvent.click(await screen.findByText("Launch a game"));
+		expect(mockSocket.emit).toHaveBeenCalledWith("startMultiGame", {
+			name: "TestUser",
+			uuid: "12345",
+			roomId: "my-room",
 		});
 	});
 });
