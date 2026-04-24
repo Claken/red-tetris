@@ -87,6 +87,7 @@ function GamePage() {
 	}
 
 	const goBackToHome = () => {
+		console.log("goBackToHome");
 		if (isLegacyNav) {
 			// Only emit notRetryGame if the game is over, not during active play
 			// (the old system just navigated away; the game loop handles its own cleanup)
@@ -105,21 +106,23 @@ function GamePage() {
 		setPartyDone(false);
 		setWinner(false);
 		setGrid(emptyGrid);
+		setSpecList(undefined);
 		setPhase('lobby');
 	}
 
 	const retryGame = () => {
+		console.log("retryGame");
 		if (isPlayWithAnyone) {
 			goBackToLobby();
+			return;
 		} else if (isCustomRoom) {
 			emit("retryGame", { uuid: uuid, roomId: roomId });
-			setPartyDone(false);
-			setWaiting(true);
 		} else if (isSolo) {
 			emit("startSingleTetrisGame", { name: name, uuid: uuid });
-			setPartyDone(false);
-			setWaiting(true);
 		}
+		setPartyDone(false);
+		setWaiting(true);
+		setSpecList(undefined);
 	}
 
 	// ==================== SOCKET CONNECTION ====================
