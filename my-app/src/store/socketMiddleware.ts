@@ -80,7 +80,7 @@ export const createSocketMiddleware = (
 					);
 				});
 			}
-
+			// Return the action to the next middleware or reducer.
 			return next(action);
 		}
 

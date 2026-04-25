@@ -17,11 +17,9 @@ function HomePage() {
 			? undefined
 			: sessionStorage.getItem("uuid")?.toString()
 	);
-	const [roomId, setRoomId] = useState<string>("");
 	const [listRoomsAc, setListRoomsAc] = useState([]);
 	const [listRoomsCreate, setListRoomsCreate] = useState([]);
 	const [listOtherRooms, setListOtherRooms] = useState([]);
-	const [waitingList, setWaitingList] = useState<string[]>([]);
 
 	const [listButtonClicked, setListButtonClicked] = useState<boolean>(false);
 	const [listButtonClickedActive, setListButtonClickedActive] =
@@ -186,7 +184,6 @@ function HomePage() {
 												onClick={(e) => {
 													e.preventDefault();
 													const newRoom = room;
-													setRoomId(newRoom);
 													if (title === "ACTIVE ROOMLIST") {
 														const goToRoute = newRoom + "/" + name;
 														navigate(goToRoute, { state: { legacy: true } });
@@ -217,7 +214,6 @@ function HomePage() {
 												onClick={(e) => {
 													e.preventDefault();
 													const newRoom = array.roomId;
-													setRoomId(newRoom);
 													setPopupTitle(newRoom);
 													setPopupChild(
 														childForOtherRooms(
@@ -281,7 +277,6 @@ function HomePage() {
 	useSocketEvent<{ pageInfos: { roomName: string; path: string } }>(
 		"pageToGo",
 		(data) => {
-			setRoomId(data.pageInfos.roomName);
 			const goToRoute = data.pageInfos.path;
 			navigate(goToRoute, { state: { legacy: true } });
 		}
@@ -356,8 +351,8 @@ function HomePage() {
 				);
 				console.log({ uuid: uuid, roomId: data.roomId, name: name });
 			}, 1000);
-			const newWaitingList = data.players;
-			setWaitingList(newWaitingList);
+			// const newWaitingList = data.players;
+			// setWaitingList(newWaitingList);
 			setPopupChild(
 				childForMyRooms(data.roomId, data.players, setListButtonClickedRooms)
 			);
