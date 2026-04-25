@@ -35,7 +35,7 @@ function GamePage() {
 	const [isCustomRoom, setIsCustomRoom] = useState<boolean>(isLegacyNav && multiGame);
 	const [isSolo, setIsSolo] = useState<boolean>(isLegacyNav && !multiGame);
 	const [countdown, setCountdown] = useState<number | null>(null);
-	const roomId = routeParam.room;
+	const currentRoomId = routeParam.room;
 	const playerNameFromUrl = routeParam.player_name;
 	// UUID: prefer sessionStorage, fallback will be set by new-person event
 	const [uuid, setUuid] = useState<string | null>(sessionStorage.getItem("uuid"));
@@ -69,15 +69,15 @@ function GamePage() {
 
 	const handleKeydown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 		if (e.key === "ArrowRight") {
-			emit("moveRight", { uuid: uuid, roomId: roomId });
+			emit("moveRight", { uuid: uuid, roomId: currentRoomId });
 		} else if (e.key === "ArrowLeft") {
-			emit("moveLeft", { uuid: uuid, roomId: roomId });
+			emit("moveLeft", { uuid: uuid, roomId: currentRoomId });
 		} else if (e.key === "ArrowUp") {
-			emit("rotate", { uuid: uuid, roomId: roomId });
+			emit("rotate", { uuid: uuid, roomId: currentRoomId });
 		} else if (e.key === "ArrowDown") {
-			emit("moveDown", { uuid: uuid, roomId: roomId });
+			emit("moveDown", { uuid: uuid, roomId: currentRoomId });
 		} else if (e.key === " ") {
-			emit("fallDown", { uuid: uuid, roomId: roomId });
+			emit("fallDown", { uuid: uuid, roomId: currentRoomId });
 		}
 	};
 
@@ -92,10 +92,10 @@ function GamePage() {
 			// Only emit notRetryGame if the game is over, not during active play
 			// (the old system just navigated away; the game loop handles its own cleanup)
 			if (partyDone) {
-				emit("notRetryGame", { uuid: uuid, roomId: roomId });
+				emit("notRetryGame", { uuid: uuid, roomId: currentRoomId });
 			}
 		} else {
-			emit("leaveRoom", { uuid: uuid, roomId: roomId });
+			emit("leaveRoom", { uuid: uuid, roomId: currentRoomId });
 		}
 		setPartyDone(false);
 		setPhase('lobby');
@@ -116,7 +116,7 @@ function GamePage() {
 			goBackToLobby();
 			return;
 		} else if (isCustomRoom) {
-			emit("retryGame", { uuid: uuid, roomId: roomId });
+			emit("retryGame", { uuid: uuid, roomId: currentRoomId });
 		} else if (isSolo) {
 			emit("startSingleTetrisGame", { name: name, uuid: uuid });
 		}
@@ -146,21 +146,21 @@ function GamePage() {
 
 	// Join room once we have socket + uuid (only for new room-based flow, not legacy)
 	useEffect(() => {
-		if (!isLegacyNav && connected && uuid && roomId) {
-			emit("joinRoom", { uuid, roomId });
+		if (!isLegacyNav && connected && uuid && currentRoomId) {
+			emit("joinRoom", { uuid, roomId: currentRoomId });
 		}
-	}, [connected, uuid, roomId]);
+	}, [connected, uuid, currentRoomId]);
 
 	// ==================== ROOM EVENTS ====================
 
 	useSocketEvent<{ roomId: string }>("room_joined", (data) => {
-		if (data.roomId === roomId) {
+		if (data.roomId === currentRoomId) {
 			setPhase('lobby');
 		}
 	});
 
 	useSocketEvent<{ roomId: string; reason: string }>("room_join_failed", (data) => {
-		if (data.roomId === roomId) {
+		if (data.roomId === currentRoomId) {
 			if (data.reason === 'game_started') {
 				GameStartedToast.showToast();
 			} else if (data.reason === 'name_taken') {
@@ -171,7 +171,7 @@ function GamePage() {
 	});
 
 	useSocketEvent<{ roomId: string; players: RoomPlayer[]; hostUuid: string; isStarted: boolean }>("room_players_update", (data) => {
-		if (data.roomId === roomId) {
+		if (data.roomId === currentRoomId) {
 			setPlayers(data.players);
 			setIsHost(data.hostUuid === uuid);
 			// If game ended, go back to lobby
@@ -182,13 +182,13 @@ function GamePage() {
 	});
 
 	useSocketEvent<{ roomId: string; newHostUuid: string }>("room_host_changed", (data) => {
-		if (data.roomId === roomId) {
+		if (data.roomId === currentRoomId) {
 			setIsHost(data.newHostUuid === uuid);
 		}
 	});
 
 	useSocketEvent<{ roomId: string; reason?: string }>("room_start_failed", (data) => {
-		if (data.roomId === roomId) {
+		if (data.roomId === currentRoomId) {
 			Toastify({
 				text: "Cannot start: " + (data.reason || "unknown error"),
 				duration: 3000,
@@ -200,7 +200,7 @@ function GamePage() {
 	// ==================== GAME EVENTS ====================
 
 	useSocketEvent<{ roomId: string; currentTime: number }>("countdown", (data) => {
-		if (data.roomId === roomId) {
+		if (data.roomId === currentRoomId) {
 			setPhase('playing');
 			setWaiting(false);
 			setCountdown(data.currentTime === 0 ? null : data.currentTime);
@@ -219,7 +219,7 @@ function GamePage() {
 	});
 
 	useSocketEvent<{ player: { roomId: string; grid: number[][]; tetrominos: any; type: number }; listSpectrum: any }>("myGame", (data) => {
-		if (data.player.roomId === roomId) {
+		if (data.player.roomId === currentRoomId) {
 			setPhase('playing');
 			setWaiting(false);
 			setGridWithRightSize(data.player.grid);
@@ -230,7 +230,7 @@ function GamePage() {
 	});
 
 	useSocketEvent<{ player: { roomId: string; uuid: string; winner: boolean; type: number } }>("endGame", (data) => {
-		if (data.player.roomId === roomId) {
+		if (data.player.roomId === currentRoomId) {
 			setWaiting(false);
 			setMultiGame(data.player.type === 100 ? true : false);
 			if (data.player.uuid === uuid) {
@@ -257,7 +257,7 @@ function GamePage() {
 					<h1 className="text-white text-3xl font-bold">RED TETRIS</h1>
 					<div className="bg-gray-800 border-2 border-gray-700 rounded-lg px-4 py-2">
 						<span className="text-gray-400 text-sm">Room:</span>
-						<span className="text-white font-bold ml-2">{roomId}</span>
+						<span className="text-white font-bold ml-2">{currentRoomId}</span>
 					</div>
 
 					<div className="text-white text-lg">
@@ -290,7 +290,7 @@ function GamePage() {
 								`,
 								backgroundSize: '12px 12px'
 							}}
-							onClick={() => emit('startRoom', { uuid: uuid, roomId: roomId })}
+							onClick={() => emit('startRoom', { uuid: uuid, roomId: currentRoomId })}
 							disabled={players.length < 2}
 						>
 							{players.length < 2 ? 'Waiting for players...' : 'Start Game'}
