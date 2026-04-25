@@ -175,9 +175,9 @@ function GamePage() {
 			setPlayers(data.players);
 			setIsHost(data.hostUuid === uuid);
 			// If game ended, go back to lobby
-			if (!data.isStarted && phase === 'gameover') {
-				goBackToLobby();
-			}
+			// if (!data.isStarted && phase === 'gameover') {
+			// 	goBackToLobby();
+			// }
 		}
 	});
 
