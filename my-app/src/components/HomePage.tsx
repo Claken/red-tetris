@@ -112,10 +112,18 @@ function HomePage() {
 						</div>
 					</div>
 					<button
-						className="bg-[#00aa00] hover:bg-[#008800] active:bg-[#00aa00] text-white font-bold py-2 px-6 rounded-full transition-all duration-200 mb-4"
+						className={`text-white font-bold py-2 px-6 rounded-full transition-all duration-200 mb-4 ${waitList.length < 2 ? 'bg-gray-600 text-gray-400 cursor-not-allowed' : 'bg-[#00aa00] hover:bg-[#008800] active:bg-[#00aa00]'}`}
+						style={waitList.length < 2 ? {} : {
+							backgroundImage: `
+								linear-gradient(rgba(0,0,0,0.15) 1px, transparent 1px),
+								linear-gradient(90deg, rgba(0,0,0,0.15) 1px, transparent 1px)
+							`,
+							backgroundSize: '12px 12px'
+						}}
 						onClick={() => startMultiGame(room)}
+						disabled={waitList.length < 2}
 					>
-						Launch a game
+						{waitList.length < 2 ? "Waiting for players..." : "Launch a game"}
 					</button>
 				</div>
 			</div>
